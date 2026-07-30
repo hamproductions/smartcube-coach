@@ -6,8 +6,8 @@ import { repositories } from '../storage/database'
 import type { RecoStage } from '../integrations/reco'
 import { CubePlayback } from './CubePlayback'
 
-const initialScramble = "R' U' F D2 L2 F2 U B2 R2 D2 F2 D' B R2 U' R' B2 L D F2"
-const initialReconstruction = "D R F' L2 D2 R' D F U // Cross\nR U R' U' F' U F U // F2L 1\nR U R' U R U2 R' // OLL: Sune\nM2 U M U2 M' U M2 // PLL: Ua"
+const initialScramble = ''
+const initialReconstruction = ''
 
 function parseLines(text: string): RecoStage[] {
   return text.split(/\n+/).map((line) => {
@@ -42,7 +42,7 @@ export function ReconstructEditor({ solveId = 'manual-reconstruction', initialSc
   }, [scramble, text])
   const moves = parsed.stages.flatMap((stage) => stage.moves)
   const query = text.split(/\s+/).at(-1)?.toLowerCase() ?? ''
-  const suggestions = defaultAlgorithms.filter((record) => record.name.toLowerCase().includes(query) || record.id.includes(query)).slice(0, 4)
+  const suggestions = query ? defaultAlgorithms.filter((record) => record.name.toLowerCase().includes(query) || record.id.includes(query)).slice(0, 4) : []
 
   const solveState = async () => {
     setSolving(true)
@@ -96,7 +96,7 @@ export function ReconstructEditor({ solveId = 'manual-reconstruction', initialSc
             <span className="eyebrow green">RECONSTRUCT / EDITABLE + RECOMPUTABLE</span>
             <h2>Line reconstruction and autocomplete.</h2>
           </div>
-          <button className="button secondary" disabled={solving} onClick={solveState}>{solving ? 'Solving…' : 'Solve state'}</button>
+          <button className="button secondary" disabled={solving || !scramble.trim()} onClick={solveState}>{solving ? 'Solving…' : 'Solve state'}</button>
         </div>
         <div className="editor-options">
           <label>Method<select value={method} onChange={(event) => setMethod(event.target.value)}><option>CFOP</option><option>Roux</option><option>ZZ</option><option>APB</option></select></label>
@@ -113,14 +113,14 @@ export function ReconstructEditor({ solveId = 'manual-reconstruction', initialSc
           ))}
         </div>
         <div className="editor-actions">
-          <button onClick={() => void saveRevision()}>Save revision</button>
-          <button onClick={() => void navigator.clipboard.writeText(text)}>Copy text</button>
-          <button onClick={() => void navigator.clipboard.writeText(shareUrl)}>Copy share link</button>
-          <a href={shareUrl} rel="noreferrer" target="_blank">Open animated export</a>
+          <button disabled={!moves.length} onClick={() => void saveRevision()}>Save revision</button>
+          <button disabled={!text.trim()} onClick={() => void navigator.clipboard.writeText(text)}>Copy text</button>
+          <button disabled={!moves.length} onClick={() => void navigator.clipboard.writeText(shareUrl)}>Copy share link</button>
+          {moves.length > 0 && <a href={shareUrl} rel="noreferrer" target="_blank">Open animated export</a>}
         </div>
         <p className="editor-message">{method} · {orientation} · {message}</p>
       </article>
-      {!parsed.error && <article className="panel playback-panel"><CubePlayback title="Editable reconstruction" scramble={scramble} moves={moves} stages={parsed.stages} /></article>}
+      {!parsed.error && moves.length > 0 && <article className="panel playback-panel"><CubePlayback title="Editable reconstruction" scramble={scramble} moves={moves} stages={parsed.stages} /></article>}
     </section>
   )
 }

@@ -42,4 +42,4 @@ const server = Bun.serve({
   }
 })
 
-console.log(`Vector server listening on http://127.0.0.1:${server.port}`)
+console.log(`Smart Cube Coach server listening on http://127.0.0.1:${server.port}`)

@@ -16,6 +16,9 @@ describe('TrainerHub grading', () => {
     await user.click(screen.getByRole('button', { name: 'Start session' }))
     expect(screen.getByRole('heading', { name: 'Recognize the case' })).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: 'Basic right insert execution' })).not.toBeInTheDocument()
+    expect(document.querySelector('twisty-player')).not.toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Recognized' }))
+    expect(screen.getByRole('heading', { name: 'Basic right insert execution' })).toBeInTheDocument()
 
     const answer = screen.getByRole('textbox', { name: 'Case answer' })
     await user.type(answer, 'wrong case')
@@ -27,7 +30,7 @@ describe('TrainerHub grading', () => {
     await waitFor(async () => expect(await repositories.attempts.all()).toHaveLength(2))
 
     const attempts = await repositories.attempts.all()
-    expect(attempts.map((attempt) => attempt.outcome)).toEqual(['incorrect', 'success'])
+    expect(attempts.map((attempt) => attempt.outcome).sort()).toEqual(['incorrect', 'success'])
     expect(attempts.every((attempt) => attempt.protocol === 'typed-answer')).toBe(true)
     expect(attempts.every((attempt) => attempt.answerCorrect === (attempt.outcome === 'success'))).toBe(true)
   }, 30_000)

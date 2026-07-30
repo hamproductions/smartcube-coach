@@ -1,7 +1,7 @@
-import type { VectorBackup } from '../domain/models'
+import type { SmartCubeCoachBackup } from '../domain/models'
 import { clearDatabase, repositories } from './database'
 
-export async function exportAllData(): Promise<VectorBackup> {
+export async function exportAllData(): Promise<SmartCubeCoachBackup> {
   const [
     rawEvents,
     solves,
@@ -54,9 +54,9 @@ export async function exportAllData(): Promise<VectorBackup> {
   }
 }
 
-export async function importAllData(backup: VectorBackup) {
+export async function importAllData(backup: SmartCubeCoachBackup) {
   if (backup.format !== 'smartcube-coach-backup' || backup.exportVersion !== 1 || backup.schemaVersion !== 4 || backup.analysisVersion !== '1') {
-    throw new Error('Unsupported Vector backup version')
+    throw new Error('Unsupported Smart Cube Coach backup version')
   }
 
   await clearDatabase()
@@ -77,11 +77,11 @@ export async function importAllData(backup: VectorBackup) {
   ])
 }
 
-export function downloadBackup(backup: VectorBackup) {
+export function downloadBackup(backup: SmartCubeCoachBackup) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' }))
   const anchor = document.createElement('a')
   anchor.href = url
-  anchor.download = `vector-backup-${new Date(backup.exportedAt).toISOString().slice(0, 10)}.json`
+  anchor.download = `smart-cube-coach-backup-${new Date(backup.exportedAt).toISOString().slice(0, 10)}.json`
   anchor.click()
   URL.revokeObjectURL(url)
 }

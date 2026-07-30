@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from 'react'
-import type { RecoReconstruction } from '../integrations/reco'
+import { normalizeRecoUrl, type RecoReconstruction } from '../integrations/reco'
 import type { SolveRecord, StudyRecord } from '../domain/models'
 import { repositories } from '../storage/database'
 import { CubePlayback } from './CubePlayback'
@@ -22,9 +22,22 @@ export function RecoStudy() {
     setError('')
 
     try {
-      const response = await fetch(`/api/reco/import?url=${encodeURIComponent(url)}`)
+      const sourceUrl = normalizeRecoUrl(url)
+      const solveId = sourceUrl.split('/').at(-1)
+      const staticHost = location.hostname.endsWith('github.io')
+      if (staticHost && solveId !== '13444') {
+        throw new Error('GitHub Pages cannot run the reco.nz importer. Use the included solve 13444 here, or run the Bun server locally for arbitrary public URLs.')
+      }
+      let response = await fetch(staticHost
+        ? `${import.meta.env.BASE_URL}reco/13444.json`
+        : `/api/reco/import?url=${encodeURIComponent(sourceUrl)}`)
+      if (!response.ok && solveId === '13444') {
+        response = await fetch(`${import.meta.env.BASE_URL}reco/13444.json`)
+      }
+      if (!response.ok) {
+        throw new Error('This static deployment can only load bundled solve 13444. Run the Bun server locally for arbitrary public URLs.')
+      }
       const payload = await response.json()
-      if (!response.ok) throw new Error(payload.error || 'Import failed')
       const imported = payload as RecoReconstruction
       const saved = await repositories.studies.get(imported.id)
       const study: StudyRecord = saved ?? {
@@ -100,6 +113,7 @@ export function RecoStudy() {
               {status === 'loading' ? 'Importing…' : 'Import reconstruction'}
             </button>
           </div>
+          {location.hostname.endsWith('github.io') && <p className="editor-message">Static deployment: solve 13444 is bundled with attribution. Arbitrary imports require the local Bun server.</p>}
           {error && <p className="import-error" role="alert">{error}</p>}
         </form>
       </div>

@@ -13,10 +13,10 @@ describe('LiveSolve simulator', () => {
     render(<LiveSolve />)
 
     await user.click(screen.getByRole('button', { name: 'New scramble' }))
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Apply scramble' })).toBeEnabled(), { timeout: 10_000 })
-    await user.click(screen.getByRole('button', { name: 'Apply scramble' }))
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Run verified solve' })).toBeEnabled(), { timeout: 10_000 })
-    await user.click(screen.getByRole('button', { name: 'Run verified solve' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Simulate scramble' })).toBeEnabled(), { timeout: 10_000 })
+    await user.click(screen.getByRole('button', { name: 'Simulate scramble' }))
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Simulate inverse solve' })).toBeEnabled(), { timeout: 10_000 })
+    await user.click(screen.getByRole('button', { name: 'Simulate inverse solve' }))
 
     expect(await screen.findByText(/Saved solve #/, {}, { timeout: 20_000 })).toBeInTheDocument()
     const [solve] = await repositories.solves.all()
@@ -28,5 +28,8 @@ describe('LiveSolve simulator', () => {
     expect(rawEvents.filter((event) => event.phase === 'scramble')).toHaveLength(solve.scramble.split(/\s+/).length)
     expect(rawEvents.filter((event) => event.phase === 'solve')).toHaveLength(solve.moves.length)
     expect(solve.rawEventIds).toEqual(rawEvents.filter((event) => event.phase === 'solve').map((event) => event.id))
+    const stages = await repositories.stages.forSolve(solve.id)
+    expect(stages.length).toBeGreaterThan(0)
+    expect(Math.max(...stages.map((stage) => stage.recognitionMs))).toBeLessThanOrEqual(solve.endedAt - solve.startedAt)
   }, 60_000)
 })

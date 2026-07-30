@@ -1,38 +1,43 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { clearDatabase } from './storage/database'
 import App from './App'
 
-describe('coach cockpit', () => {
-  it('shows evidence, prescription and stage telemetry for the primary weakness', () => {
+describe('Smart Cube Coach', () => {
+  beforeEach(clearDatabase)
+  afterEach(clearDatabase)
+
+  it('renders an honest first-run state without seeded solve telemetry', async () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: 'Second-pair lookahead stalls' })).toBeInTheDocument()
-    expect(screen.getByText('1.14s')).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'F2L Lookahead Reset' })).toBeInTheDocument()
-    expect(screen.getAllByText('F2L 2').length).toBeGreaterThanOrEqual(2)
+    expect(await screen.findByRole('heading', { name: 'No solves yet.' }, { timeout: 10_000 })).toBeInTheDocument()
+    expect(screen.getByText(/No AO12, findings, prescriptions, or confidence scores are seeded/)).toBeInTheDocument()
+    expect(screen.queryByText('23.10')).not.toBeInTheDocument()
+    expect(screen.queryByText('Second-pair lookahead stalls')).not.toBeInTheDocument()
+    expect(screen.queryByText('Demo telemetry · 72%')).not.toBeInTheDocument()
   })
 
-  it('renders an interactive cube reconstruction player', async () => {
+  it('navigates from first run to the functional capture surface', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: 'Solve playback' })).toBeInTheDocument()
-    expect(document.querySelector('twisty-player')).toHaveAttribute('alg')
-    expect(screen.getByText('Move 0 / 69')).toBeInTheDocument()
+    await user.click(await screen.findByRole('button', { name: 'Capture a solve' }, { timeout: 10_000 }))
 
-    await user.click(screen.getByRole('button', { name: 'Next move' }))
-
-    expect(screen.getByText('Move 1 / 69')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Connect, verify, inspect, solve.' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'New scramble' })).toBeEnabled()
+    expect(screen.getByText(/Software simulator · exercises persistence, not Bluetooth hardware/)).toBeInTheDocument()
   })
 
-  it('renders the roast from the same verified finding', async () => {
+  it('opens a blank reconstruction editor instead of fabricated moves', async () => {
     const user = userEvent.setup()
     render(<App />)
 
-    await user.click(screen.getByRole('button', { name: 'Roast this solve' }))
+    await user.click(screen.getByRole('button', { name: /Library/ }))
 
-    expect(screen.getByRole('status')).toHaveTextContent(/your hands went AFK for 1\.14 seconds/i)
-    expect(screen.getByRole('status')).toHaveTextContent(/7 of the last 12 solves/i)
+    await waitFor(() => expect(screen.getByLabelText('Scramble')).toHaveValue(''))
+    expect(screen.getByLabelText('Reconstruction')).toHaveValue('')
+    expect(screen.getByRole('button', { name: 'Solve state' })).toBeDisabled()
+    expect(screen.queryByRole('heading', { name: 'Editable reconstruction' })).not.toBeInTheDocument()
   })
 })

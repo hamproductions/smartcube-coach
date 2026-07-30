@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { averageOf, stageTrends, transferSummary } from '../domain/statistics'
 import { roastFinding } from '../domain/recurrence'
-import type { FindingRecord, PrescriptionRecord, SolveRecord, StageRecord, TrainerAttempt, TransferEvaluation, VectorBackup } from '../domain/models'
+import type { FindingRecord, PrescriptionRecord, SolveRecord, StageRecord, TrainerAttempt, TransferEvaluation, SmartCubeCoachBackup } from '../domain/models'
 import { repositories } from '../storage/database'
 import { downloadBackup, exportAllData, importAllData } from '../storage/transfer'
 import { CubePlayback } from './CubePlayback'
@@ -41,7 +41,7 @@ export function HistoryProgress() {
   const importBackup = async (file?: File) => {
     if (!file) return
     try {
-      await importAllData(JSON.parse(await file.text()) as VectorBackup)
+      await importAllData(JSON.parse(await file.text()) as SmartCubeCoachBackup)
       setMessage('Backup imported and analysis data restored.')
       await refresh()
     } catch (error) {

@@ -23,7 +23,7 @@ const idleSnapshot: CaptureSnapshot = {
 export function LiveSolve() {
   const [snapshot, setSnapshot] = useState(idleSnapshot)
   const [connection, setConnection] = useState<ConnectedCube>()
-  const [connectionStatus, setConnectionStatus] = useState('Offline simulator ready')
+  const [connectionStatus, setConnectionStatus] = useState('No cube connected')
   const [battery, setBattery] = useState<number>()
   const [facelets, setFacelets] = useState('')
   const [lastSaved, setLastSaved] = useState<SolveRecord>()
@@ -220,7 +220,7 @@ export function LiveSolve() {
             <strong>{connectionStatus}</strong>
             <small>{supportsWebBluetooth() ? 'Web Bluetooth available' : 'Use Chromium desktop or Android for physical cubes'}</small>
           </div>
-          <button className="button secondary" onClick={connect}>{connection ? 'Reconnect' : 'Connect cube'}</button>
+          <button className="button secondary" disabled={!supportsWebBluetooth()} onClick={connect}>{connection ? 'Reconnect' : 'Connect cube'}</button>
           <button className="button primary" onClick={createScramble}>New scramble</button>
         </div>
 
@@ -229,7 +229,7 @@ export function LiveSolve() {
             <span>Target scramble</span>
             <strong>{snapshot.scramble || 'Generate a scramble to begin'}</strong>
             <div className="scramble-progress">
-              <span>{snapshot.scrambleMoves.length} physical moves</span>
+              <span>{snapshot.scrambleMoves.length} captured scramble moves</span>
               <span>{snapshot.expectedMove ? `Next ${snapshot.expectedMove}` : 'State check pending'}</span>
               {snapshot.wrongMove && <span className="error">Wrong {snapshot.wrongMove}</span>}
             </div>
@@ -243,10 +243,10 @@ export function LiveSolve() {
         </div>
 
         <div className="simulator-toolbar">
-          <span>Replay/simulator harness</span>
-          <button disabled={!snapshot.scramble || snapshot.status !== 'scrambling'} onClick={applyWithSimulator}>Apply scramble</button>
-          <button disabled={snapshot.status !== 'ready'} onClick={() => session.beginInspection()}>Start inspection</button>
-          <button disabled={!['ready', 'inspection'].includes(snapshot.status)} onClick={solveWithSimulator}>Run verified solve</button>
+          <span>Software simulator · exercises persistence, not Bluetooth hardware</span>
+          <button disabled={!snapshot.scramble || snapshot.status !== 'scrambling'} onClick={applyWithSimulator}>Simulate scramble</button>
+          <button disabled={snapshot.status !== 'ready'} onClick={() => session.beginInspection()}>Start simulated inspection</button>
+          <button disabled={!['ready', 'inspection'].includes(snapshot.status)} onClick={solveWithSimulator}>Simulate inverse solve</button>
         </div>
 
         {facelets && <small className="facelet-readout">Facelets {facelets}</small>}

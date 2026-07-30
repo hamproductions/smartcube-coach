@@ -1,4 +1,4 @@
-const CACHE = 'vector-shell-v3'
+const CACHE = 'smart-cube-coach-shell-v4'
 const BASE = new URL('./', self.location.href).pathname
 const path = (value) => new URL(value, self.registration.scope).pathname
 const INDEX = path('index.html')

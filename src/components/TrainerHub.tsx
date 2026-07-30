@@ -6,17 +6,6 @@ import { repositories } from '../storage/database'
 import { setCriticalActivity } from '../pwa/register'
 import { CubePlayback } from './CubePlayback'
 
-const cognitiveDrills = [
-  'Cross + first-pair inspection',
-  'Piece tracking',
-  'Pair prediction',
-  'Color inference',
-  'Free-pair preservation',
-  'Two-sided recognition',
-  'Algorithm time attack',
-  'Metronome TPS control'
-]
-
 export function TrainerHub() {
   const [algorithms, setAlgorithms] = useState<AlgorithmRecord[]>([])
   const [attempts, setAttempts] = useState<TrainerAttempt[]>([])
@@ -27,8 +16,7 @@ export function TrainerHub() {
   const [recognizedAt, setRecognizedAt] = useState(0)
   const [hintLevel, setHintLevel] = useState(0)
   const [answer, setAnswer] = useState('')
-  const [selectedDrill, setSelectedDrill] = useState(cognitiveDrills[0])
-  const [seed, setSeed] = useState('vector-001')
+  const [seed, setSeed] = useState('bld-001')
   const [memo, setMemo] = useState('')
   const [memoResult, setMemoResult] = useState('')
   const bld = useMemo(() => generateBldDrill(seed), [seed])
@@ -151,20 +139,12 @@ export function TrainerHub() {
                 <button disabled={!answer.trim()} onClick={() => void finish(answer.trim().toLowerCase() === current.name.toLowerCase())}>Submit answer</button>
               </div>
             </div>
-            <CubePlayback title={`${mode === 'Drill' && hintLevel === 0 ? 'Hidden case' : current.name} execution`} scramble={current.setup} moves={current.algorithm.split(/\s+/)} stages={[{ label: mode === 'Drill' && hintLevel === 0 ? 'Target algorithm' : current.name, alg: current.algorithm, moves: current.algorithm.split(/\s+/) }]} />
+            {(mode !== 'Drill' || hintLevel > 0 || Boolean(recognizedAt)) && <CubePlayback title={`${current.name} execution`} scramble={current.setup} moves={current.algorithm.split(/\s+/)} stages={[{ label: current.name, alg: current.algorithm, moves: current.algorithm.split(/\s+/) }]} />}
           </div>
         ) : <p className="empty-state">Choose a set and start. Recognition and execution are timed separately; failed cases enter the redo queue.</p>}
         <div className="case-library">
           {available.map((record) => <button key={record.id} onClick={() => setCurrent(record)}><strong>{record.name}</strong><span>{Math.round(record.mastery * 100)}% · target {(record.targetMs / 1000).toFixed(2)}s</span></button>)}
         </div>
-      </article>
-
-      <article className="panel cognitive-panel">
-        <div className="surface-heading"><div><span className="eyebrow">COGNITIVE DRILLS</span><h2>{selectedDrill}</h2></div></div>
-        <div className="cognitive-grid">
-          {cognitiveDrills.map((drill) => <button className={selectedDrill === drill ? 'active' : ''} key={drill} onClick={() => setSelectedDrill(drill)}>{drill}</button>)}
-        </div>
-        <p className="study-prompt">Run 12 prompts. Record recognition before execution. Pass when at least 10 are correct without exceeding the personal baseline.</p>
       </article>
 
       <article className="panel bld-panel">

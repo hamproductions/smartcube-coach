@@ -1,55 +1,46 @@
-# Browser evidence
+# Runtime evidence
 
-Public deployment: https://hamproductions.github.io/smartcube-coach/
+Current public deployment: https://hamproductions.github.io/smartcube-coach/
 
-Verified with `agent-browser` on 2026-07-30. Simulator evidence proves application capture, reconstruction, persistence, coaching, and training behavior. It does not certify physical Bluetooth/GATT compatibility.
+The public deployment remains the pre-correction build until the current `main` push and Pages workflow complete. Do not use the old public UI as proof of the corrected product.
 
-## Current workflow matrix
+## Corrected build evidence
 
-| Workflow | Runtime | Result | Evidence |
+| Workflow | Evidence layer | Result | Limitation |
 | --- | --- | --- | --- |
-| Live Solve simulator | Vite, 1440 × 1000 | Scramble applied to canonical state, capture reached `ready`, inverse solve completed and persisted | IndexedDB readback: one solve and 42 immutable raw events |
-| Solve history and replay | Vite, 1440 × 1000 | Persisted solve rendered with interactive 3D playback | Browser DOM assertion |
-| Reconstruction revision | Vite, 1440 × 1000 | Revision saved with 21 solve-phase source-event links | IndexedDB revision readback |
-| Trainer grading | Vite, desktop | Incorrect and exact typed answers persisted separately; zero-hint Drill labels hidden | `TrainerHub.test.tsx` and browser workflow |
-| reco.nz study | Vite, 1440 × 1000 | Public solve 13444 imported with attribution, stages, 3D playback, private notes, and cross bookmark | `vector-library-reco-desktop.png` and IndexedDB readback |
-| Progress | Vite, 390 × 844 | Persisted solve/training data rendered without positive horizontal overflow | `vector-progress-mobile.png` |
-| Live Solve mobile | Vite, 390 × 844 | Dense capture surface rendered without positive horizontal overflow | `vector-live-solve-mobile.png` |
-| Production offline restart | Production build, 1440 × 1000 | Service worker cached hashed JS/CSS; app reloaded after the production server was stopped | `vector-production-offline-v2.png` |
+| First run | Production Pages artifact in `agent-browser`, fresh origin | Rendered `Smart Cube Coach`, `No solves yet.`, zero local records, no sample AO12, no demo telemetry | Screenshot was captured before the final phase/trainer patches; those patches do not alter first-run presentation |
+| Training scramble | Production Pages artifact in `agent-browser` | Generated a 25-move training scramble immediately after replacing the deadlocking random-state worker path | Random-move training scramble, not WCA random-state |
+| Simulator capture | Production Pages artifact plus IndexedDB readback | Persisted 1 solve, 50 phase-separated raw events, and solve-linked events | Simulator proves software behavior only |
+| Today/history | Production Pages artifact in `agent-browser` | Persisted solve rendered with 3D replay and no fabricated finding or prescription | Simulator inverse solve is not valid coaching evidence |
+| Stage timing | Integration test | Recognition values are constrained to the solve duration after clock-domain repair | Heuristic CFOP segmentation remains partial |
+| Trainer grading | Component test and production artifact | Hidden drill case no longer renders target algorithm before recognition; typed correct/incorrect attempts persist | Starter case coverage only |
+| Reconstruction editor | Component test and production artifact | Starts blank; valid saved revisions retain immutable source-event links | Autocomplete is small and not state-aware |
+| reco.nz study | Integration test and bundled attributed fixture | Solve 13444 parses, persists, and supports study playback | Arbitrary GitHub Pages imports are unavailable |
+| Backup | Integration test | Schema-v4 export/import round-trip passes | Browser download picker was not re-dogfooded after correction |
 
-## Responsive measurements
+## Current screenshot
 
-- Desktop viewport: 1440 × 1000
-- Mobile viewport: 390 × 844
-- Mobile document width: 375
-- Mobile positive horizontal overflow: 0
+- `smart-cube-coach-first-run.png` — corrected first-run empty state with no fabricated telemetry.
 
-## Screenshots
+All screenshots from the mocked `Vector` deployment were deleted because they were misleading and stale.
 
-- `coach-cockpit-desktop-agent-browser.png`
-- `coach-cockpit-mobile-agent-browser.png`
-- `vector-library-reco-desktop.png`
-- `vector-progress-mobile.png`
-- `vector-live-solve-mobile.png`
-- `vector-production-offline-v2.png`
-- `vector-pages-local.png`
-- `vector-pages-public.png`
-- `vector-pages-public-live-solve.png`
+## Latest automated gates
 
-## Runtime diagnostics
-
-- Checked online workflows returned no page errors.
-- Current online console output contained Vite lifecycle messages and the React development-tools notice only.
-- Production offline reload rendered `Close the gap.` after the server process was terminated.
-- The offline reload produced no application console output.
+- `bun run test`: 22/22 tests, 14/14 files passed.
+- `bun run typecheck`: passed.
+- `VITE_BASE_PATH=/smartcube-coach/ bun run build`: passed.
+- Build warning: several `cubing` chunks exceed 500 kB; this is a performance warning, not a failed build.
 
 ## Hardware boundary
 
-No physical smart cube was available. The following remain uncertified rather than simulated:
+No physical smart cube was available. The following are unverified:
 
-- Bluetooth permission UX
-- GATT pairing and reconnect behavior
-- Device/protocol compatibility
-- Physical battery, facelet, gyro, and clock reports
-- Packet-loss behavior on real hardware
-- Physical scramble verification
+- Bluetooth permission and GATT pairing
+- supported model/protocol compatibility
+- physical battery, facelet, gyro, and cube-clock reports
+- disconnect and reconnect recovery
+- packet-loss behavior
+- physical scramble verification
+- physical solve timing accuracy
+
+See `../feature-status.md` for the complete working/partial/unverified/not-implemented matrix.

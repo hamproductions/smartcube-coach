@@ -59,21 +59,22 @@ export async function segmentCfop(
   for (const [eventIndex, event] of events.entries()) {
     pattern = pattern.applyAlg(event.move)
 
-    while (nextStage < predicates.length && predicates[nextStage].satisfied(pattern, solved)) {
+    if (nextStage < predicates.length - 1 && predicates[nextStage].satisfied(pattern, solved)) {
       const segment = events.slice(startEvent, eventIndex + 1)
-      const priorTimestamp = startEvent > 0 ? events[startEvent - 1].timestamp : 0
+      const priorTimestamp = startEvent > 0 ? events[startEvent - 1].timestamp : events[0]?.timestamp ?? event.timestamp
       const firstTimestamp = segment[0]?.timestamp ?? event.timestamp
       const executionMs = Math.max(0, event.timestamp - firstTimestamp)
       const recognitionMs = Math.max(0, firstTimestamp - priorTimestamp)
       const rotations = segment.filter(({ move }) => /^[xyz]/i.test(move)).length
       const pauses = segment.filter(({ timestamp }, index) => index > 0 && timestamp - segment[index - 1].timestamp >= 500).length
       const activeMs = Math.max(1, event.timestamp - priorTimestamp)
+      const stage = predicates[nextStage]
 
       stages.push({
-        id: `${solveId}:${predicates[nextStage].name.toLowerCase().replaceAll(' ', '-')}`,
+        id: `${solveId}:${stage.name.toLowerCase().replaceAll(' ', '-')}`,
         solveId,
         method: 'CFOP',
-        name: predicates[nextStage].name,
+        name: stage.name,
         startEvent,
         firstMoveEvent: startEvent,
         endEvent: eventIndex,
@@ -88,6 +89,28 @@ export async function segmentCfop(
 
       startEvent = eventIndex + 1
       nextStage += 1
+    }
+
+    if (pattern.isIdentical(solved) && !stages.some((stage) => stage.name === 'AUF')) {
+      const start = Math.min(startEvent, eventIndex)
+      const segment = events.slice(start, eventIndex + 1)
+      const priorTimestamp = start > 0 ? events[start - 1].timestamp : events[0]?.timestamp ?? event.timestamp
+      stages.push({
+        id: `${solveId}:auf`,
+        solveId,
+        method: 'CFOP',
+        name: 'AUF',
+        startEvent: start,
+        firstMoveEvent: start,
+        endEvent: eventIndex,
+        recognitionMs: Math.max(0, (segment[0]?.timestamp ?? event.timestamp) - priorTimestamp),
+        executionMs: Math.max(0, event.timestamp - (segment[0]?.timestamp ?? event.timestamp)),
+        moveCount: segment.length,
+        rotationCount: 0,
+        pauseCount: 0,
+        tps: segment.length / (Math.max(1, event.timestamp - priorTimestamp) / 1000),
+        confidence: 1
+      })
     }
   }
 

@@ -1,6 +1,6 @@
 {
-  "name": "Vector — Smart Cube Coach",
-  "short_name": "Vector",
+  "name": "Smart Cube Coach",
+  "short_name": "Cube Coach",
   "description": "Local-first smart cube capture, reconstruction and training coach",
   "start_url": "./",
   "scope": "./",

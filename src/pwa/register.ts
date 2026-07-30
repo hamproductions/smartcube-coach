@@ -7,7 +7,7 @@ export function setCriticalActivity(active: boolean) {
   criticalActivity = Math.max(0, criticalActivity + (active ? 1 : -1))
 }
 
-export async function registerVectorPwa(onUpdate: (available: boolean) => void) {
+export async function registerSmartCubeCoachPwa(onUpdate: (available: boolean) => void) {
   notifyUpdate = onUpdate
   if (!('serviceWorker' in navigator)) return
   registration = await navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`)

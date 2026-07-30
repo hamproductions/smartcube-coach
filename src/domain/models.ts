@@ -194,7 +194,7 @@ export type TransferEvaluation = {
 
 export type KeyValueRecord = { key: string; value: unknown }
 
-export type VectorBackup = {
+export type SmartCubeCoachBackup = {
   format: 'smartcube-coach-backup'
   exportVersion: 1
   schemaVersion: 4

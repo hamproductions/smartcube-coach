@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { activateUpdate, registerVectorPwa } from '../pwa/register'
+import { activateUpdate, registerSmartCubeCoachPwa } from '../pwa/register'
 
 export function PwaStatus() {
   const [online, setOnline] = useState(navigator.onLine)
@@ -23,7 +23,7 @@ export function PwaStatus() {
     const handleOnline = () => setOnline(navigator.onLine)
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOnline)
-    registerVectorPwa(setUpdate)
+    registerSmartCubeCoachPwa(setUpdate)
     void refreshStorage()
     return () => {
       window.removeEventListener('online', handleOnline)

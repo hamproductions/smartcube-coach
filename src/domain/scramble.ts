@@ -1,9 +1,30 @@
 import { Alg } from 'cubing/alg'
 import { puzzles } from 'cubing/puzzles'
-import { randomScrambleForEvent } from 'cubing/scramble'
+
+const axes = [
+  ['U', 'D'],
+  ['L', 'R'],
+  ['F', 'B']
+] as const
+const suffixes = ['', "'", '2'] as const
+
+function randomIndex(length: number) {
+  const values = new Uint32Array(1)
+  crypto.getRandomValues(values)
+  return values[0] % length
+}
 
 export async function generateScramble(): Promise<string> {
-  return (await randomScrambleForEvent('333')).toString()
+  const moves: string[] = []
+  let previousAxis = -1
+  for (let index = 0; index < 25; index += 1) {
+    const availableAxes = [0, 1, 2].filter((axis) => axis !== previousAxis)
+    const axis = availableAxes[randomIndex(availableAxes.length)]
+    const face = axes[axis][randomIndex(2)]
+    moves.push(`${face}${suffixes[randomIndex(suffixes.length)]}`)
+    previousAxis = axis
+  }
+  return moves.join(' ')
 }
 
 export async function evaluateScramble(target: string, actual: string): Promise<boolean> {

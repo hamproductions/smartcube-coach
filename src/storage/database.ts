@@ -14,7 +14,7 @@ import type {
   TransferEvaluation
 } from '../domain/models'
 
-interface VectorDatabase extends DBSchema {
+interface SmartCubeCoachDatabase extends DBSchema {
   rawEvents: { key: string; value: RawCubeEvent; indexes: { 'by-solve': string } }
   solves: { key: string; value: SolveRecord; indexes: { 'by-ended': number } }
   stages: { key: string; value: StageRecord; indexes: { 'by-solve': string } }
@@ -30,11 +30,11 @@ interface VectorDatabase extends DBSchema {
   meta: { key: string; value: KeyValueRecord }
 }
 
-const databaseName = 'vector-smart-cube-coach'
-let databasePromise: Promise<IDBPDatabase<VectorDatabase>> | undefined
+const databaseName = 'smart-cube-coach'
+let databasePromise: Promise<IDBPDatabase<SmartCubeCoachDatabase>> | undefined
 
 export function getDatabase() {
-  databasePromise ??= openDB<VectorDatabase>(databaseName, 4, {
+  databasePromise ??= openDB<SmartCubeCoachDatabase>(databaseName, 4, {
     upgrade(database, oldVersion, _newVersion, transaction) {
       if (oldVersion < 1) {
         const rawEvents = database.createObjectStore('rawEvents', { keyPath: 'id' })
@@ -78,7 +78,7 @@ export function getDatabase() {
   return databasePromise
 }
 
-type StoreName = keyof VectorDatabase & string
+type StoreName = keyof SmartCubeCoachDatabase & string
 
 type Repository<T> = {
   get(id: string): Promise<T | undefined>

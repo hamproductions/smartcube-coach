@@ -83,7 +83,7 @@ a:focus-visible {
   border: 1px solid var(--green);
   color: var(--green);
   font-family: 'DM Mono', monospace;
-  font-size: 17px;
+  font-size: 12px;
 }
 
 .sidebar nav {
@@ -264,6 +264,22 @@ main {
   background: var(--panel-raised);
   font-family: 'DM Mono', monospace;
   font-size: 11px;
+}
+
+.empty-dashboard {
+  margin-top: 36px;
+  padding: 48px;
+}
+
+.empty-dashboard h2 {
+  margin: 12px 0;
+  font-size: clamp(32px, 5vw, 64px);
+}
+
+.empty-dashboard p {
+  max-width: 760px;
+  color: var(--muted);
+  line-height: 1.7;
 }
 
 .metric-strip {

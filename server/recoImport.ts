@@ -13,7 +13,7 @@ export async function importReco(
   const response = await fetcher(sourceUrl, {
     headers: {
       Accept: 'text/html',
-      'User-Agent': 'Vector Smart Cube Coach/0.1 (+local study importer)'
+      'User-Agent': 'Smart Cube Coach/0.1 (+local study importer)'
     },
     redirect: 'follow'
   })
