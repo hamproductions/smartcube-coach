@@ -1,5 +1,7 @@
 # Browser evidence
 
+Public deployment: https://hamproductions.github.io/smartcube-coach/
+
 Verified with `agent-browser` on 2026-07-30. Simulator evidence proves application capture, reconstruction, persistence, coaching, and training behavior. It does not certify physical Bluetooth/GATT compatibility.
 
 ## Current workflow matrix
@@ -31,6 +33,8 @@ Verified with `agent-browser` on 2026-07-30. Simulator evidence proves applicati
 - `vector-live-solve-mobile.png`
 - `vector-production-offline-v2.png`
 - `vector-pages-local.png`
+- `vector-pages-public.png`
+- `vector-pages-public-live-solve.png`
 
 ## Runtime diagnostics
 
