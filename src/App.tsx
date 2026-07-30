@@ -2,6 +2,14 @@ import { useState } from 'react'
 import { analyzeSolve } from './domain/analyzeSolve'
 import { buildPrescription } from './domain/prescribe'
 import { sampleSolve, trend } from './data/sampleSolve'
+import { sampleReconstructionMoves, sampleReconstructionStages, sampleScramble } from './data/sampleReconstruction'
+import { CubePlayback } from './components/CubePlayback'
+import { HistoryProgress } from './components/HistoryProgress'
+import { LiveSolve } from './components/LiveSolve'
+import { PwaStatus } from './components/PwaStatus'
+import { ReconstructEditor } from './components/ReconstructEditor'
+import { RecoStudy } from './components/RecoStudy'
+import { TrainerHub } from './components/TrainerHub'
 import './styles.css'
 
 const formatSeconds = (value: number) => `${(value / 1000).toFixed(2)}s`
@@ -82,19 +90,15 @@ function App() {
           ))}
         </nav>
         <div className="sidebar-foot">
-          <span className="status-dot" />
-          <div>
-            <strong>LOCAL FIRST</strong>
-            <small>Telemetry stays here</small>
-          </div>
+          <PwaStatus />
         </div>
       </aside>
 
       <main id="top">
         <header className="topbar">
           <div>
-            <span className="eyebrow">THURSDAY / TRAINING DAY 18</span>
-            <h1>Close the gap.</h1>
+            <span className="eyebrow">{activeNav.toUpperCase()} / LOCAL-FIRST COACH</span>
+            <h1>{activeNav === 'Today' ? 'Close the gap.' : activeNav}</h1>
           </div>
           <div className="device-cluster">
             <div className="device-copy">
@@ -104,11 +108,12 @@ function App() {
                 <small>Demo telemetry · 72%</small>
               </div>
             </div>
-            <button className="button secondary">Device</button>
+            <button className="button secondary" onClick={() => setActiveNav('Live Solve')}>Device</button>
             <button className="avatar" aria-label="Profile">HP</button>
           </div>
         </header>
 
+        {activeNav === 'Today' && <>
         <section className="metric-strip" aria-label="Current performance summary">
           <div>
             <span>Current Ao12</span>
@@ -224,6 +229,15 @@ function App() {
           </article>
         </section>
 
+        <section className="playback-panel panel">
+          <CubePlayback
+            moves={sampleReconstructionMoves}
+            scramble={sampleScramble}
+            stages={sampleReconstructionStages}
+            title="Solve playback"
+          />
+        </section>
+
         <section className="stage-panel panel">
           <div className="panel-heading compact">
             <div>
@@ -291,6 +305,13 @@ function App() {
             ))}
           </article>
         </section>
+        </>}
+
+        {activeNav === 'Live Solve' && <LiveSolve />}
+        {activeNav === 'Solves' && <HistoryProgress />}
+        {activeNav === 'Train' && <TrainerHub />}
+        {activeNav === 'Library' && <><ReconstructEditor /><RecoStudy /></>}
+        {activeNav === 'Progress' && <HistoryProgress />}
       </main>
     </div>
   )

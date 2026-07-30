@@ -4,23 +4,35 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "bun scripts/dev.ts",
+    "dev:api": "bun --watch server/index.ts",
+    "dev:web": "vite --host 0.0.0.0",
     "build": "tsc -b && vite build",
+    "start": "NODE_ENV=production bun server/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
+    "cubing": "^0.63.3",
+    "idb": "^8.0.3",
+    "linkedom": "^0.18.13",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "smartcube-web-bluetooth": "github:poliva/smartcube-web-bluetooth#44f1f09"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
     "@testing-library/user-event": "latest",
+    "@types/aes-js": "^3.1.4",
+    "@types/bun": "^1.3.14",
+    "@types/node": "^26.1.2",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/web-bluetooth": "^0.0.21",
     "@vitejs/plugin-react": "latest",
+    "fake-indexeddb": "^6.2.5",
     "jsdom": "latest",
     "typescript": "latest",
     "vite": "latest",

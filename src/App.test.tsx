@@ -10,7 +10,20 @@ describe('coach cockpit', () => {
     expect(screen.getByRole('heading', { name: 'Second-pair lookahead stalls' })).toBeInTheDocument()
     expect(screen.getByText('1.14s')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'F2L Lookahead Reset' })).toBeInTheDocument()
-    expect(screen.getByText('F2L 2')).toBeInTheDocument()
+    expect(screen.getAllByText('F2L 2').length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('renders an interactive cube reconstruction player', async () => {
+    const user = userEvent.setup()
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Solve playback' })).toBeInTheDocument()
+    expect(document.querySelector('twisty-player')).toHaveAttribute('alg')
+    expect(screen.getByText('Move 0 / 69')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Next move' }))
+
+    expect(screen.getByText('Move 1 / 69')).toBeInTheDocument()
   })
 
   it('renders the roast from the same verified finding', async () => {

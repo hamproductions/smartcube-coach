@@ -12,6 +12,7 @@ Build a web smart-cube coaching application for a 20–30 second 3×3 solver aim
 - https://github.com/cs0x7f/cstimer
 - https://github.com/Dave2ooo/F2LTrainer
 - https://www.solved.no/
+- https://reco.nz/ for public reconstruction-study integration only
 
 Do not enumerate or inspect Ham’s GitHub organization, sibling repositories, or unrelated local workspaces. The list above is exhaustive and closed unless Ham explicitly expands it.
 
