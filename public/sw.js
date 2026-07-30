@@ -1,16 +1,19 @@
-const CACHE = 'vector-shell-v2'
-const SHELL = ['/', '/index.html', '/manifest.webmanifest', '/icon.svg', '/maskable.svg', '/offline.svg']
+const CACHE = 'vector-shell-v3'
+const BASE = new URL('./', self.location.href).pathname
+const path = (value) => new URL(value, self.registration.scope).pathname
+const INDEX = path('index.html')
+const SHELL = ['', 'index.html', 'manifest.webmanifest', 'icon.svg', 'maskable.svg', 'offline.svg'].map(path)
 
 async function precache() {
   const cache = await caches.open(CACHE)
-  const response = await fetch('/index.html')
+  const response = await fetch(INDEX)
   const html = await response.clone().text()
-  await cache.put('/index.html', response)
+  await cache.put(INDEX, response)
   const assets = [...html.matchAll(/(?:src|href)="([^"]+)"/g)]
     .map((match) => new URL(match[1], self.location.origin))
     .filter((url) => url.origin === self.location.origin)
     .map((url) => `${url.pathname}${url.search}`)
-  await Promise.allSettled([...new Set([...SHELL, ...assets])].map((path) => cache.add(path)))
+  await Promise.allSettled([...new Set([...SHELL, ...assets])].map((asset) => cache.add(asset)))
 }
 
 self.addEventListener('install', (event) => {
@@ -29,13 +32,13 @@ self.addEventListener('fetch', (event) => {
   const request = event.request
   if (request.method !== 'GET') return
   const url = new URL(request.url)
-  if (url.origin !== self.location.origin || url.pathname.startsWith('/api/reco')) return
+  if (url.origin !== self.location.origin || url.pathname.startsWith(`${BASE}api/reco`)) return
   if (request.mode === 'navigate') {
     event.respondWith(fetch(request).then((response) => {
       const copy = response.clone()
-      void caches.open(CACHE).then((cache) => cache.put('/index.html', copy))
+      void caches.open(CACHE).then((cache) => cache.put(INDEX, copy))
       return response
-    }).catch(() => caches.match('/index.html')))
+    }).catch(() => caches.match(INDEX)))
     return
   }
   event.respondWith(caches.match(request).then((cached) => cached ?? fetch(request).then((response) => {

@@ -1,18 +1,14 @@
 {
-  "name": "Vector Smart Cube Coach",
+  "name": "Vector — Smart Cube Coach",
   "short_name": "Vector",
   "description": "Local-first smart cube capture, reconstruction and training coach",
-  "theme_color": "#0a0e0b",
-  "background_color": "#080b09",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
-  "start_url": "/",
-  "scope": "/",
+  "background_color": "#090d0b",
+  "theme_color": "#090d0b",
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
-    { "src": "/maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
-  ],
-  "shortcuts": [
-    { "name": "Live Solve", "short_name": "Solve", "url": "/?view=live" },
-    { "name": "Train", "short_name": "Train", "url": "/?view=train" }
+    { "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "./maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ]
 }

@@ -30,6 +30,7 @@ Verified with `agent-browser` on 2026-07-30. Simulator evidence proves applicati
 - `vector-progress-mobile.png`
 - `vector-live-solve-mobile.png`
 - `vector-production-offline-v2.png`
+- `vector-pages-local.png`
 
 ## Runtime diagnostics
 

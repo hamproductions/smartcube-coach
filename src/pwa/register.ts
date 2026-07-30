@@ -10,7 +10,7 @@ export function setCriticalActivity(active: boolean) {
 export async function registerVectorPwa(onUpdate: (available: boolean) => void) {
   notifyUpdate = onUpdate
   if (!('serviceWorker' in navigator)) return
-  registration = await navigator.serviceWorker.register('/sw.js')
+  registration = await navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`)
   const inspect = () => {
     if (!registration?.waiting) return
     updateAvailable = true
