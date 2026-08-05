@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUBE_COACH - Time Attack</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<!-- Google Fonts: Geist & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS with custom config -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#39393b",
+                    "on-surface-variant": "#bccbb9",
+                    "tertiary-container": "#ef9900",
+                    "surface-container-high": "#2a2a2c",
+                    "on-primary-fixed-variant": "#005321",
+                    "on-background": "#e5e1e4",
+                    "on-primary-fixed": "#002109",
+                    "secondary": "#adc6ff",
+                    "surface-container-highest": "#353437",
+                    "on-surface": "#e5e1e4",
+                    "surface-tint": "#4ae176",
+                    "tertiary-fixed": "#ffddb8",
+                    "inverse-surface": "#e5e1e4",
+                    "primary-container": "#22c55e",
+                    "surface": "#131315",
+                    "surface-container-low": "#1c1b1d",
+                    "outline-variant": "#3d4a3d",
+                    "error": "#ffb4ab",
+                    "on-error": "#690005",
+                    "surface-container": "#201f22",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "primary-fixed-dim": "#4ae176",
+                    "surface-container-lowest": "#0e0e10",
+                    "secondary-fixed": "#d8e2ff",
+                    "outline": "#869585",
+                    "secondary-container": "#0566d9",
+                    "on-secondary": "#002e6a",
+                    "tertiary": "#ffba61",
+                    "primary-fixed": "#6bff8f",
+                    "primary": "#4be277",
+                    "inverse-on-surface": "#313032",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "surface-dim": "#131315",
+                    "on-primary": "#003915",
+                    "on-secondary-container": "#e6ecff",
+                    "on-tertiary": "#472a00",
+                    "inverse-primary": "#006e2f",
+                    "error-container": "#93000a",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-tertiary-container": "#5c3800",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-secondary-fixed-variant": "#004395",
+                    "on-error-container": "#ffdad6",
+                    "background": "#131315",
+                    "surface-variant": "#353437",
+                    "on-primary-container": "#004b1e",
+                    "on-secondary-fixed": "#001a42"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {
+                    "margin-desktop": "32px",
+                    "margin-mobile": "16px",
+                    "gutter": "16px",
+                    "touch-target-min": "48px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "label-caps": [
+                            "Geist"
+                    ],
+                    "timer-display": [
+                            "JetBrains Mono"
+                    ],
+                    "scramble-lg": [
+                            "JetBrains Mono"
+                    ],
+                    "table-data": [
+                            "JetBrains Mono"
+                    ],
+                    "timer-display-mobile": [
+                            "JetBrains Mono"
+                    ],
+                    "body-md": [
+                            "Geist"
+                    ],
+                    "headline-lg": [
+                            "Geist"
+                    ]
+            },
+            "fontSize": {
+                    "label-caps": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "timer-display": [
+                            "120px",
+                            {
+                                    "lineHeight": "120px",
+                                    "letterSpacing": "-0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "scramble-lg": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "letterSpacing": "0.1em",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "table-data": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "timer-display-mobile": [
+                            "72px",
+                            {
+                                    "lineHeight": "72px",
+                                    "letterSpacing": "-0.05em",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "body-md": [
+                            "16px",
+                            {
+                                    "lineHeight": "24px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "headline-lg": [
+                            "32px",
+                            {
+                                    "lineHeight": "40px",
+                                    "fontWeight": "600"
+                            }
+                    ]
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-surface text-on-surface flex h-screen overflow-hidden">
+<!-- Desktop Side Navigation -->
+<nav class="hidden md:flex flex-col h-full py-6 docked h-full left-0 w-64 bg-surface-container dark:bg-surface-container border-r border-outline-variant flat no shadows">
+<div class="px-6 mb-8 flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">bluetooth_connected</span>
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary tracking-tight" style="font-size: 20px; line-height: 24px;">CUBE_COACH</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">V2.4.1 PRO</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps py-3 rounded-xl hover:bg-primary-fixed-dim transition-colors h-touch-target-min flex justify-center items-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                NEW SESSION
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto space-y-2 px-2">
+<!-- Solve -->
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">timer</span>
+                Solve
+            </a>
+<!-- Coaching -->
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">psychology</span>
+                Coaching
+            </a>
+<!-- Training (ACTIVE) -->
+<a class="bg-secondary-container text-on-secondary-container rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors scale-98 transition-transform font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+                Training
+            </a>
+<!-- History -->
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">history</span>
+                History
+            </a>
+</div>
+<div class="mt-auto px-2 space-y-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+                Profile
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">help</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full overflow-y-auto pb-safe md:pb-0 relative bg-surface">
+<!-- Top App Bar (Mobile mainly, but visible on desktop for consistency in this view) -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop h-touch-target-min bg-surface dark:bg-surface border-b border-outline-variant md:border-none shrink-0 sticky top-0 z-10 bg-surface/90 backdrop-blur-sm">
+<div class="flex items-center gap-3">
+<h2 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary tracking-tight hidden md:block">GAUNTLET</h2>
+<h2 class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary tracking-tight md:hidden">TIME ATTACK</h2>
+</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-primary">bluetooth_connected</span>
+<span class="material-symbols-outlined text-primary">battery_full</span>
+<span class="material-symbols-outlined text-on-surface-variant">settings</span>
+</div>
+</header>
+<div class="flex-1 p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto w-full flex flex-col gap-8 pb-32 md:pb-12">
+<!-- Hero Dashboard -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Target Time Widget -->
+<div class="lg:col-span-8 bg-surface-container-high border border-outline-variant/30 rounded-2xl p-8 flex flex-col justify-center items-center relative overflow-hidden group shadow-lg shadow-black/50">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<p class="font-label-caps text-label-caps text-primary tracking-widest mb-2 z-10">F2L TARGET TIME</p>
+<h3 class="font-timer-display-mobile md:font-timer-display text-timer-display-mobile md:text-timer-display text-white z-10 drop-shadow-md">12.45</h3>
+<p class="font-table-data text-table-data text-on-surface-variant z-10 mt-2">10 CASES • EXPERT MODE</p>
+</div>
+<!-- Redo Queue -->
+<div class="lg:col-span-4 bg-error-container/20 border border-error/20 rounded-2xl p-6 flex flex-col gap-4 relative">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-error">
+<span class="material-symbols-outlined">warning</span>
+<h4 class="font-label-caps text-label-caps font-bold">REDO QUEUE</h4>
+</div>
+<span class="bg-error/20 text-error px-2 py-0.5 rounded-full font-label-caps text-[10px]">3 PENDING</span>
+</div>
+<div class="space-y-3 flex-1">
+<!-- Redo Item -->
+<div class="bg-surface-container border border-error/10 rounded-xl p-3 flex justify-between items-center hover:border-error/40 transition-colors cursor-pointer">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface">CASE 41</p>
+<p class="font-table-data text-[12px] text-on-surface-variant font-mono mt-1">R U R' U' R U R'</p>
+</div>
+<span class="text-error font-table-data text-[14px]">1.82s</span>
+</div>
+<!-- Redo Item -->
+<div class="bg-surface-container border border-error/10 rounded-xl p-3 flex justify-between items-center hover:border-error/40 transition-colors cursor-pointer">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface">CASE 22</p>
+<p class="font-table-data text-[12px] text-on-surface-variant font-mono mt-1">U' L' U L</p>
+</div>
+<span class="text-error font-table-data text-[14px]">2.15s</span>
+</div>
+<!-- Redo Item -->
+<div class="bg-surface-container border border-error/10 rounded-xl p-3 flex justify-between items-center hover:border-error/40 transition-colors cursor-pointer">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface">CASE 09</p>
+<p class="font-table-data text-[12px] text-on-surface-variant font-mono mt-1">R U' R' U2 y' R' U' R</p>
+</div>
+<span class="text-error font-table-data text-[14px]">DNF</span>
+</div>
+</div>
+<p class="font-table-data text-[12px] text-error/70 text-center mt-2">These will be mixed into your gauntlet.</p>
+</div>
+</div>
+<!-- The Gauntlet Queue -->
+<div>
+<div class="flex justify-between items-end mb-4 px-2">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant">GENERATED QUEUE (10)</h3>
+<button class="text-primary font-label-caps text-label-caps flex items-center gap-1 hover:text-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined text-[16px]">refresh</span>
+                        REROLL
+                    </button>
+</div>
+<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+<!-- Queue Items -->
+<!-- Pattern: Repeated 10 times with varied visual weight -->
+<div class="bg-surface-container border border-outline-variant/30 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group">
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">01</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist isometric digital rendering of a Rubik's cube focusing specifically on an F2L corner-edge pair setup. The lighting is dramatic, high-contrast, casting sharp shadows on a matte dark grey surface. The primary colors of the cube pieces (green and red) pop intensely against the dark, high-tech, futuristic cockpit background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQBcaDkfario3rrG3aOfcQwweoepTWeo0tTbrs_aIKj6TDg1DchMaD83xA5-JCruvITfqjgU7SkiieBFmaTp-ASW0uXir1vZH7ezyf_72lcPO3-PqnJ7Cv-dh-4ICZ2PVzkzfhEn2SWxB3rcf42e6Uegi5GCkHRdV5capOF_EivqmBLzVi1UQB41u4Mi2FFgnvbcZdClgZ7KSIGvlqFW53j5sVXMg5bE2OvwtfKqW2fstyTJxyg4J1"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface">CASE 12</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">R U R'</p>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant/30 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group">
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">02</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A dark, moody digital illustration of a Rubik's cube state focusing on an F2L algorithm case. The cube is floating slightly above a high-tech grid surface. Neon green accents highlight the specific pieces needing to be solved. The overall aesthetic is cybernetic and professional, suited for a speedcubing dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1uwAUZVFgXEKkxcMSwTnF_84hpxC2BjY27fULhvjZ6q4sV-iyJ53RbsYpGDJDohsvVT4iYSi3XIkvV4djmeYP0EQX2tW_Gh_kLzCS6CstP1KlhIOy0gfPn6AEFnL1_yj-OOuJsXjcqUgCpBkFMCWcNR5_k4Mtt-ttLqMuYOdOwTKmAccSD3q8ZJyghk64nC3367CMK8I8njUCFbxe8oFfNOK0GUA71j7OBai5tV2UWHnD-Fc-lsue"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface">CASE 34</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">U R U' R'</p>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant/30 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group">
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">03</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A sleek, flat-design SVG style icon of a 3D Rubik's cube displaying an F2L cross pair case. The colors are muted but vibrant against a pure black background. The edges are crisp, evoking a sense of precision and speed typical of a modern sports analytics interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrJdLXKAVbarOVhkpk_RDIR0qNf87k27HqLegEpd9aex1G4fgwKyGc2mx8RipDq5bCXJrzdz4WoFWy2e8bMIuOI_EdwGct0ejm0YTQJQSRZOhjna-8q_V6enQ2eBbSHqvXIdeFGitmDzeyZF2kGrm2R9aGDUXndFw2oxwHeiJud2typ4w1-SjKdOGpNrNAfHVsKLGaQiquKx6zA5isFX5yhLwJJYT9lRpn7P17v7UwbPOV6vlkCYma"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface">CASE 05</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">y' R' U' R</p>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant/30 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group">
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">04</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist isometric digital rendering of a Rubik's cube focusing specifically on an F2L corner-edge pair setup. The lighting is dramatic, high-contrast, casting sharp shadows on a matte dark grey surface. The primary colors of the cube pieces (green and red) pop intensely against the dark, high-tech, futuristic cockpit background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA1XSHVUIyiPgOhotiZmblLaGtbpNbhIMJET1mLnPt7wEkdBpnm92Rs1dA9SDJw-J1tzEifiZbbZYRt1tg_2kD_FUQsFCo1gf-yzmZBTB_a-xROg9_HZemWIn4lrLa7L-dtPE-VSO4ZNXqIb1jDhYDiVQazmCerN0SigHQxg2Rib5AlVQCXTOtqLVe3NYKWd3k8dRBy4R_jwt-4RHi88eWQyGS2NAmtU290RA7TfHLRlIWfe_Hm-rJz"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface">CASE 28</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">U' R U R'</p>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant/30 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group">
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">05</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A dark, moody digital illustration of a Rubik's cube state focusing on an F2L algorithm case. The cube is floating slightly above a high-tech grid surface. Neon green accents highlight the specific pieces needing to be solved. The overall aesthetic is cybernetic and professional, suited for a speedcubing dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMxiPX0IjGd3mc1W_6cnkmT6OLX_Oi-l0WcBH2T2_vL8ty_NvqK7PPBw_KIdndnYyiSmyF-rpK466Yews3yhHurpgZUgzbe-_DyXCUFb7M6tUqH-cTRyUQ4cFRkPtgYq02ApZ41u_5kFlnF3F-s0D2EaF-Gat-vQQO0m3NK2jx8as1ciPRz-LK9PFUsj7T8Y1L8v4B6OfJCZKzjdaIdHSlR2m_PMpIsgdDiXhigUnJwbCQxcN-sF7X"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface">CASE 17</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">R U2 R'</p>
+</div>
+</div>
+<div class="bg-surface-container border border-error/20 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group">
+<div class="absolute top-0 right-0 bg-error text-on-error font-label-caps text-[8px] px-1 py-0.5 rounded-bl">REDO</div>
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">06</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A sleek, flat-design SVG style icon of a 3D Rubik's cube displaying an F2L cross pair case. The colors are muted but vibrant against a pure black background. The edges are crisp, evoking a sense of precision and speed typical of a modern sports analytics interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB_T8tYvUgZYa49osdwZFgh956FkwQ9OGVHlcwlzGtV2Yy0e6GMDFqeMX_ZnO-agxO4-oEp_aNsPZKm_yNueENnx5DHXrEwBCOQ30Hdtuv6F-KEROAHfIyu9BPUreRqhJtcNYE6G3vI_dbVRp7x7-F8q8nD-tLeFdAj-Ma3b93Vvhw8s_V4bxw70Qt6x3LxTt61vcxl3iqaq1khuUT8wR1smsmqKefaiS6hTegzLPK18zySfH-4xV7U"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-error">CASE 41</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">R U R' U' R U R'</p>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant/30 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group hidden md:flex">
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">07</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist isometric digital rendering of a Rubik's cube focusing specifically on an F2L corner-edge pair setup. The lighting is dramatic, high-contrast, casting sharp shadows on a matte dark grey surface. The primary colors of the cube pieces (green and red) pop intensely against the dark, high-tech, futuristic cockpit background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5uKJz1dIc2r9KC_66uROnpwq4l19p6XRZPbZTplxoLr2EZpPg0xxajj1vbDoUzSkhctM4AWRPLDPO596VXGxXf4Wvxh8ezfOcsECh1ud0vMdm1Nqc9CwbNwXorGEY5fVuK09HOcmiU7t-49woHrS3_NUW6HIVvTavGCUboSBblncWZzr_qVBGdSGWsneno89JrAkCtKl2G2Vyl9fnrg7Q3yUQxuM1qIaytk8r0L4WeOEtqeLEXthu"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface">CASE 02</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">U' L' U L</p>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant/30 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group hidden md:flex">
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">08</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A dark, moody digital illustration of a Rubik's cube state focusing on an F2L algorithm case. The cube is floating slightly above a high-tech grid surface. Neon green accents highlight the specific pieces needing to be solved. The overall aesthetic is cybernetic and professional, suited for a speedcubing dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDu37fThk8z8Uh99M2-CkvUZM09N_JI_3nIYmEWuL-7nAE-EX1pM7BCw5lVCNxhzuYvIOuejbTLyk5awoBr46GzHrXIycqLcrIKnPX19cpk-RmWE5h8rH5R0u_6c2LIN8cvxQgdB8ZkOLuy9zJ0P0NPRIXOcPNT6RVRn_mnuGra5zfrmHposKZ6RGjxG1cS-_71p8U0EwqCQoPp3hhB2IIUT4fm-2sLCSZKU2R3D8_hPsMPdKYSyXXZ"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface">CASE 11</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">R U' R'</p>
+</div>
+</div>
+<div class="bg-surface-container border border-outline-variant/30 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group hidden md:flex">
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">09</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A sleek, flat-design SVG style icon of a 3D Rubik's cube displaying an F2L cross pair case. The colors are muted but vibrant against a pure black background. The edges are crisp, evoking a sense of precision and speed typical of a modern sports analytics interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0kymBhtsSrIdIeDEEhleK5Yv_doX6qwhRvMtV2g3lvdNmM53dGe0KQb7NYI5o0HMNXH9-5tc6jnqvVhpzX4IbfewbIYlkxj6i4NLfFIO8YBCk6PDh-6VMNcezr0DQpQhabfpI85yJeIcj_tLp92kVk5duWLiFhO4ZcVMWX7GsIYAUREMp-gAmp3XQAew26frUiOBbeckRWJIA2dgBC1Wh6hIMaKiXbYYiKa6ox0-G-Z0BQ3GN8vym"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-on-surface">CASE 30</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">U2 R U R'</p>
+</div>
+</div>
+<div class="bg-surface-container border border-error/20 rounded-xl p-4 flex flex-col items-center gap-3 relative overflow-hidden group hidden md:flex">
+<div class="absolute top-0 right-0 bg-error text-on-error font-label-caps text-[8px] px-1 py-0.5 rounded-bl">REDO</div>
+<div class="absolute top-2 left-2 bg-surface-container-high rounded px-1.5 py-0.5 font-table-data text-[10px] text-on-surface-variant z-10">10</div>
+<img class="w-16 h-16 object-contain opacity-80 mix-blend-screen group-hover:opacity-100 transition-opacity" data-alt="A highly stylized, minimalist isometric digital rendering of a Rubik's cube focusing specifically on an F2L corner-edge pair setup. The lighting is dramatic, high-contrast, casting sharp shadows on a matte dark grey surface. The primary colors of the cube pieces (green and red) pop intensely against the dark, high-tech, futuristic cockpit background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCe6gNIcYePDi-OAvNdOZnZj3E3XeD6aMSLhA_wYfbAZz-gJb2RIbX8eL8-gpmajJByYY4DzjBXSioBCr620N1EZJQFPi0g665tIKgMuyLiAMEUUj-bbwsVyTBRSLBZVY8wX_0Qje8pPuzqSJG6uXGTDVlGTvowUDSz4pSwNmJUCBa_GHeXlT1OgBT9YRY39CSl4zsYGE_bXGlfgNjplCeQ6AwFzbeYcfoJAaKuboEkY_a2npfWmz1f"/>
+<div class="text-center">
+<p class="font-label-caps text-label-caps text-error">CASE 22</p>
+<p class="font-table-data text-[10px] text-on-surface-variant font-mono truncate w-full max-w-[80px]">U' L' U L</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Start Action -->
+<div class="mt-4 flex justify-center pb-8">
+<button class="bg-primary text-on-primary-fixed font-headline-lg text-headline-lg font-bold py-6 px-16 rounded-xl hover:bg-primary-fixed-dim transition-all shadow-[0_0_20px_rgba(75,226,119,0.3)] hover:shadow-[0_0_30px_rgba(75,226,119,0.5)] hover:-translate-y-1 w-full md:w-auto text-center flex justify-center items-center gap-4">
+<span class="material-symbols-outlined text-[40px]">bolt</span>
+                    START GAUNTLET
+                </button>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 md:hidden px-margin-mobile pb-safe bg-surface-container-highest dark:bg-surface-container-highest border-t border-outline-variant docked full-width bottom-0 rounded-t-xl flat no shadows">
+<!-- Solve -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">timer</span>
+            Solve
+        </a>
+<!-- Coach -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">bolt</span>
+            Coach
+        </a>
+<!-- Train (ACTIVE) -->
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/20 rounded-xl px-4 py-1 hover:text-primary-fixed-dim Active: scale-90 duration-150 font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+            Train
+        </a>
+<!-- Stats -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+            Stats
+        </a>
+</nav>
+</body></html>

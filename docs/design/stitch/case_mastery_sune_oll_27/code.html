@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sune - Case Detail &amp; Mastery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                            "surface-bright": "#39393b",
+                            "on-surface-variant": "#bccbb9",
+                            "tertiary-container": "#ef9900",
+                            "surface-container-high": "#2a2a2c",
+                            "on-primary-fixed-variant": "#005321",
+                            "on-background": "#e5e1e4",
+                            "on-primary-fixed": "#002109",
+                            "secondary": "#adc6ff",
+                            "surface-container-highest": "#353437",
+                            "on-surface": "#e5e1e4",
+                            "surface-tint": "#4ae176",
+                            "tertiary-fixed": "#ffddb8",
+                            "inverse-surface": "#e5e1e4",
+                            "primary-container": "#22c55e",
+                            "surface": "#131315",
+                            "surface-container-low": "#1c1b1d",
+                            "outline-variant": "#3d4a3d",
+                            "error": "#ffb4ab",
+                            "on-error": "#690005",
+                            "surface-container": "#201f22",
+                            "secondary-fixed-dim": "#adc6ff",
+                            "primary-fixed-dim": "#4ae176",
+                            "surface-container-lowest": "#0e0e10",
+                            "secondary-fixed": "#d8e2ff",
+                            "outline": "#869585",
+                            "secondary-container": "#0566d9",
+                            "on-secondary": "#002e6a",
+                            "tertiary": "#ffba61",
+                            "primary-fixed": "#6bff8f",
+                            "primary": "#4be277",
+                            "inverse-on-surface": "#313032",
+                            "tertiary-fixed-dim": "#ffb95f",
+                            "surface-dim": "#131315",
+                            "on-primary": "#003915",
+                            "on-secondary-container": "#e6ecff",
+                            "on-tertiary": "#472a00",
+                            "inverse-primary": "#006e2f",
+                            "error-container": "#93000a",
+                            "on-tertiary-fixed": "#2a1700",
+                            "on-tertiary-container": "#5c3800",
+                            "on-tertiary-fixed-variant": "#653e00",
+                            "on-secondary-fixed-variant": "#004395",
+                            "on-error-container": "#ffdad6",
+                            "background": "#131315",
+                            "surface-variant": "#353437",
+                            "on-primary-container": "#004b1e",
+                            "on-secondary-fixed": "#001a42"
+                    },
+                    "borderRadius": {
+                            "DEFAULT": "0.125rem",
+                            "lg": "0.25rem",
+                            "xl": "0.5rem",
+                            "full": "0.75rem"
+                    },
+                    "spacing": {
+                            "margin-desktop": "32px",
+                            "margin-mobile": "16px",
+                            "gutter": "16px",
+                            "touch-target-min": "48px",
+                            "base": "4px"
+                    },
+                    "fontFamily": {
+                            "label-caps": [
+                                    "Geist"
+                            ],
+                            "timer-display": [
+                                    "JetBrains Mono"
+                            ],
+                            "scramble-lg": [
+                                    "JetBrains Mono"
+                            ],
+                            "table-data": [
+                                    "JetBrains Mono"
+                            ],
+                            "timer-display-mobile": [
+                                    "JetBrains Mono"
+                            ],
+                            "body-md": [
+                                    "Geist"
+                            ],
+                            "headline-lg": [
+                                    "Geist"
+                            ]
+                    },
+                    "fontSize": {
+                            "label-caps": [
+                                    "12px",
+                                    {
+                                            "lineHeight": "16px",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "timer-display": [
+                                    "120px",
+                                    {
+                                            "lineHeight": "120px",
+                                            "letterSpacing": "-0.05em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "scramble-lg": [
+                                    "24px",
+                                    {
+                                            "lineHeight": "32px",
+                                            "letterSpacing": "0.1em",
+                                            "fontWeight": "500"
+                                    }
+                            ],
+                            "table-data": [
+                                    "14px",
+                                    {
+                                            "lineHeight": "20px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "timer-display-mobile": [
+                                    "72px",
+                                    {
+                                            "lineHeight": "72px",
+                                            "letterSpacing": "-0.05em",
+                                            "fontWeight": "700"
+                                    }
+                            ],
+                            "body-md": [
+                                    "16px",
+                                    {
+                                            "lineHeight": "24px",
+                                            "fontWeight": "400"
+                                    }
+                            ],
+                            "headline-lg": [
+                                    "32px",
+                                    {
+                                            "lineHeight": "40px",
+                                            "fontWeight": "600"
+                                    }
+                            ]
+                    }
+            },
+                },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .symbol-filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Subdued Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131315; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a2c; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3d4a3d; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+<!-- TopNavBar (Mobile Only for Navigation Shell) -->
+<header class="md:hidden flex justify-between items-center w-full px-margin-mobile h-touch-target-min bg-surface dark:bg-surface border-b border-outline-variant z-40">
+<div class="flex items-center gap-2">
+<button class="w-12 h-12 flex items-center justify-center text-on-surface hover:text-primary transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary dark:text-primary">OLL 27 (Sune)</span>
+</div>
+<div class="flex gap-2">
+<span class="material-symbols-outlined text-primary">bluetooth_connected</span>
+<span class="material-symbols-outlined text-primary">battery_full</span>
+</div>
+</header>
+<!-- SideNavBar (Desktop Only) -->
+<nav class="hidden md:flex flex-col h-full py-6 bg-surface-container dark:bg-surface-container border-r border-outline-variant w-64 fixed left-0 top-0 z-40 flex-shrink-0">
+<div class="px-6 mb-8">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary">CUBE_COACH</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant mt-1">V2.4.1 PRO</p>
+</div>
+<div class="flex-1 overflow-y-auto">
+<div class="flex flex-col gap-2 mb-6">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined">timer</span>
+<span class="font-label-caps text-label-caps">Solve</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-caps text-label-caps">Coaching</span>
+</a>
+<a class="bg-secondary-container text-on-secondary-container rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-transform hover:scale-98" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-caps text-label-caps">Training</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined">history</span>
+<span class="font-label-caps text-label-caps">History</span>
+</a>
+</div>
+</div>
+<div class="px-4 mb-4">
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps h-12 rounded-xl flex items-center justify-center gap-2 hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined">add</span>
+                NEW SESSION
+            </button>
+</div>
+<div class="flex flex-col gap-2 mt-auto">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 w-full flex flex-col pb-24 md:pb-8">
+<!-- Desktop Header -->
+<header class="hidden md:flex justify-between items-center w-full px-margin-desktop h-touch-target-min bg-surface dark:bg-surface border-b border-outline-variant sticky top-0 z-30">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">OLL CASE 27</span>
+<h2 class="font-headline-lg text-headline-lg font-bold text-on-surface">Sune</h2>
+</div>
+</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-primary" title="Smart Cube Connected">bluetooth_connected</span>
+<span class="material-symbols-outlined text-primary" title="Battery Full">battery_full</span>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+</div>
+</header>
+<div class="p-margin-mobile md:p-margin-desktop grid grid-cols-1 lg:grid-cols-12 gap-gutter max-w-7xl mx-auto w-full">
+<!-- Left Column: Diagram & Mastery -->
+<div class="lg:col-span-4 flex flex-col gap-gutter">
+<!-- Case Diagram Card -->
+<div class="bg-surface-container rounded-xl p-6 border border-outline-variant flex flex-col items-center justify-center relative min-h-[300px]">
+<div class="absolute top-4 right-4 bg-surface-container-high px-3 py-1 rounded-full border border-outline-variant">
+<span class="font-label-caps text-label-caps text-on-surface-variant">EDGES ORIENTED</span>
+</div>
+<!-- Placeholder for Sticker Diagram SVG -->
+<div class="w-48 h-48 bg-surface-container-highest rounded border border-outline-variant flex items-center justify-center shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]">
+<img class="w-full h-full object-contain opacity-80 mix-blend-screen" data-alt="A flat 2D schematic diagram of a Rubik's cube top layer, representing the 'Sune' OLL case. The top face shows a cross with one corner oriented. Small indicator blocks show the direction of yellow stickers on the sides. Minimalist, high-contrast flat vector art style against a dark gray background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdNKkanR1GOhqh8Ker_G5wwD--nV40KktoPzCzfrKTucsqr4ba-7_YNtFL3ek5R2bk1jPpwjqeXhOgxXXGG05DEd94Hk3YnQHR8NlSjtXs2vEpBtTjdLMgjOvH2Ngmk6IbFtkttcRdQpEFqG1iP34_hzQQ7BuNYs4HpQudxgC5XsSBSa6NzXo5ioVc_MRPq8CIAHR0a2rRPMl5uR6D9jRoTgiutF7MVS2ku1Phv5dR0iayAC437UHo"/>
+</div>
+<div class="mt-6 flex justify-between w-full px-4">
+<div class="text-center">
+<span class="block font-label-caps text-label-caps text-on-surface-variant">PROBABILITY</span>
+<span class="font-table-data text-table-data text-on-surface">1/54</span>
+</div>
+<div class="text-center">
+<span class="block font-label-caps text-label-caps text-on-surface-variant">GROUP</span>
+<span class="font-table-data text-table-data text-on-surface">Awkward</span>
+</div>
+</div>
+</div>
+<!-- Mastery Ring Card -->
+<div class="bg-surface-container rounded-xl p-6 border border-outline-variant flex flex-col items-center justify-center">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant w-full text-left mb-6">MASTERY LEVEL</h3>
+<div class="relative w-40 h-40 flex items-center justify-center">
+<!-- Progress SVG Ring -->
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 100 100">
+<!-- Background track -->
+<circle cx="50" cy="50" fill="transparent" r="45" stroke="#1c1b1d" stroke-width="8"></circle>
+<!-- Progress fill (85%) -->
+<circle class="transition-all duration-1000 ease-out" cx="50" cy="50" fill="transparent" r="45" stroke="#4be277" stroke-dasharray="282.7" stroke-dashoffset="42.4" stroke-width="8"></circle>
+</svg>
+<!-- Inner Text -->
+<div class="absolute flex flex-col items-center justify-center">
+<span class="font-headline-lg text-headline-lg font-bold text-primary">85<span class="text-xl">%</span></span>
+<span class="font-label-caps text-label-caps text-on-surface-variant">ADVANCED</span>
+</div>
+</div>
+<button class="mt-8 w-full bg-primary text-on-primary font-label-caps text-label-caps h-touch-target-min rounded-xl hover:bg-primary-fixed transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">play_arrow</span>
+                        PRACTICE CASE
+                    </button>
+</div>
+</div>
+<!-- Right Column: Algorithms & Stats -->
+<div class="lg:col-span-8 flex flex-col gap-gutter">
+<!-- Performance Stats Bento -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+<!-- Recognition -->
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">PB REC</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">visibility</span>
+</div>
+<div class="flex items-end gap-1">
+<span class="font-scramble-lg text-scramble-lg text-on-surface font-bold">0.34</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">s</span>
+</div>
+</div>
+<!-- Execution -->
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant flex flex-col justify-between relative overflow-hidden">
+<!-- Subtle gradient to indicate 'good' time -->
+<div class="absolute inset-0 bg-gradient-to-tr from-primary/5 to-transparent pointer-events-none"></div>
+<div class="flex justify-between items-start mb-2 relative z-10">
+<span class="font-label-caps text-label-caps text-on-surface-variant">PB EXEC</span>
+<span class="material-symbols-outlined text-primary text-sm">bolt</span>
+</div>
+<div class="flex items-end gap-1 relative z-10">
+<span class="font-scramble-lg text-scramble-lg text-primary font-bold">0.68</span>
+<span class="font-label-caps text-label-caps text-primary mb-1">s</span>
+</div>
+</div>
+<!-- TPS -->
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">AVG TPS</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">speed</span>
+</div>
+<div class="flex items-end gap-1">
+<span class="font-scramble-lg text-scramble-lg text-on-surface font-bold">10.2</span>
+</div>
+</div>
+<!-- Success Rate -->
+<div class="bg-surface-container rounded-xl p-4 border border-outline-variant flex flex-col justify-between">
+<div class="flex justify-between items-start mb-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">SUCCESS</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">check_circle</span>
+</div>
+<div class="flex items-end gap-1">
+<span class="font-scramble-lg text-scramble-lg text-on-surface font-bold">94</span>
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-1">%</span>
+</div>
+</div>
+</div>
+<!-- Recommended Algorithms -->
+<div class="bg-surface-container rounded-xl border border-outline-variant overflow-hidden flex flex-col h-full">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-high">
+<h3 class="font-label-caps text-label-caps text-on-surface">RECOMMENDED ALGORITHMS</h3>
+<button class="text-primary hover:text-primary-fixed-dim transition-colors font-label-caps text-label-caps flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">add</span> ADD CUSTOM
+                        </button>
+</div>
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+<!-- Standard Alg (Active/Selected) -->
+<div class="bg-surface rounded-lg p-4 border-l-4 border-primary border-t border-r border-b border-t-outline-variant border-r-outline-variant border-b-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-surface-container-low transition-colors">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-caps text-label-caps text-primary">PRIMARY</span>
+<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">7 MOVES</span>
+</div>
+<p class="font-scramble-lg text-scramble-lg text-on-surface">R U R' U R U2 R'</p>
+</div>
+<div class="flex items-center gap-4 text-right">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">YOUR AVG</span>
+<span class="font-table-data text-table-data text-on-surface font-bold">0.82s</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-primary bg-primary/10 rounded-full">
+<span class="material-symbols-outlined symbol-filled">star</span>
+</button>
+</div>
+</div>
+<!-- Alt Alg 1 -->
+<div class="bg-surface-container-lowest rounded-lg p-4 border border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-surface-container-low transition-colors opacity-80 hover:opacity-100">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">ALTERNATIVE (LEFTY)</span>
+<span class="bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold">7 MOVES</span>
+</div>
+<p class="font-scramble-lg text-scramble-lg text-on-surface">L' U' L U' L' U2 L</p>
+</div>
+<div class="flex items-center gap-4 text-right">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">YOUR AVG</span>
+<span class="font-table-data text-table-data text-on-surface-variant">—</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded-full">
+<span class="material-symbols-outlined">star</span>
+</button>
+</div>
+</div>
+<!-- Alt Alg 2 -->
+<div class="bg-surface-container-lowest rounded-lg p-4 border border-outline-variant flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:bg-surface-container-low transition-colors opacity-80 hover:opacity-100">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">ALTERNATIVE (BACK)</span>
+<span class="bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded text-[10px] font-bold">7 MOVES</span>
+</div>
+<p class="font-scramble-lg text-scramble-lg text-on-surface">R' U2 R U R' U R</p>
+</div>
+<div class="flex items-center gap-4 text-right">
+<div class="flex flex-col">
+<span class="font-label-caps text-label-caps text-on-surface-variant">YOUR AVG</span>
+<span class="font-table-data text-table-data text-on-surface-variant">1.45s</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:text-on-surface rounded-full">
+<span class="material-symbols-outlined">star</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 bg-surface-container-highest dark:bg-surface-container-highest border-t border-outline-variant px-margin-mobile pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">timer</span>
+<span class="font-label-caps text-label-caps">Solve</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">bolt</span>
+<span class="font-label-caps text-label-caps">Coach</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/20 rounded-xl px-4 py-1 scale-90 duration-150" href="#">
+<span class="material-symbols-outlined mb-1 symbol-filled">menu_book</span>
+<span class="font-label-caps text-label-caps">Train</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">leaderboard</span>
+<span class="font-label-caps text-label-caps">Stats</span>
+</a>
+</nav>
+</body></html>

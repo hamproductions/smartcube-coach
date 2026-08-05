@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUBE_COACH - Solve Analysis</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed-dim": "#adc6ff",
+                      "on-tertiary": "#472a00",
+                      "inverse-primary": "#006e2f",
+                      "on-surface-variant": "#bccbb9",
+                      "surface-container": "#201f22",
+                      "on-tertiary-fixed": "#2a1700",
+                      "tertiary-fixed": "#ffddb8",
+                      "inverse-surface": "#e5e1e4",
+                      "error-container": "#93000a",
+                      "surface-tint": "#4ae176",
+                      "on-primary-fixed-variant": "#005321",
+                      "outline": "#869585",
+                      "primary-fixed": "#6bff8f",
+                      "on-error-container": "#ffdad6",
+                      "error": "#ffb4ab",
+                      "surface-dim": "#131315",
+                      "on-background": "#e5e1e4",
+                      "tertiary": "#ffba61",
+                      "surface-container-lowest": "#0e0e10",
+                      "tertiary-container": "#ef9900",
+                      "on-primary-fixed": "#002109",
+                      "on-primary": "#003915",
+                      "on-secondary-container": "#e6ecff",
+                      "secondary-fixed": "#d8e2ff",
+                      "primary-fixed-dim": "#4ae176",
+                      "inverse-on-surface": "#313032",
+                      "surface-container-low": "#1c1b1d",
+                      "surface-container-high": "#2a2a2c",
+                      "secondary-container": "#0566d9",
+                      "primary-container": "#22c55e",
+                      "on-secondary": "#002e6a",
+                      "on-secondary-fixed": "#001a42",
+                      "on-secondary-fixed-variant": "#004395",
+                      "on-surface": "#e5e1e4",
+                      "background": "#131315",
+                      "surface-variant": "#353437",
+                      "on-error": "#690005",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "on-primary-container": "#004b1e",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-tertiary-container": "#5c3800",
+                      "secondary": "#adc6ff",
+                      "surface": "#131315",
+                      "primary": "#4be277",
+                      "surface-bright": "#39393b",
+                      "surface-container-highest": "#353437",
+                      "outline-variant": "#3d4a3d"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "margin-desktop": "32px",
+                      "touch-target-min": "48px",
+                      "margin-mobile": "16px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "scramble-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "timer-display": [
+                              "JetBrains Mono"
+                      ],
+                      "timer-display-mobile": [
+                              "JetBrains Mono"
+                      ],
+                      "table-data": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "scramble-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "timer-display": [
+                              "120px",
+                              {
+                                      "lineHeight": "120px",
+                                      "letterSpacing": "-0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "timer-display-mobile": [
+                              "72px",
+                              {
+                                      "lineHeight": "72px",
+                                      "letterSpacing": "-0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "table-data": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #353437; /* surface-variant */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #869585; /* outline */
+        }
+        
+        .grad-bg {
+            background: radial-gradient(circle at center, rgba(32, 31, 34, 1) 0%, rgba(19, 19, 21, 1) 100%);
+        }
+      </style>
+</head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex flex-col md:flex-row overflow-x-hidden">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col h-full py-6 bg-surface-container border-r border-outline-variant docked h-screen left-0 w-64 fixed z-40">
+<div class="px-6 mb-8 flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl filled">view_in_ar</span>
+<span class="font-headline-lg text-headline-lg font-bold text-primary">CUBE_COACH</span>
+</div>
+<div class="flex items-center justify-between mt-2 px-1">
+<span class="font-label-caps text-label-caps text-on-surface-variant">V2.4.1 PRO</span>
+<span class="material-symbols-outlined text-primary text-sm filled" title="Smart Cube Connection Status">bluetooth_connected</span>
+</div>
+</div>
+<div class="px-4 mb-8">
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps py-3 rounded-lg hover:bg-primary-fixed-dim transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                NEW SESSION
+            </button>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">timer</span>
+<span class="font-label-caps text-label-caps">Solve</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-caps text-label-caps">Coaching</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-label-caps text-label-caps">Training</span>
+</a>
+<!-- Active State -->
+<a class="bg-secondary-container text-on-secondary-container rounded-xl mx-2 px-4 py-3 flex items-center gap-4 scale-98 transition-transform" href="#">
+<span class="material-symbols-outlined filled">history</span>
+<span class="font-label-caps text-label-caps">History</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col md:ml-64 relative min-h-screen pb-safe">
+<!-- TopAppBar (Web) / Utility Bar -->
+<header class="flex justify-between items-center w-full px-margin-desktop h-touch-target-min bg-surface border-b border-outline-variant docked full-width top-0 z-30 sticky hidden md:flex">
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary-fixed-dim transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="font-headline-lg text-headline-lg font-bold text-primary">Solve Analysis</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined filled">bluetooth_connected</span>
+</div>
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined filled">battery_full</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant hover:text-primary-fixed-dim transition-colors cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+</div>
+</div>
+</header>
+<!-- Mobile Header (Simplified) -->
+<header class="md:hidden flex items-center justify-between px-margin-mobile h-16 bg-surface border-b border-outline-variant sticky top-0 z-30">
+<button class="text-on-surface-variant p-2 -ml-2">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<span class="font-headline-lg text-headline-lg font-bold text-primary text-xl">Analysis</span>
+<div class="flex gap-3">
+<span class="material-symbols-outlined text-primary text-sm filled">bluetooth_connected</span>
+</div>
+</header>
+<div class="flex-1 p-margin-mobile md:p-margin-desktop overflow-y-auto">
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter max-w-7xl mx-auto">
+<!-- Hero Section: Time & Scramble -->
+<div class="col-span-1 lg:col-span-12 flex flex-col lg:flex-row gap-gutter">
+<!-- Final Time -->
+<div class="bg-surface-container rounded-xl border border-surface-variant p-6 flex flex-col justify-center items-center lg:w-1/3 relative overflow-hidden group">
+<div class="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-2 tracking-widest uppercase">Final Time</span>
+<div class="font-timer-display text-timer-display-mobile md:text-timer-display text-primary leading-none tracking-tight">12.45</div>
+<div class="mt-4 flex gap-4 text-sm">
+<span class="text-on-surface-variant">Penalty: <span class="text-on-background">None</span></span>
+<span class="text-on-surface-variant">Date: <span class="text-on-background">Oct 24, 14:32</span></span>
+</div>
+</div>
+<!-- Scramble String -->
+<div class="bg-surface-container rounded-xl border border-surface-variant p-6 flex flex-col justify-center lg:w-2/3">
+<span class="font-label-caps text-label-caps text-on-surface-variant mb-4 tracking-widest uppercase flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">shuffle</span>
+                             Generated Scramble
+                         </span>
+<div class="font-scramble-lg text-scramble-lg text-on-background break-words opacity-90">
+                             D2 R2 B2 L2 D F2 R2 U' B2 U F2 U2 R' B D2 R B' U2 L2 U2 F'
+                         </div>
+</div>
+</div>
+<!-- 3D Replay & Controls (Cockpit View) -->
+<div class="col-span-1 lg:col-span-7 bg-surface-container rounded-xl border border-surface-variant overflow-hidden flex flex-col h-[500px]">
+<!-- 3D Viewport (Mocked) -->
+<div class="flex-1 relative grad-bg flex items-center justify-center">
+<!-- Abstract representation of the cube -->
+<div class="w-64 h-64 relative preserve-3d animate-[spin_10s_linear_infinite]" style="transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(45deg);">
+<div class="absolute inset-0 border-2 border-outline/30 flex items-center justify-center" style="transform: translateZ(32px)">
+<div class="grid grid-cols-3 grid-rows-3 gap-1 w-full h-full p-1 bg-surface-lowest">
+<div class="bg-primary-container/80 rounded-sm"></div><div class="bg-primary-container/80 rounded-sm"></div><div class="bg-primary-container/80 rounded-sm"></div>
+<div class="bg-primary-container/80 rounded-sm"></div><div class="bg-primary-container/80 rounded-sm"></div><div class="bg-primary-container/80 rounded-sm"></div>
+<div class="bg-primary-container/80 rounded-sm"></div><div class="bg-primary-container/80 rounded-sm"></div><div class="bg-primary-container/80 rounded-sm"></div>
+</div>
+</div>
+<div class="absolute inset-0 border-2 border-outline/30" style="transform: translateZ(-32px) rotateY(180deg)"></div>
+<div class="absolute inset-0 border-2 border-outline/30" style="transform: translateX(32px) rotateY(90deg)"></div>
+<div class="absolute inset-0 border-2 border-outline/30" style="transform: translateX(-32px) rotateY(-90deg)"></div>
+<div class="absolute inset-0 border-2 border-outline/30" style="transform: translateY(32px) rotateX(-90deg)"></div>
+<div class="absolute inset-0 border-2 border-outline/30" style="transform: translateY(-32px) rotateX(90deg)"></div>
+</div>
+<!-- Overlay info -->
+<div class="absolute top-4 left-4 bg-surface/80 backdrop-blur-sm px-3 py-1 rounded border border-surface-variant font-table-data text-table-data text-on-surface-variant">
+                            Move: 42 / 56
+                        </div>
+<div class="absolute top-4 right-4 bg-surface/80 backdrop-blur-sm px-3 py-1 rounded border border-surface-variant font-table-data text-table-data text-primary">
+                            8.22s
+                        </div>
+</div>
+<!-- Reconstruction Text (Active Move Highlight) -->
+<div class="h-20 bg-surface-container-low border-t border-b border-surface-variant px-6 flex items-center overflow-x-auto whitespace-nowrap hide-scrollbar">
+<div class="font-table-data text-table-data flex gap-3 text-lg text-on-surface-variant opacity-50">
+<span>y2</span><span>z</span>
+<span>D'</span><span>R'</span><span>F</span><span>R</span><span>D2</span>
+<span class="text-primary opacity-100 font-bold border-b-2 border-primary pb-1">U'</span>
+<span>R</span><span>U</span><span>R'</span>
+<span>U'</span><span>L'</span><span>U</span><span>L</span>
+<span>...</span>
+</div>
+</div>
+<!-- Playback Controls -->
+<div class="h-20 bg-surface-container px-6 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-label-caps text-on-surface-variant">SPEED:</span>
+<select class="bg-surface-container-high border-none rounded text-on-background font-table-data text-sm focus:ring-1 focus:ring-primary py-1 px-2">
+<option>0.5x</option>
+<option selected="">1.0x</option>
+<option>2.0x</option>
+</select>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-12 h-12 rounded-full flex items-center justify-center bg-surface-container-high hover:bg-surface-variant text-on-background transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">replay</span>
+</button>
+<button class="w-12 h-12 rounded-full flex items-center justify-center bg-surface-container-high hover:bg-surface-variant text-on-background transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">skip_previous</span>
+</button>
+<button class="w-16 h-16 rounded-full flex items-center justify-center bg-primary text-on-primary hover:bg-primary-fixed-dim transition-colors shadow-lg hover:scale-95 duration-150">
+<span class="material-symbols-outlined text-3xl filled">pause</span>
+</button>
+<button class="w-12 h-12 rounded-full flex items-center justify-center bg-surface-container-high hover:bg-surface-variant text-on-background transition-colors border border-outline-variant">
+<span class="material-symbols-outlined">skip_next</span>
+</button>
+</div>
+<div class="w-20"></div> <!-- Spacer to balance flex -->
+</div>
+</div>
+<!-- Splits Data Table -->
+<div class="col-span-1 lg:col-span-5 flex flex-col gap-gutter h-full">
+<div class="bg-surface-container rounded-xl border border-surface-variant flex-1 flex flex-col overflow-hidden">
+<div class="px-6 py-4 border-b border-surface-variant flex justify-between items-center bg-surface-container-low">
+<h3 class="font-headline-lg text-headline-lg text-lg text-on-background">CFOP Splits</h3>
+<button class="text-on-surface-variant hover:text-primary transition-colors text-sm font-label-caps flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">download</span> CSV
+                            </button>
+</div>
+<div class="flex-1 overflow-y-auto p-2">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="font-label-caps text-label-caps text-on-surface-variant border-b border-surface-variant/50">
+<th class="py-3 px-4 font-normal">STAGE</th>
+<th class="py-3 px-4 font-normal text-right">TIME (s)</th>
+<th class="py-3 px-4 font-normal text-right">MOVES</th>
+<th class="py-3 px-4 font-normal text-right">TPS</th>
+</tr>
+</thead>
+<tbody class="font-table-data text-table-data">
+<tr class="border-b border-surface-variant/30 hover:bg-surface-variant/30 transition-colors group">
+<td class="py-3 px-4 text-on-background flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed"></div> Cross
+                                        </td>
+<td class="py-3 px-4 text-right text-on-surface-variant group-hover:text-primary transition-colors">1.85</td>
+<td class="py-3 px-4 text-right text-on-background">7</td>
+<td class="py-3 px-4 text-right text-on-surface-variant">3.78</td>
+</tr>
+<tr class="border-b border-surface-variant/30 hover:bg-surface-variant/30 transition-colors group">
+<td class="py-3 px-4 text-on-background flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div> F2L-1
+                                        </td>
+<td class="py-3 px-4 text-right text-on-surface-variant group-hover:text-primary transition-colors">1.42</td>
+<td class="py-3 px-4 text-right text-on-background">8</td>
+<td class="py-3 px-4 text-right text-on-surface-variant">5.63</td>
+</tr>
+<tr class="border-b border-surface-variant/30 hover:bg-surface-variant/30 transition-colors group bg-[#27272a]/40">
+<td class="py-3 px-4 text-on-background flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div> F2L-2
+                                        </td>
+<td class="py-3 px-4 text-right text-primary font-bold">2.10</td>
+<td class="py-3 px-4 text-right text-on-background">12</td>
+<td class="py-3 px-4 text-right text-error font-bold">5.71</td>
+</tr>
+<tr class="border-b border-surface-variant/30 hover:bg-surface-variant/30 transition-colors group">
+<td class="py-3 px-4 text-on-background flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div> F2L-3
+                                        </td>
+<td class="py-3 px-4 text-right text-on-surface-variant group-hover:text-primary transition-colors">1.15</td>
+<td class="py-3 px-4 text-right text-on-background">7</td>
+<td class="py-3 px-4 text-right text-on-surface-variant">6.08</td>
+</tr>
+<tr class="border-b border-surface-variant/30 hover:bg-surface-variant/30 transition-colors group">
+<td class="py-3 px-4 text-on-background flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary-fixed"></div> F2L-4
+                                        </td>
+<td class="py-3 px-4 text-right text-on-surface-variant group-hover:text-primary transition-colors">1.80</td>
+<td class="py-3 px-4 text-right text-on-background">11</td>
+<td class="py-3 px-4 text-right text-on-surface-variant">6.11</td>
+</tr>
+<tr class="border-b border-surface-variant/30 hover:bg-surface-variant/30 transition-colors group">
+<td class="py-3 px-4 text-on-background flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error"></div> OLL
+                                        </td>
+<td class="py-3 px-4 text-right text-on-surface-variant group-hover:text-primary transition-colors">1.95</td>
+<td class="py-3 px-4 text-right text-on-background">11</td>
+<td class="py-3 px-4 text-right text-on-surface-variant">5.64</td>
+</tr>
+<tr class="hover:bg-surface-variant/30 transition-colors group">
+<td class="py-3 px-4 text-on-background flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary-fixed"></div> PLL
+                                        </td>
+<td class="py-3 px-4 text-right text-on-surface-variant group-hover:text-primary transition-colors">2.18</td>
+<td class="py-3 px-4 text-right text-on-background">14</td>
+<td class="py-3 px-4 text-right text-on-surface-variant">6.42</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Deep Metrics (Bottom Row) -->
+<div class="col-span-1 lg:col-span-12 grid grid-cols-1 md:grid-cols-2 gap-gutter">
+<!-- Rotation Cost -->
+<div class="bg-surface-container rounded-xl border border-surface-variant p-6 flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-tertiary-fixed text-lg">360</span>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase">Rotation Cost</h4>
+</div>
+<div class="font-body-md text-sm text-on-surface-variant max-w-xs mt-2">
+                                Time spent rotating the cube instead of executing moves.
+                            </div>
+</div>
+<div class="flex flex-col items-end">
+<span class="font-timer-display text-4xl text-tertiary font-bold">1.2s</span>
+<span class="font-table-data text-sm text-on-surface-variant mt-1">3 Rotations (y, y2, x')</span>
+</div>
+</div>
+<!-- Fluency Metric -->
+<div class="bg-surface-container rounded-xl border border-surface-variant p-6 flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary-fixed text-lg">water_drop</span>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant tracking-widest uppercase">Fluency</h4>
+</div>
+<div class="font-body-md text-sm text-on-surface-variant max-w-xs mt-2">
+                                Smoothness of execution based on pause duration between stages.
+                            </div>
+</div>
+<div class="flex flex-col items-end">
+<div class="flex items-baseline gap-1">
+<span class="font-timer-display text-4xl text-primary font-bold">87</span>
+<span class="text-xl text-on-surface-variant">%</span>
+</div>
+<!-- Mini Progress Bar -->
+<div class="w-32 h-1.5 bg-surface-variant rounded-full mt-2 overflow-hidden">
+<div class="h-full bg-primary rounded-full w-[87%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div> <!-- End Bento Grid -->
+</div>
+</main>
+<!-- BottomNavBar (Mobile) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 md:hidden px-margin-mobile pb-safe bg-surface-container-highest border-t border-outline-variant rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined">timer</span>
+<span class="font-label-caps text-label-caps mt-1">Solve</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined">bolt</span>
+<span class="font-label-caps text-label-caps mt-1">Coach</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-caps text-label-caps mt-1">Train</span>
+</a>
+<!-- Active State -->
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/20 rounded-xl px-4 py-1 scale-90 duration-150" href="#">
+<span class="material-symbols-outlined filled">leaderboard</span>
+<span class="font-label-caps text-label-caps mt-1">Stats</span>
+</a>
+</nav>
+</body></html>

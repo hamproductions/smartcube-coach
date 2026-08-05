@@ -1,3 +1,5 @@
+import { css } from 'styled-system/css'
+import { Button } from './ui/Button'
 import { useEffect, useState } from 'react'
 import { activateUpdate, registerSmartCubeCoachPwa } from '../pwa/register'
 
@@ -6,6 +8,7 @@ export function PwaStatus() {
   const [persisted, setPersisted] = useState<boolean>()
   const [usage, setUsage] = useState('')
   const [update, setUpdate] = useState(false)
+  const [shellError, setShellError] = useState('')
 
   const refreshStorage = async () => {
     if (!navigator.storage) return
@@ -23,7 +26,7 @@ export function PwaStatus() {
     const handleOnline = () => setOnline(navigator.onLine)
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOnline)
-    registerSmartCubeCoachPwa(setUpdate)
+    void registerSmartCubeCoachPwa(setUpdate, setShellError)
     void refreshStorage()
     return () => {
       window.removeEventListener('online', handleOnline)
@@ -37,11 +40,15 @@ export function PwaStatus() {
   }
 
   return (
-    <div className="pwa-status">
-      <span className={online ? 'status-dot' : 'status-dot offline'} />
-      <div><strong>{online ? 'LOCAL FIRST' : 'OFFLINE'}</strong><small>{usage || 'Storage checking…'} · {persisted ? 'durable' : 'best effort'}</small></div>
-      {!persisted && <button aria-label="Protect local data" onClick={persist}>PROTECT</button>}
-      {update && <button aria-label="Install update" onClick={() => void activateUpdate()}>UPDATE</button>}
+    <div className={css({ display: 'flex', alignItems: 'center', gap: '2', minW: '0' })}>
+      <span className={css({ w: '2', h: '2', borderRadius: 'full', flexShrink: '0', bg: online ? 'green' : 'outline' })} />
+      <div className={css({ display: 'grid', minW: '0', lineHeight: 'tight' })}>
+        <strong className={css({ fontSize: '2xs', letterSpacing: 'wide', color: 'ink', whiteSpace: 'nowrap' })}>{online ? 'LOCAL FIRST' : 'OFFLINE'}</strong>
+        <small className={css({ fontSize: '2xs', color: 'inkVariant', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' })}>{usage || 'Storage checking…'} · {persisted ? 'durable' : 'best effort'}</small>
+        {shellError && <small className={css({ fontSize: '2xs', color: 'error' })}>{shellError}</small>}
+      </div>
+      {!persisted && <Button size="xs" variant="outline" aria-label="Protect local data" onClick={persist}>Protect</Button>}
+      {update && <Button size="xs" aria-label="Install update" onClick={() => void activateUpdate()}>Update</Button>}
     </div>
   )
 }

@@ -7,13 +7,16 @@
     "dev": "bun scripts/dev.ts",
     "dev:api": "bun --watch server/index.ts",
     "dev:web": "vite --host 0.0.0.0",
-    "build": "tsc -b && vite build",
+    "build": "panda codegen && tsc -b && vite build",
     "start": "NODE_ENV=production bun server/index.ts",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc -b --pretty false"
+    "typecheck": "panda codegen && tsc -b --pretty false",
+    "prepare": "panda codegen"
   },
   "dependencies": {
+    "@ark-ui/react": "^5.38.0",
+    "@park-ui/panda-preset": "^0.43.1",
     "cubing": "^0.63.3",
     "idb": "^8.0.3",
     "linkedom": "^0.18.13",
@@ -22,6 +25,7 @@
     "smartcube-web-bluetooth": "github:poliva/smartcube-web-bluetooth#44f1f09"
   },
   "devDependencies": {
+    "@pandacss/dev": "^1.12.0",
     "@testing-library/jest-dom": "latest",
     "@testing-library/react": "latest",
     "@testing-library/user-event": "latest",

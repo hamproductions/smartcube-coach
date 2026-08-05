@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Recognition Drill - CUBE_COACH</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-bright": "#39393b",
+                      "on-surface-variant": "#bccbb9",
+                      "tertiary-container": "#ef9900",
+                      "surface-container-high": "#2a2a2c",
+                      "on-primary-fixed-variant": "#005321",
+                      "on-background": "#e5e1e4",
+                      "on-primary-fixed": "#002109",
+                      "secondary": "#adc6ff",
+                      "surface-container-highest": "#353437",
+                      "on-surface": "#e5e1e4",
+                      "surface-tint": "#4ae176",
+                      "tertiary-fixed": "#ffddb8",
+                      "inverse-surface": "#e5e1e4",
+                      "primary-container": "#22c55e",
+                      "surface": "#131315",
+                      "surface-container-low": "#1c1b1d",
+                      "outline-variant": "#3d4a3d",
+                      "error": "#ffb4ab",
+                      "on-error": "#690005",
+                      "surface-container": "#201f22",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "primary-fixed-dim": "#4ae176",
+                      "surface-container-lowest": "#0e0e10",
+                      "secondary-fixed": "#d8e2ff",
+                      "outline": "#869585",
+                      "secondary-container": "#0566d9",
+                      "on-secondary": "#002e6a",
+                      "tertiary": "#ffba61",
+                      "primary-fixed": "#6bff8f",
+                      "primary": "#4be277",
+                      "inverse-on-surface": "#313032",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-dim": "#131315",
+                      "on-primary": "#003915",
+                      "on-secondary-container": "#e6ecff",
+                      "on-tertiary": "#472a00",
+                      "inverse-primary": "#006e2f",
+                      "error-container": "#93000a",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-tertiary-container": "#5c3800",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "on-secondary-fixed-variant": "#004395",
+                      "on-error-container": "#ffdad6",
+                      "background": "#131315",
+                      "surface-variant": "#353437",
+                      "on-primary-container": "#004b1e",
+                      "on-secondary-fixed": "#001a42"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "margin-mobile": "16px",
+                      "gutter": "16px",
+                      "touch-target-min": "48px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "label-caps": [
+                              "Geist"
+                      ],
+                      "timer-display": [
+                              "JetBrains Mono"
+                      ],
+                      "scramble-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "table-data": [
+                              "JetBrains Mono"
+                      ],
+                      "timer-display-mobile": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "timer-display": [
+                              "120px",
+                              {
+                                      "lineHeight": "120px",
+                                      "letterSpacing": "-0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "scramble-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "table-data": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "timer-display-mobile": [
+                              "72px",
+                              {
+                                      "lineHeight": "72px",
+                                      "letterSpacing": "-0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        /* Pulse animation for the timer */
+        @keyframes pulse-green {
+            0% { opacity: 1; text-shadow: 0 0 0px #4be277; }
+            50% { opacity: 0.8; text-shadow: 0 0 10px #4be277; }
+            100% { opacity: 1; text-shadow: 0 0 0px #4be277; }
+        }
+        .running-timer {
+            animation: pulse-green 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased h-screen w-screen overflow-hidden flex flex-col md:flex-row">
+<!-- SideNavBar (Hidden on Mobile) -->
+<nav class="hidden md:flex flex-col h-full py-6 bg-surface-container dark:bg-surface-container border-r border-outline-variant w-64 docked left-0 flex-shrink-0 z-20">
+<div class="px-6 mb-8 flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 flex items-center justify-center border border-primary/30">
+<img alt="Smart Cube Connection Status" class="w-6 h-6 object-contain" data-alt="A stylized, glowing green geometric cube icon representing a smart cube connection, set against a dark, minimalist tech background. The design is sleek, high-contrast, and focused on precision, fitting a modern speedcubing aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDf0u9Gj9EdnI5YUAIdckxcSG2XKE1BetWvIUWv6uq1CeGJffKIhuO1LGSi9UYYQ6s0BtLLWEx6dZuLfHScygbHxqL2FHFIR6nEfyaRmz9xfnk9FQEIm7R30uIwDC1gDvuYKZ9gXr1bv1Yyi9bPHcfCFLvLvPUgQuazGKqXdOF8aVNR-O6eKTVh7FT_sj3ZSAxnZnGjMewhDIFxzuNVz3Dgu-nS5TuZtuJxPDR2V8qoWPVCOefDKf9F"/>
+</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary">CUBE_COACH</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">V2.4.1 PRO</p>
+</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full h-touch-target-min bg-primary text-on-primary font-label-caps text-label-caps rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                NEW SESSION
+            </button>
+</div>
+<div class="flex-1 flex flex-col gap-2 mt-4">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">timer</span>
+                Solve
+            </a>
+<!-- Active State: Training -->
+<a class="bg-secondary-container text-on-secondary-container rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps scale-98 transition-transform" href="#">
+<span class="material-symbols-outlined">psychology</span>
+                Coaching
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+                Training
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">history</span>
+                History
+            </a>
+</div>
+<div class="mt-auto flex flex-col gap-2 border-t border-outline-variant pt-4 mx-4">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">account_circle</span>
+                Profile
+            </a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-3 flex items-center gap-4 hover:bg-surface-container-highest transition-colors font-label-caps text-label-caps" href="#">
+<span class="material-symbols-outlined">help</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col h-full relative z-10">
+<!-- TopNavBar (Web & Mobile, adjusted for focus) -->
+<header class="bg-surface dark:bg-surface flex justify-between items-center w-full px-margin-desktop h-touch-target-min bg-surface-container-low border-b border-outline-variant flex-shrink-0">
+<div class="flex items-center gap-4">
+<span class="md:hidden font-headline-lg text-headline-lg font-bold text-primary dark:text-primary">CUBE_COACH</span>
+<span class="hidden md:flex font-label-caps text-label-caps text-on-surface-variant items-center gap-2">
+<span class="material-symbols-outlined text-lg">arrow_back</span>
+                    DRILL: PLL RECOGNITION
+                </span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bluetooth_connected</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">battery_full</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-primary-fixed-dim transition-colors">settings</span>
+</div>
+</header>
+<!-- Focus Canvas -->
+<div class="flex-1 flex flex-col items-center justify-center p-margin-mobile md:p-margin-desktop relative">
+<!-- Scramble/Drill Info Panel (Top) -->
+<div class="absolute top-margin-desktop left-0 w-full flex justify-center z-20">
+<div class="bg-surface-container py-2 px-6 rounded-full border border-outline-variant shadow-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary">psychology</span>
+<span class="font-scramble-lg text-scramble-lg text-on-background opacity-80">CASE #42 - RECOGNIZE &amp; EXECUTE</span>
+</div>
+</div>
+<!-- Central Diagram & Timer Area -->
+<div class="flex flex-col items-center gap-12 w-full max-w-3xl mt-16 md:mt-0">
+<!-- Flat Sticker Diagram -->
+<div class="w-64 h-64 md:w-80 md:h-80 relative flex items-center justify-center">
+<!-- Placeholder for the flat diagram -->
+<div class="w-48 h-48 bg-surface-container-high border border-outline-variant grid grid-cols-3 grid-rows-3 gap-1 p-1 rounded-lg">
+<!-- Top Row -->
+<div class="bg-secondary-container rounded-sm"></div>
+<div class="bg-secondary-container rounded-sm"></div>
+<div class="bg-error rounded-sm"></div>
+<!-- Middle Row -->
+<div class="bg-primary-container rounded-sm"></div>
+<div class="bg-surface-bright rounded-sm flex items-center justify-center font-label-caps text-[10px] text-on-surface-variant">U</div>
+<div class="bg-primary-container rounded-sm"></div>
+<!-- Bottom Row -->
+<div class="bg-error rounded-sm"></div>
+<div class="bg-secondary-container rounded-sm"></div>
+<div class="bg-secondary-container rounded-sm"></div>
+</div>
+</div>
+<!-- Timer / Status Area -->
+<div class="flex flex-col items-center gap-2">
+<p class="font-label-caps text-label-caps text-tertiary-fixed tracking-widest uppercase" id="status-text">RECOGNIZING...</p>
+<div class="font-timer-display-mobile md:font-timer-display text-timer-display-mobile md:text-timer-display text-primary running-timer" id="main-timer">
+                        0.00
+                    </div>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2 h-6 opacity-0 transition-opacity" id="sub-status">
+                        Waiting for first turn...
+                    </p>
+</div>
+<!-- Actions -->
+<div class="flex gap-4 mt-8">
+<button class="h-touch-target-min px-8 bg-surface-container-high border border-outline-variant text-on-background font-label-caps text-label-caps rounded-full hover:bg-surface-container-highest transition-colors flex items-center gap-2" id="hint-btn">
+<span class="material-symbols-outlined text-sm">lightbulb</span>
+                         PROGRESSIVE HINT
+                     </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 md:hidden px-margin-mobile pb-safe bg-surface-container-highest dark:bg-surface-container-highest border-t border-outline-variant rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim" href="#">
+<span class="material-symbols-outlined">timer</span>
+<span class="font-label-caps text-label-caps">Solve</span>
+</a>
+<!-- Active State: Coach -->
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/20 rounded-xl px-4 py-1 scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="font-label-caps text-label-caps">Coach</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-label-caps text-label-caps">Train</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim" href="#">
+<span class="material-symbols-outlined">leaderboard</span>
+<span class="font-label-caps text-label-caps">Stats</span>
+</a>
+</nav>
+<script>
+        // Simple simulation of the recognition phase ending
+        document.addEventListener('DOMContentLoaded', () => {
+            const timer = document.getElementById('main-timer');
+            const statusText = document.getElementById('status-text');
+            const subStatus = document.getElementById('sub-status');
+            const hintBtn = document.getElementById('hint-btn');
+
+            let time = 0;
+            let phase = 'recognizing'; // recognizing -> execution
+            
+            const interval = setInterval(() => {
+                time += 0.01;
+                timer.textContent = time.toFixed(2);
+                
+                // Simulate finding the recognition after 2.5 seconds
+                if(time > 2.5 && phase === 'recognizing') {
+                    phase = 'execution';
+                    statusText.textContent = "EXECUTE CASE";
+                    statusText.classList.remove('text-tertiary-fixed');
+                    statusText.classList.add('text-primary');
+                    
+                    timer.classList.remove('running-timer');
+                    timer.classList.add('text-on-background');
+                    timer.classList.remove('text-primary');
+                    
+                    subStatus.classList.remove('opacity-0');
+                    
+                    hintBtn.disabled = true;
+                    hintBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            }, 10);
+        });
+    </script>
+</body></html>

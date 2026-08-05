@@ -1,6 +1,7 @@
 import type { Finding } from './analyzeSolve'
-import { buildPrescription } from './prescribe'
+import { buildPrescription, type PrescriptionScope } from './prescribe'
 import type { MetricSample, PrescriptionRecord, TransferEvaluation } from './models'
+import { createId } from './ids'
 
 const median = (values: number[]) => {
   const sorted = [...values].sort((left, right) => left - right)
@@ -18,15 +19,16 @@ const seedRandom = (seed: string) => {
   }
 }
 
-export function createPrescriptionRecord(finding: Finding, createdAt = Date.now()): PrescriptionRecord {
-  const prescription = buildPrescription(finding)
+export function createPrescriptionRecord(finding: Finding, createdAt = Date.now(), scope: PrescriptionScope = {}): PrescriptionRecord {
+  const prescription = buildPrescription(finding, scope)
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     findingId: finding.id,
     metric: prescription.passCondition.metric,
     target: prescription.passCondition.target,
     sampleSize: prescription.passCondition.fullSolveSample,
     status: 'assigned',
+    title: prescription.title,
     blocks: prescription.blocks.map((block, index) => ({
       id: `${finding.id}:block-${index + 1}`,
       kind: block.kind === 'tracking' ? 'planning' : block.kind === 'prediction' ? 'recognition' : block.kind,
@@ -46,7 +48,7 @@ export function createPrescriptionRecord(finding: Finding, createdAt = Date.now(
   }
 }
 
-export function completePrescriptionBlock(record: PrescriptionRecord, blockId: string, evidenceIds: string[], completedAt = Date.now()): PrescriptionRecord {
+function completePrescriptionBlock(record: PrescriptionRecord, blockId: string, evidenceIds: string[], completedAt = Date.now()): PrescriptionRecord {
   const blocks = record.blocks.map((block) => block.id === blockId ? { ...block, completedAt, evidenceIds } : block)
   const transferReady = blocks.filter((block) => block.kind !== 'transfer').every((block) => block.completedAt)
   return { ...record, blocks, status: transferReady ? 'transfer' : 'training' }
@@ -85,7 +87,7 @@ export function evaluatePrescriptionTransfer(record: PrescriptionRecord, samples
       : 'not-demonstrated'
 
   return {
-    id: crypto.randomUUID(),
+    id: createId(),
     prescriptionId: record.id,
     evaluatedAt: Date.now(),
     evaluatorVersion: '1',

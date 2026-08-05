@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Settings &amp; Device Hub - Cube Coach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container": "#201f22",
+                      "on-primary": "#003915",
+                      "inverse-on-surface": "#313032",
+                      "primary-fixed-dim": "#4ae176",
+                      "on-primary-fixed": "#002109",
+                      "on-tertiary": "#472a00",
+                      "surface": "#131315",
+                      "on-surface-variant": "#bccbb9",
+                      "on-secondary-fixed-variant": "#004395",
+                      "inverse-surface": "#e5e1e4",
+                      "primary": "#4be277",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "error": "#ffb4ab",
+                      "secondary": "#adc6ff",
+                      "on-error": "#690005",
+                      "inverse-primary": "#006e2f",
+                      "surface-dim": "#131315",
+                      "error-container": "#93000a",
+                      "on-primary-fixed-variant": "#005321",
+                      "background": "#131315",
+                      "surface-bright": "#39393b",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "surface-container-highest": "#353437",
+                      "primary-container": "#22c55e",
+                      "tertiary-fixed": "#ffddb8",
+                      "outline": "#869585",
+                      "on-primary-container": "#004b1e",
+                      "surface-container-high": "#2a2a2c",
+                      "tertiary-container": "#ef9900",
+                      "secondary-fixed": "#d8e2ff",
+                      "secondary-container": "#0566d9",
+                      "on-secondary-container": "#e6ecff",
+                      "surface-container-lowest": "#0e0e10",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface-variant": "#353437",
+                      "on-secondary-fixed": "#001a42",
+                      "on-surface": "#e5e1e4",
+                      "on-tertiary-fixed": "#2a1700",
+                      "primary-fixed": "#6bff8f",
+                      "on-secondary": "#002e6a",
+                      "surface-container-low": "#1c1b1d",
+                      "on-tertiary-container": "#5c3800",
+                      "outline-variant": "#3d4a3d",
+                      "on-error-container": "#ffdad6",
+                      "on-background": "#e5e1e4",
+                      "surface-tint": "#4ae176",
+                      "tertiary": "#ffba61"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "gutter": "16px",
+                      "touch-target-min": "48px",
+                      "margin-mobile": "16px",
+                      "base": "4px",
+                      "margin-desktop": "32px"
+              },
+              "fontFamily": {
+                      "timer-display-mobile": [
+                              "JetBrains Mono"
+                      ],
+                      "table-data": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Geist"
+                      ],
+                      "scramble-lg": [
+                              "JetBrains Mono"
+                      ],
+                      "timer-display": [
+                              "JetBrains Mono"
+                      ],
+                      "label-caps": [
+                              "Geist"
+                      ],
+                      "body-md": [
+                              "Geist"
+                      ]
+              },
+              "fontSize": {
+                      "timer-display-mobile": [
+                              "72px",
+                              {
+                                      "lineHeight": "72px",
+                                      "letterSpacing": "-0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "table-data": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "scramble-lg": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "letterSpacing": "0.1em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "timer-display": [
+                              "120px",
+                              {
+                                      "lineHeight": "120px",
+                                      "letterSpacing": "-0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        body {
+            background-color: #131315; /* surface */
+            color: #e5e1e4; /* on-surface */
+        }
+        
+        /* Custom scrollbar for webkit */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131315; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a2c; /* surface-container-high */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #353437; /* surface-variant */
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #4be277; /* primary */
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #4be277; /* primary */
+        }
+        .toggle-checkbox:checked + .toggle-label:after {
+            transform: translateX(100%);
+            border-color: white;
+        }
+        
+        /* Range Slider Styles */
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #4be277;
+            cursor: pointer;
+            margin-top: -6px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #3d4a3d;
+            border-radius: 2px;
+        }
+      </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col md:flex-row">
+<!-- TopNavBar (Mobile Only for Settings - Suppressed on Desktop due to SideNav) -->
+<nav class="bg-surface dark:bg-surface border-b border-outline-variant flex justify-between items-center w-full px-margin-desktop h-touch-target-min md:hidden docked full-width top-0 z-50">
+<div class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary">
+            CUBE_COACH
+        </div>
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-primary" data-icon="bluetooth_connected">bluetooth_connected</span>
+<span class="material-symbols-outlined text-primary" data-icon="battery_full">battery_full</span>
+<span class="material-symbols-outlined text-primary font-bold border-b-2 border-primary pb-1" data-icon="settings">settings</span>
+</div>
+</nav>
+<!-- SideNavBar (Desktop) -->
+<aside class="hidden md:flex flex-col h-full py-6 bg-surface-container dark:bg-surface-container border-r border-outline-variant docked h-full left-0 w-64 fixed z-40">
+<div class="px-6 mb-8 flex flex-col gap-2">
+<h1 class="font-headline-lg text-headline-lg font-bold text-primary">CUBE_COACH</h1>
+<span class="font-label-caps text-label-caps text-on-surface-variant">V2.4.1 PRO</span>
+</div>
+<button class="mx-6 mb-8 bg-primary text-on-primary font-label-caps text-label-caps h-touch-target-min rounded-lg flex items-center justify-center font-bold hover:bg-primary-fixed-dim transition-colors">
+            NEW SESSION
+        </button>
+<div class="flex-1 flex flex-col gap-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+<span class="font-label-caps text-label-caps">Solve</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="font-label-caps text-label-caps">Coaching</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-label-caps text-label-caps">Training</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-label-caps text-label-caps">History</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-2 border-t border-outline-variant pt-4 px-2">
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+<!-- Active State on Support/Settings conceptual area -->
+<a class="bg-secondary-container text-on-secondary-container rounded-xl px-4 py-3 flex items-center gap-4 scale-98 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps">Settings</span>
+</a>
+<a class="text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-3 flex items-center gap-4 transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span class="font-label-caps text-label-caps">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-64 p-margin-mobile md:p-margin-desktop pt-24 md:pt-margin-desktop overflow-y-auto">
+<div class="max-w-5xl mx-auto">
+<header class="mb-8 border-b border-outline-variant pb-4">
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Settings &amp; Device Hub</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-2">Manage your smart cube connection, timer preferences, and data.</p>
+</header>
+<!-- Grid Layout for Settings -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
+<!-- Section 1: Cube Connection -->
+<section class="bg-surface-container border border-[#27272a] rounded-xl p-6 flex flex-col">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary text-[24px]">drive_file_rename_outline</span>
+<h2 class="font-body-md text-body-md font-bold text-on-surface">Cube Connection</h2>
+</div>
+<div class="bg-surface-container-low rounded-lg p-4 mb-6 border border-[#27272a]">
+<div class="flex justify-between items-center mb-2">
+<span class="font-table-data text-table-data text-on-surface-variant">Device</span>
+<span class="font-table-data text-table-data text-on-surface">QiYi Smart Cube V1</span>
+</div>
+<div class="flex justify-between items-center mb-2">
+<span class="font-table-data text-table-data text-on-surface-variant">Firmware</span>
+<span class="font-table-data text-table-data text-on-surface">v1.2.4</span>
+</div>
+<div class="flex justify-between items-center mb-2">
+<span class="font-table-data text-table-data text-on-surface-variant">MAC Address</span>
+<span class="font-table-data text-table-data text-on-surface">A1:B2:C3:D4:E5:F6</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-table-data text-table-data text-on-surface-variant">Signal Strength</span>
+<div class="flex items-center gap-2">
+<span class="font-table-data text-table-data text-primary">-45 dBm</span>
+<span class="material-symbols-outlined text-primary text-[16px]">signal_cellular_alt</span>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-4 mt-auto">
+<button class="w-full h-touch-target-min border border-outline-variant text-on-surface hover:bg-surface-container-high rounded-lg font-label-caps text-label-caps transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">network_check</span>
+                            CONNECTION SELF-TEST
+                        </button>
+<div class="flex items-center justify-between py-2">
+<span class="font-body-md text-body-md text-on-surface">Record Session to File</span>
+<div class="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-surface-container border-4 border-outline-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10 top-0 left-0 checked:translate-x-full checked:border-primary" id="record-toggle" name="toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-container-high cursor-pointer" for="record-toggle"></label>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: Solve Preferences -->
+<section class="bg-surface-container border border-[#27272a] rounded-xl p-6 flex flex-col">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary text-[24px]">tune</span>
+<h2 class="font-body-md text-body-md font-bold text-on-surface">Solve Preferences</h2>
+</div>
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-on-surface block">WCA Inspection</span>
+<span class="font-table-data text-table-data text-on-surface-variant block mt-1">15-second countdown before solve</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-surface-container border-4 border-primary appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10 top-0 translate-x-full" id="wca-toggle" name="wca-toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-primary cursor-pointer" for="wca-toggle"></label>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-on-surface block">Inspection Audio</span>
+<span class="font-table-data text-table-data text-on-surface-variant block mt-1">Voice callouts at 8s and 12s</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input checked="" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-surface-container border-4 border-primary appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10 top-0 translate-x-full" id="audio-toggle" name="audio-toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-primary cursor-pointer" for="audio-toggle"></label>
+</div>
+</div>
+<div class="flex items-center justify-between">
+<div>
+<span class="font-body-md text-body-md text-on-surface block">Auto-Ready (5s)</span>
+<span class="font-table-data text-table-data text-on-surface-variant block mt-1">Start next solve automatically</span>
+</div>
+<div class="relative inline-block w-12 mr-2 align-middle select-none">
+<input class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-surface-container border-4 border-outline-variant appearance-none cursor-pointer transition-transform duration-200 ease-in-out z-10 top-0 left-0" id="auto-toggle" name="auto-toggle" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-6 rounded-full bg-surface-container-high cursor-pointer" for="auto-toggle"></label>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 3: Appearance & Calibration -->
+<section class="bg-surface-container border border-[#27272a] rounded-xl p-6 flex flex-col">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary text-[24px]">palette</span>
+<h2 class="font-body-md text-body-md font-bold text-on-surface">Appearance</h2>
+</div>
+<div class="mb-6">
+<span class="font-body-md text-body-md text-on-surface block mb-3">Cube Color Calibration</span>
+<div class="grid grid-cols-6 gap-2">
+<!-- Simulated Color Swatches -->
+<div class="aspect-square bg-white rounded border border-[#27272a] cursor-pointer hover:ring-2 ring-primary"></div>
+<div class="aspect-square bg-[#ffb95f] rounded border border-[#27272a] cursor-pointer hover:ring-2 ring-primary"></div>
+<div class="aspect-square bg-[#4be277] rounded border border-[#27272a] cursor-pointer hover:ring-2 ring-primary"></div>
+<div class="aspect-square bg-[#ffb4ab] rounded border border-[#27272a] cursor-pointer hover:ring-2 ring-primary"></div>
+<div class="aspect-square bg-[#adc6ff] rounded border border-[#27272a] cursor-pointer hover:ring-2 ring-primary"></div>
+<div class="aspect-square bg-[#ef9900] rounded border border-[#27272a] cursor-pointer hover:ring-2 ring-primary"></div>
+</div>
+<button class="mt-3 text-primary font-label-caps text-label-caps hover:text-primary-fixed-dim transition-colors flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">edit</span> Edit Mapping
+                        </button>
+</div>
+<div class="mt-auto">
+<div class="flex justify-between items-center mb-2">
+<span class="font-body-md text-body-md text-on-surface">Playback Speed</span>
+<span class="font-table-data text-table-data text-primary">1.0x</span>
+</div>
+<input class="w-full bg-transparent appearance-none" max="2.0" min="0.5" step="0.1" type="range" value="1.0"/>
+<div class="flex justify-between items-center mt-1">
+<span class="font-table-data text-table-data text-on-surface-variant text-[10px]">0.5x</span>
+<span class="font-table-data text-table-data text-on-surface-variant text-[10px]">2.0x</span>
+</div>
+</div>
+</section>
+<!-- Section 4: Data Management -->
+<section class="bg-surface-container border border-[#27272a] rounded-xl p-6 flex flex-col">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-primary text-[24px]">database</span>
+<h2 class="font-body-md text-body-md font-bold text-on-surface">Data Management</h2>
+</div>
+<div class="bg-surface-container-low rounded-lg p-4 mb-6 border border-[#27272a] flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant text-[32px]">sd_storage</span>
+<div>
+<span class="font-body-md text-body-md text-on-surface block">Local Storage</span>
+<span class="font-table-data text-table-data text-on-surface-variant block mt-1">12,458 solves (4.2 MB)</span>
+</div>
+</div>
+<div class="flex flex-col gap-4 mt-auto">
+<button class="w-full h-touch-target-min border border-outline-variant text-on-surface hover:bg-surface-container-high rounded-lg font-label-caps text-label-caps transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">download</span>
+                            EXPORT TO CSTIMER
+                        </button>
+<button class="w-full h-touch-target-min border border-error/50 text-error hover:bg-error-container/20 rounded-lg font-label-caps text-label-caps transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">delete_forever</span>
+                            WIPE ALL DATA
+                        </button>
+</div>
+</section>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface-container-highest dark:bg-surface-container-highest border-t border-outline-variant fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 md:hidden px-margin-mobile pb-safe docked full-width bottom-0 rounded-t-xl">
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="timer">timer</span>
+<span class="font-label-caps text-label-caps mt-1">Solve</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+<span class="font-label-caps text-label-caps mt-1">Coach</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-label-caps text-label-caps mt-1">Train</span>
+</a>
+<!-- Using Stats as a placeholder for Settings on mobile nav based on JSON provided -->
+<a class="flex flex-col items-center justify-center text-primary bg-primary-container/20 rounded-xl px-4 py-1 scale-90 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-label-caps text-label-caps mt-1">Stats</span>
+</a>
+</nav>
+<script>
+        // Simple script to handle toggle visuals for custom checkboxes
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if(this.checked) {
+                    this.classList.add('translate-x-full', 'border-primary');
+                    this.classList.remove('left-0', 'border-outline-variant');
+                    this.nextElementSibling.classList.add('bg-primary');
+                    this.nextElementSibling.classList.remove('bg-surface-container-high');
+                } else {
+                    this.classList.remove('translate-x-full', 'border-primary');
+                    this.classList.add('left-0', 'border-outline-variant');
+                    this.nextElementSibling.classList.remove('bg-primary');
+                    this.nextElementSibling.classList.add('bg-surface-container-high');
+                }
+            });
+        });
+    </script>
+</body></html>

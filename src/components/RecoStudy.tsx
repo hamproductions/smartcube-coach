@@ -1,10 +1,21 @@
 import { type FormEvent, useState } from 'react'
 import { normalizeRecoUrl, type RecoReconstruction } from '../integrations/reco'
 import type { SolveRecord, StudyRecord } from '../domain/models'
+import { computePhaseMetrics } from '../domain/solveMetrics'
 import { repositories } from '../storage/database'
 import { CubePlayback } from './CubePlayback'
 
 const defaultUrl = 'https://reco.nz/solve/13444'
+
+const parseSecondsToMs = (value: string | undefined): number | undefined => {
+  const seconds = value === undefined ? Number.NaN : Number(value)
+  return Number.isFinite(seconds) ? seconds * 1_000 : undefined
+}
+
+const formatSeconds = (ms: number | undefined): string => (ms === undefined ? '—' : (ms / 1_000).toFixed(2))
+const formatPercent = (value: number | undefined): string => (value === undefined ? '—' : `${value.toFixed(1)}%`)
+const formatCount = (value: number | undefined): string => (value === undefined ? '—' : String(value))
+const formatRate = (value: number | undefined): string => (value === undefined ? '—' : value.toFixed(2))
 
 export function RecoStudy() {
   const [url, setUrl] = useState(defaultUrl)
@@ -15,6 +26,9 @@ export function RecoStudy() {
   const [bookmarks, setBookmarks] = useState<number[]>([])
   const [matchingSolve, setMatchingSolve] = useState<SolveRecord>()
   const [focusStage, setFocusStage] = useState('')
+
+  const totalDurationMs = parseSecondsToMs(reconstruction?.stats.Time?.Total)
+  const totalMetrics = computePhaseMetrics(reconstruction?.moves ?? [], totalDurationMs, totalDurationMs)
 
   const importReconstruction = async (event: FormEvent) => {
     event.preventDefault()
@@ -94,7 +108,7 @@ export function RecoStudy() {
     <section className="reco-study panel">
       <div className="reco-study-intro">
         <div>
-          <span className="eyebrow green">STUDY LIBRARY / RECO.NZ</span>
+          <span className="eyebrow green">STUDY LIBRARY</span>
           <h2>Study someone else's solution.</h2>
           <p>Import a public reconstruction, replay every turn, isolate stages, and keep private notes beside the original attribution.</p>
         </div>
@@ -129,14 +143,46 @@ export function RecoStudy() {
             <a href={reconstruction.sourceUrl} rel="noreferrer" target="_blank">Open original on reco.nz</a>
           </div>
 
-          <div className="reco-stats">
-            {['Time', 'STM', 'STPS'].map((metric) => (
-              <div key={metric}>
-                <span>{metric}</span>
-                <strong>{reconstruction.stats[metric]?.Total ?? '—'}</strong>
-                <small>F2L {reconstruction.stats[metric]?.F2L ?? '—'}</small>
-              </div>
-            ))}
+          <div className="reco-stats-table" style={{ overflowX: 'auto' }}>
+            <table className="stat-table">
+              <thead>
+                <tr>
+                  <th>Phase</th>
+                  <th>Time</th>
+                  <th>Split %</th>
+                  <th>STM</th>
+                  <th>STPS</th>
+                  <th>ETM</th>
+                  <th>ETPS</th>
+                </tr>
+              </thead>
+              <tbody>
+                {reconstruction.stages.map((stage) => {
+                  const durationMs = parseSecondsToMs(reconstruction.stats.Time?.[stage.label])
+                  const metrics = computePhaseMetrics(stage.moves, durationMs, totalDurationMs)
+                  return (
+                    <tr key={stage.label}>
+                      <td>{stage.label}</td>
+                      <td>{formatSeconds(durationMs)}</td>
+                      <td>{formatPercent(metrics.splitPercent)}</td>
+                      <td>{formatCount(metrics.stm)}</td>
+                      <td>{formatRate(metrics.stps)}</td>
+                      <td>{formatCount(metrics.etm)}</td>
+                      <td>{formatRate(metrics.etps)}</td>
+                    </tr>
+                  )
+                })}
+                <tr>
+                  <td>Total</td>
+                  <td>{formatSeconds(totalDurationMs)}</td>
+                  <td>{formatPercent(totalMetrics.splitPercent)}</td>
+                  <td>{formatCount(totalMetrics.stm)}</td>
+                  <td>{formatRate(totalMetrics.stps)}</td>
+                  <td>{formatCount(totalMetrics.etm)}</td>
+                  <td>{formatRate(totalMetrics.etps)}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <div className="comparison-strip">

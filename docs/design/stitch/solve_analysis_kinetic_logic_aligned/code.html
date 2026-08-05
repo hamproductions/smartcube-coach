@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Solve Analysis &amp; Replay</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "inverse-primary": "#006e2f",
+                "on-secondary-fixed-variant": "#004395",
+                "inverse-on-surface": "#313032",
+                "tertiary": "#ffba61",
+                "on-primary-fixed-variant": "#005321",
+                "secondary-container": "#0566d9",
+                "primary-fixed": "#6bff8f",
+                "outline-variant": "#3d4a3d",
+                "surface-variant": "#353437",
+                "primary": "#4be277",
+                "surface-container-highest": "#353437",
+                "outline": "#869585",
+                "on-tertiary-fixed-variant": "#653e00",
+                "surface-bright": "#39393b",
+                "secondary-fixed": "#d8e2ff",
+                "on-tertiary": "#472a00",
+                "surface-tint": "#4ae176",
+                "on-error": "#690005",
+                "surface-container-high": "#2a2a2c",
+                "on-surface-variant": "#bccbb9",
+                "on-primary-container": "#004b1e",
+                "on-primary": "#003915",
+                "on-primary-fixed": "#002109",
+                "background": "#131315",
+                "on-secondary-container": "#e6ecff",
+                "on-secondary": "#002e6a",
+                "surface-container": "#201f22",
+                "surface-container-lowest": "#0e0e10",
+                "secondary": "#adc6ff",
+                "secondary-fixed-dim": "#adc6ff",
+                "surface-container-low": "#1c1b1d",
+                "primary-fixed-dim": "#4ae176",
+                "on-secondary-fixed": "#001a42",
+                "on-background": "#e5e1e4",
+                "error-container": "#93000a",
+                "primary-container": "#22c55e",
+                "on-error-container": "#ffdad6",
+                "tertiary-fixed-dim": "#ffb95f",
+                "tertiary-fixed": "#ffddb8",
+                "surface-dim": "#131315",
+                "tertiary-container": "#ef9900",
+                "surface": "#131315",
+                "inverse-surface": "#e5e1e4",
+                "on-surface": "#e5e1e4",
+                "on-tertiary-fixed": "#2a1700",
+                "on-tertiary-container": "#5c3800",
+                "error": "#ffb4ab"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "0.75rem"
+        },
+        "spacing": {
+                "base": "4px",
+                "gutter": "16px",
+                "touch-target-min": "48px",
+                "margin-desktop": "32px",
+                "margin-mobile": "16px"
+        },
+        "fontFamily": {
+                "scramble-lg": [
+                        "JetBrains Mono"
+                ],
+                "headline-lg": [
+                        "Geist"
+                ],
+                "timer-display": [
+                        "JetBrains Mono"
+                ],
+                "label-caps": [
+                        "Geist"
+                ],
+                "body-md": [
+                        "Geist"
+                ],
+                "table-data": [
+                        "JetBrains Mono"
+                ],
+                "timer-display-mobile": [
+                        "JetBrains Mono"
+                ],
+                "mono": ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', '"Liberation Mono"', '"Courier New"', 'monospace'],
+                "sans": ['Geist', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+        }
+},
+    },
+  }
+</script>
+<style data-purpose="custom-styles">
+    @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+    
+    body {
+      background-color: #131315;
+      color: #e5e1e4;
+    }
+
+    /* Custom scrollbar for webkit */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #131315; 
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #353437; 
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #39393b; 
+    }
+  </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 font-sans antialiased text-sm">
+<!-- BEGIN: Main Container -->
+<div class="max-w-6xl mx-auto space-y-8">
+<!-- BEGIN: Header Section -->
+<header class="flex justify-between items-start">
+<div>
+<h1 class="text-3xl font-semibold text-on-surface flex items-center gap-2 font-headline-lg">
+          #520
+        </h1>
+<p class="text-on-surface-variant mt-1 font-body-md">Session – Default Session</p>
+</div>
+<button class="p-2 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface-variant transition-colors">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</header>
+<!-- END: Header Section -->
+<!-- BEGIN: Stats Summary -->
+<section class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-8 border-b border-surface-container-highest pb-8">
+<div>
+<div class="text-on-surface-variant mb-1 font-label-caps uppercase tracking-wider">Time</div>
+<div class="text-2xl font-mono text-on-surface">22.67</div>
+</div>
+<div>
+<div class="text-on-surface-variant mb-1 font-label-caps uppercase tracking-wider">TPS</div>
+<div class="text-2xl font-mono text-on-surface">3.04</div>
+</div>
+<div>
+<div class="text-on-surface-variant mb-1 font-label-caps uppercase tracking-wider">Turns</div>
+<div class="text-2xl font-mono text-on-surface">69</div>
+</div>
+<div>
+<div class="text-on-surface-variant mb-1 flex items-center gap-1 font-label-caps uppercase tracking-wider">
+          Fluency
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="text-2xl font-mono text-on-surface">43%</div>
+</div>
+<div>
+<div class="text-on-surface-variant mb-1 font-label-caps uppercase tracking-wider">Date</div>
+<div class="text-xl text-on-surface pt-1">today</div>
+</div>
+</section>
+<!-- END: Stats Summary -->
+<!-- BEGIN: Scramble Section -->
+<section class="bg-surface-container rounded-lg p-4 space-y-4">
+<div class="flex justify-between items-start">
+<div class="font-mono text-on-surface text-lg leading-relaxed tracking-wide pr-8">
+          D2 L2 F2 U' F2 D' F2 U R2 U2 B2 L F R U L2 F D' F U' B' D2
+        </div>
+<button class="text-on-surface-variant hover:text-on-surface p-1">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<button class="w-full py-3 border border-outline-variant rounded-lg text-tertiary font-medium flex items-center justify-center gap-2 hover:bg-surface-bright transition-colors font-body-md">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+        Use this scramble
+      </button>
+</section>
+<!-- END: Scramble Section -->
+<!-- BEGIN: Action Buttons -->
+<div class="flex gap-3">
+<button class="px-6 py-2 bg-surface-container hover:bg-surface-bright text-on-surface rounded-lg font-medium transition-colors font-body-md">+2</button>
+<button class="px-6 py-2 bg-surface-container hover:bg-surface-bright text-on-surface rounded-lg font-medium transition-colors font-body-md">DNF</button>
+<button class="p-2 bg-surface-container hover:bg-error-container/30 text-on-surface-variant hover:text-error rounded-lg transition-colors flex items-center justify-center w-10 h-10">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="flex-grow"></div>
+<button class="p-2 bg-surface-container hover:bg-surface-bright text-secondary-container rounded-lg transition-colors flex items-center justify-center w-10 h-10">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<!-- END: Action Buttons -->
+<!-- BEGIN: Replay & Move List Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-8">
+<!-- BEGIN: 3D Replay Area -->
+<section class="bg-surface-container rounded-lg p-6 flex flex-col relative h-[500px]">
+<div class="flex justify-between items-center mb-4">
+<h2 class="text-xl font-mono text-on-surface-variant">replay</h2>
+<div class="flex items-center gap-3">
+<span class="text-on-surface-variant font-body-md">Speed</span>
+<div class="bg-surface-container-low rounded-lg px-4 py-1 text-on-surface font-body-md">x1</div>
+</div>
+</div>
+<!-- 3D Cube Container -->
+<div class="flex-grow flex items-center justify-center relative">
+<!-- Placeholder for 3D Canvas -->
+<div class="w-64 h-64 bg-surface-bright rounded-lg shadow-inner flex items-center justify-center border border-outline-variant">
+<!-- Using the provided cube image instead of a pure placeholder block -->
+<img alt="3D Cube View" class="absolute inset-0 w-full h-full object-contain opacity-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWyxgqcVPhbK-k4RqB6GaFPoBKlEj7UYcMPwUa2QIOTAhGs1HBgBnyFygEotrA2A4pY3IxfF2vHuksCwsD8rPuyfUk5EagiNUl-mn8JR8cDvbOfl1ebBG82YOSwndru_6cnhm-uJ28qkK8Nny1wWjnzi9x1R5W7JfNCHU3jDDRYN3Qp-y8iK8HjtBFbuVbpZSgHp-XSldaF4QoAeXdp5rZB6JrT7V3FRmX5F6DNT6sptnvjPVE5tOK"/>
+<div class="text-on-surface-variant font-mono text-sm">3D Viewer Placeholder</div>
+</div>
+</div>
+<!-- Progress and Controls -->
+<div class="mt-auto space-y-6">
+<div class="text-center font-mono text-on-surface-variant">
+            22.67 / 22.67
+          </div>
+<!-- Custom Progress Bar -->
+<div class="h-2 flex gap-1 rounded-lg overflow-hidden bg-surface-container-lowest">
+<div class="bg-[#9b72e5] h-full w-[15%]"></div>
+<div class="bg-[#5c6bc0] h-full w-[5%]"></div>
+<div class="bg-[#7986cb] h-full w-[10%]"></div>
+<div class="bg-[#9fa8da] h-full w-[8%]"></div>
+<div class="bg-[#1e88e5] h-full w-[7%]"></div>
+<div class="bg-[#42a5f5] h-full w-[12%]"></div>
+<div class="bg-primary-container h-full w-[3%]"></div>
+<div class="bg-primary h-full w-[25%]"></div>
+<div class="bg-primary-fixed h-full w-[2%]"></div>
+<div class="bg-primary-fixed-dim h-full w-[13%] flex justify-end">
+<div class="w-1 bg-white h-full scale-y-150 transform origin-center rounded-lg"></div>
+</div>
+</div>
+<!-- Player Controls -->
+<div class="flex justify-center items-center gap-8">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0019 16V8a1 1 0 00-1.6-.8l-5.333 4zM4.066 11.2a1 1 0 000 1.6l5.334 4A1 1 0 0011 16V8a1 1 0 00-1.6-.8l-5.334 4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M15 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<button class="w-14 h-14 bg-surface-bright hover:bg-outline-variant rounded-lg flex items-center justify-center text-on-surface transition-colors">
+<svg class="h-8 w-8 ml-1" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" fill-rule="evenodd"></path>
+</svg>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M11.933 12.8a1 1 0 000-1.6L6.6 7.2A1 1 0 005 8v8a1 1 0 001.6.8l5.333-4zM19.933 12.8a1 1 0 000-1.6l-5.333-4A1 1 0 0013 8v8a1 1 0 001.6.8l5.333-4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</div>
+</section>
+<!-- END: 3D Replay Area -->
+<!-- BEGIN: Move List -->
+<section class="bg-surface-container rounded-lg p-6 h-[500px] overflow-y-auto">
+<div class="flex justify-between items-start mb-6">
+<div class="text-on-surface-variant text-sm font-body-md">
+<span class="text-on-surface font-medium">CROSS</span> [3.19]
+          </div>
+<button class="text-on-surface-variant hover:text-on-surface">
+<svg class="h-5 w-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<div class="font-mono text-on-surface mb-8 pl-4">
+          z L' D F' D' R' B R' D2
+        </div>
+<div class="mb-4">
+<span class="text-on-surface-variant text-sm font-body-md">F2L</span> <span class="text-on-surface-variant text-sm font-body-md opacity-75">[12.42]</span>
+</div>
+<div class="space-y-4 pl-4">
+<!-- Slot 1 -->
+<div>
+<div class="text-on-surface-variant text-xs mb-1 font-label-caps uppercase tracking-wider">SLOT 1</div>
+<div class="font-mono text-on-surface tracking-wide">F L2 F' L' B' U' F U S</div>
+</div>
+<!-- Slot 2 -->
+<div>
+<div class="flex items-center gap-2 mb-1">
+<div class="text-on-surface-variant text-xs font-label-caps uppercase tracking-wider">SLOT 2</div>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-secondary-container/20 text-secondary-container">
+<svg class="h-3 w-3" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" fill-rule="evenodd"></path>
+</svg>
+                Predicted
+              </span>
+</div>
+<div class="font-mono text-on-surface tracking-wide">U' U' B U' B' U U' U2 B' U' B</div>
+</div>
+<!-- Slot 3 -->
+<div>
+<div class="text-on-surface-variant text-xs mb-1 font-label-caps uppercase tracking-wider">SLOT 3</div>
+<div class="font-mono text-on-surface tracking-wide">U' U L' U2 L R' U R</div>
+</div>
+<!-- Slot 4 -->
+<div>
+<div class="text-on-surface-variant text-xs mb-1 font-label-caps uppercase tracking-wider">SLOT 4</div>
+<div class="font-mono text-on-surface tracking-wide">U U F U F' U2' F U F'</div>
+</div>
+</div>
+<div class="mt-8 mb-2 flex items-center gap-2">
+<span class="text-on-surface-variant text-sm font-body-md">OLL</span> <span class="text-on-surface-variant text-sm font-body-md opacity-75">[4.45]</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-primary-container/20 text-primary-container">
+<svg class="h-3 w-3" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" fill-rule="evenodd"></path>
+</svg>
+            Optimal
+          </span>
+</div>
+<div class="font-mono text-on-surface mb-8 pl-4 tracking-wide">
+          U2 U2' S' F U F' U F U2 F' U S
+        </div>
+<div class="mb-2 flex items-center gap-2">
+<span class="text-on-surface-variant text-sm font-body-md">PLL</span> <span class="text-on-surface-variant text-sm font-body-md opacity-75">[2.61]</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium bg-error-container/20 text-error">
+<svg class="h-3 w-3" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" fill-rule="evenodd"></path>
+</svg>
+            Blunder
+          </span>
+</div>
+<div class="font-mono text-on-surface pl-4 tracking-wide pb-4">
+          U2 F2 U F U F' U' F' U' F' U F'
+        </div>
+</section>
+<!-- END: Move List -->
+</div>
+<!-- END: Replay & Move List Section -->
+<!-- BEGIN: Step Analysis Table -->
+<section class="mt-8">
+<div class="flex justify-between items-end mb-4">
+<h2 class="text-xl font-mono text-on-surface-variant">step<br/>analysis</h2>
+<div>
+<select class="bg-surface-container border-none text-on-surface text-sm rounded-lg focus:ring-primary block w-full p-2 font-body-md">
+<option>CFOP</option>
+<option>Roux</option>
+</select>
+</div>
+</div>
+<div class="overflow-x-auto bg-surface-container rounded-lg">
+<table class="w-full text-left text-on-surface-variant font-mono text-sm border-collapse">
+<thead>
+<tr class="border-b border-surface-container-highest">
+<th class="p-4 font-normal text-on-surface-variant w-32 font-label-caps uppercase tracking-wider"></th>
+<th class="p-4 font-normal text-center font-label-caps uppercase tracking-wider">CROSS</th>
+<th class="p-4 font-normal text-center font-label-caps uppercase tracking-wider">
+                SLOT 1
+                <div class="text-[10px] bg-surface-bright rounded px-1 mt-1 inline-flex items-center gap-1 mx-auto"><div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>F2L 19</div>
+</th>
+<th class="p-4 font-normal text-center font-label-caps uppercase tracking-wider">
+                SLOT 2
+                <div class="text-[10px] bg-surface-bright rounded px-1 mt-1 inline-flex items-center gap-1 mx-auto"><div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>AF2L 10</div>
+</th>
+<th class="p-4 font-normal text-center font-label-caps uppercase tracking-wider">
+                SLOT 3
+                <div class="text-[10px] bg-surface-bright rounded px-1 mt-1 inline-flex items-center gap-1 mx-auto"><div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>F2L 8</div>
+</th>
+<th class="p-4 font-normal text-center font-label-caps uppercase tracking-wider">
+                SLOT 4
+                <div class="text-[10px] bg-surface-bright rounded px-1 mt-1 inline-flex items-center gap-1 mx-auto"><div class="w-1.5 h-1.5 rounded-full bg-tertiary"></div>F2L 34</div>
+</th>
+<th class="p-4 font-normal text-center font-label-caps uppercase tracking-wider">
+                OLL
+                <div class="text-[10px] bg-surface-bright rounded px-1 mt-1 inline-flex items-center gap-1 mx-auto"><div class="w-1.5 h-1.5 rounded-full bg-primary-container"></div>OLL 11</div>
+</th>
+<th class="p-4 font-normal text-center bg-surface-bright rounded-t-lg font-label-caps uppercase tracking-wider">
+                PLL
+                <div class="text-[10px] bg-surface-container-highest rounded px-1 mt-1 inline-flex items-center gap-1 mx-auto"><div class="w-1.5 h-1.5 rounded-full bg-error"></div>PLL Ub</div>
+</th>
+<th class="p-4 font-normal text-center text-on-surface font-label-caps uppercase tracking-wider">TOTAL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-surface-container-highest/50">
+<td class="p-4 text-on-surface-variant font-label-caps uppercase tracking-wider">RECOGNITION</td>
+<td class="p-4 text-center">-</td>
+<td class="p-4 text-center">1.93</td>
+<td class="p-4 text-center text-on-surface">0.18</td>
+<td class="p-4 text-center text-on-surface">0.72</td>
+<td class="p-4 text-center text-on-surface">0.58</td>
+<td class="p-4 text-center">1.21</td>
+<td class="p-4 text-center bg-surface-bright">0.76</td>
+<td class="p-4 text-center">5.40 <span class="text-on-surface-variant text-xs ml-1 font-sans">(24%)</span></td>
+</tr>
+<tr class="border-b border-surface-container-highest/50">
+<td class="p-4 text-on-surface-variant font-label-caps uppercase tracking-wider">EXECUTION</td>
+<td class="p-4 text-center text-on-surface">3.19</td>
+<td class="p-4 text-center">1.93</td>
+<td class="p-4 text-center text-on-surface">3.01</td>
+<td class="p-4 text-center text-on-surface">1.84</td>
+<td class="p-4 text-center text-on-surface">2.20</td>
+<td class="p-4 text-center text-on-surface">3.24</td>
+<td class="p-4 text-center bg-surface-bright text-on-surface">1.84</td>
+<td class="p-4 text-center">17.27 <span class="text-on-surface-variant text-xs ml-1 font-sans">(76%)</span></td>
+</tr>
+<tr class="border-b border-surface-container-highest/50">
+<td class="p-4 text-on-surface-variant font-label-caps uppercase tracking-wider">STEP TIME</td>
+<td class="p-4 text-center">3.19</td>
+<td class="p-4 text-center text-on-surface">3.87</td>
+<td class="p-4 text-center text-on-surface">3.19</td>
+<td class="p-4 text-center text-on-surface">2.56</td>
+<td class="p-4 text-center text-on-surface">2.79</td>
+<td class="p-4 text-center">4.45</td>
+<td class="p-4 text-center bg-surface-bright text-on-surface">2.61</td>
+<td class="p-4 text-center">22.67</td>
+</tr>
+<tr class="border-b border-surface-container-highest/50">
+<td class="p-4 text-on-surface-variant font-label-caps uppercase tracking-wider">TOTAL TIME</td>
+<td class="p-4 text-center">3.19</td>
+<td class="p-4 text-center">7.06</td>
+<td class="p-4 text-center">10.25</td>
+<td class="p-4 text-center text-on-surface">12.82</td>
+<td class="p-4 text-center text-on-surface">15.61</td>
+<td class="p-4 text-center text-on-surface">20.06</td>
+<td class="p-4 text-center bg-surface-bright text-on-surface">22.67</td>
+<td class="p-4 text-center text-on-surface">22.67</td>
+</tr>
+<tr>
+<td class="p-4 text-on-surface-variant font-label-caps uppercase tracking-wider">TURNS</td>
+<td class="p-4 text-center text-on-surface">8</td>
+<td class="p-4 text-center text-on-surface">9</td>
+<td class="p-4 text-center text-on-surface">11</td>
+<td class="p-4 text-center text-on-surface">8</td>
+<td class="p-4 text-center text-on-surface">9</td>
+<td class="p-4 text-center text-on-surface">12</td>
+<td class="p-4 text-center bg-surface-bright rounded-b-lg text-on-surface">12</td>
+<td class="p-4 text-center text-on-surface">69</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- END: Step Analysis Table -->
+</div>
+<!-- END: Main Container -->
+</body></html>

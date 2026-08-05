@@ -2,7 +2,9 @@
 
 Current public deployment: https://hamproductions.github.io/smartcube-coach/
 
-The public deployment remains the pre-correction build until the current `main` push and Pages workflow complete. Do not use the old public UI as proof of the corrected product.
+**This index describes the 2026-07-30 correction pass and is older than the working tree.** The 2026-08-03 session added the device session harness, connection self-test, CFOP case and slot recognition, route comparison and the redo surfaces; none of that is committed or deployed, so the public URL does not contain it. The current, accurate capability list is `docs/feature-status.md`, and the defect-by-defect record is `docs/research/execution-receipt-2026-08-03.md`.
+
+No evidence anywhere in this repository was produced by a physically paired smart cube.
 
 ## Corrected build evidence
 
@@ -21,6 +23,16 @@ The public deployment remains the pre-correction build until the current `main` 
 ## Current screenshot
 
 - `smart-cube-coach-first-run.png` — corrected first-run empty state with no fabricated telemetry.
+
+## Coaching surface, 2026-08-05 (local dev server, not deployed)
+
+Captured from `http://localhost:5173/` against a working tree that is not committed or deployed. The solve in these shots is the bundled reco.nz reconstruction 13444, segmented by the app's own `segmentCfop` and written to the app's own repositories; no smart cube was involved.
+
+- `coaching-2026-08-05-breakdown.png` — solve breakdown with F2L case names on the stage rows and the expanded better-pair line.
+- `coaching-2026-08-05-seek-move1.png` / `coaching-2026-08-05-seek-move20.png` — the playback cube at the first and last move of the same solve, cropped to the player's own rect. RMSE 20718.9 (0.316).
+- `coaching-2026-08-05-hold-white-top.png` / `coaching-2026-08-05-hold-yellow-top.png` — the same finished solve with the Settings top colour set to white and to yellow. RMSE 12480.7 (0.190).
+- `coaching-2026-08-05-player-and-rows.png` — clicking the F2L 4 row highlights F2L 4 (it used to highlight F2L 3), the move strip in the player uses the same condensed notation as the reconstruction, and the transport is labelled `REAL SPEED` because that solve carries per-move timings.
+- `coaching-2026-08-05-algorithms-on-rows.png` — a stage row carrying both the case's algorithm and the shorter solution, captured with the stored algorithm catalogue emptied first, on a solve whose stages were written in the old format and upgraded by the on-load re-analysis.
 
 All screenshots from the mocked `Vector` deployment were deleted because they were misleading and stale.
 

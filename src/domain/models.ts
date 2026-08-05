@@ -1,3 +1,11 @@
+/**
+ * What the analyser knew when a solve's stages were written. A solve carrying an older value
+ * is re-segmented on load (`src/storage/reanalyseSolves.ts`) so improvements to the analyser
+ * reach solves that were recorded before them. Bump it when `segmentCfop` records something
+ * new. This is the record's version, not the backup envelope's `analysisVersion`.
+ */
+export const ANALYSIS_VERSION = '5'
+
 export type RawCubeEvent = {
   id: string
   solveId: string
@@ -22,6 +30,17 @@ export type SolveRecord = {
   analysisVersion: string
   rawEventIds: string[]
   moves: string[]
+  /**
+   * Milliseconds from the first solve move to each move, parallel to `moves`. Without it
+   * playback can only step at a fixed cadence, which is not how the solve was turned; raw
+   * events are not persisted, so this is the only record of the real rhythm.
+   */
+  moveOffsetsMs?: number[]
+  source?: 'simulator' | 'cube' | 'replay' | 'keyboard'
+  stateVerified?: boolean
+  verificationDetail?: string
+  inspectionMs?: number
+  comment?: string
 }
 
 export type StageRecord = {
@@ -32,14 +51,37 @@ export type StageRecord = {
   startEvent: number
   firstMoveEvent: number
   endEvent: number
-  recognitionMs: number
-  executionMs: number
+  recognitionMs?: number
+  executionMs?: number
   moveCount: number
   rotationCount: number
-  pauseCount: number
-  tps: number
+  pauseCount?: number
+  tps?: number
   caseId?: string
+  caseName?: string
+  /**
+   * A short alg that reproduces the position this stage started from, computed from the cube
+   * state rather than replayed from history. Turning it on a solved cube puts the same case in
+   * front of the solver.
+   */
+  setupAlg?: string
+  slot?: 'FR' | 'FL' | 'BR' | 'BL'
+  /** The slot's two side colours, read from the cube state so they mean something on a real cube. */
+  slotColours?: Array<{ name: string; hex: string }>
+  optimalMoveCount?: number
+  /** The shorter solution itself — computed anyway, so show it instead of describing it. */
+  optimalMoves?: string[]
+  /** The better pair's own side colours, recorded the same way as `slotColours`. */
+  betterSlotColours?: Array<{ name: string; hex: string }>
+  /** The pair that was cheaper than the one taken, when there was one. */
+  betterSlot?: { slot: 'FR' | 'FL' | 'BR' | 'BL'; moves: string[]; saved: number }
+  frame?: string
+  longestPauseMs?: number
+  longestPauseAfter?: string
+  longestPauseBefore?: string
+  rotationMs?: number
   confidence: number
+  notation?: string
 }
 
 export type FindingRecord = {
@@ -58,7 +100,7 @@ export type FindingRecord = {
 
 export type CurriculumMode = 'drill' | 'learn' | 'review'
 export type TrainerFamily = 'algorithm' | 'recognition' | 'inspection' | 'prediction' | 'tracking' | 'color-inference' | 'free-pair' | 'time-attack' | 'metronome' | 'bld-memo' | 'bld-cycle' | 'bld-letter-pair'
-export type AttemptProtocol = 'state-success' | 'algorithm-rehearsal' | 'multiple-choice' | 'typed-answer' | 'yes-no' | 'inspection-only' | 'inspection-execution' | 'tracking-answer' | 'memo-recall' | 'memo-decode'
+export type AttemptProtocol = 'state-success' | 'algorithm-rehearsal' | 'multiple-choice' | 'typed-answer' | 'yes-no' | 'inspection-only' | 'inspection-execution' | 'tracking-answer' | 'orientation-answer' | 'memo-recall' | 'memo-decode'
 export type AttemptOutcome = 'success' | 'incorrect' | 'give-up' | 'skip' | 'aborted' | 'disconnect' | 'invalid-setup'
 
 export type TrainerAttempt = {
@@ -113,7 +155,7 @@ export type TrainerAttempt = {
 
 export type AlgorithmRecord = {
   id: string
-  set: 'F2L' | 'OLL' | 'PLL' | 'BLD'
+  set: 'F2L' | 'OLL' | 'PLL' | 'BLD' | 'COLL' | 'CMLL' | 'WVLS' | 'OLLCP' | 'VHLS' | 'ZBLL' | 'ZBLS' | 'L6E-EO' | 'L6E-EOLR'
   name: string
   algorithm: string
   setup: string
@@ -156,13 +198,14 @@ export type MetricSample = {
   unit: 'ms' | 'moves' | 'count' | 'ratio' | 'tps'
   occurredAt: number
   confidence: number
-  context: { puzzle: string; method?: string; stage?: string; caseId?: string }
+  context: { puzzle: string; method?: string; stage?: string; caseId?: string; caseName?: string; slot?: string; pauseBefore?: string }
   evidence: Array<{ rawEventId?: string; fromEvent?: number; toEvent?: number }>
 }
 
 export type PrescriptionRecord = {
   id: string
   findingId: string
+  title?: string
   metric: string
   target: number
   sampleSize: number
@@ -192,6 +235,13 @@ export type TransferEvaluation = {
   confidence?: number
 }
 
+export type SessionRecord = {
+  id: string
+  name: string
+  createdAt: number
+  puzzle: '333'
+}
+
 export type KeyValueRecord = { key: string; value: unknown }
 
 export type SmartCubeCoachBackup = {
@@ -213,4 +263,5 @@ export type SmartCubeCoachBackup = {
   transfers: TransferEvaluation[]
   settings: KeyValueRecord[]
   meta: KeyValueRecord[]
+  sessions?: SessionRecord[]
 }

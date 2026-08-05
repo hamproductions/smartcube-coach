@@ -7,12 +7,14 @@ import type {
   PrescriptionRecord,
   RawCubeEvent,
   ReconstructionRevision,
+  SessionRecord,
   SolveRecord,
   StageRecord,
   StudyRecord,
   TrainerAttempt,
   TransferEvaluation
 } from '../domain/models'
+import { createDefaultSession, solveIdsNeedingMigration } from '../domain/sessions'
 
 interface SmartCubeCoachDatabase extends DBSchema {
   rawEvents: { key: string; value: RawCubeEvent; indexes: { 'by-solve': string } }
@@ -28,13 +30,14 @@ interface SmartCubeCoachDatabase extends DBSchema {
   transfers: { key: string; value: TransferEvaluation; indexes: { 'by-prescription': string } }
   settings: { key: string; value: KeyValueRecord }
   meta: { key: string; value: KeyValueRecord }
+  sessions: { key: string; value: SessionRecord; indexes: { 'by-created': number } }
 }
 
 const databaseName = 'smart-cube-coach'
 let databasePromise: Promise<IDBPDatabase<SmartCubeCoachDatabase>> | undefined
 
-export function getDatabase() {
-  databasePromise ??= openDB<SmartCubeCoachDatabase>(databaseName, 4, {
+function getDatabase() {
+  databasePromise ??= openDB<SmartCubeCoachDatabase>(databaseName, 5, {
     upgrade(database, oldVersion, _newVersion, transaction) {
       if (oldVersion < 1) {
         const rawEvents = database.createObjectStore('rawEvents', { keyPath: 'id' })
@@ -71,11 +74,37 @@ export function getDatabase() {
         const transfers = database.createObjectStore('transfers', { keyPath: 'id' })
         transfers.createIndex('by-prescription', 'prescriptionId')
       }
-      transaction.objectStore('meta').put({ key: 'schemaVersion', value: 4 })
+      if (oldVersion < 5) {
+        const sessions = database.createObjectStore('sessions', { keyPath: 'id' })
+        sessions.createIndex('by-created', 'createdAt')
+        transaction.objectStore('meta').put({ key: 'needsSessionMigration', value: true })
+      }
+      transaction.objectStore('meta').put({ key: 'schemaVersion', value: 5 })
       transaction.objectStore('meta').put({ key: 'analysisVersion', value: '1' })
     }
+  }).then(async (database) => {
+    const flag = await database.get('meta', 'needsSessionMigration')
+    if (flag?.value) {
+      await migrateDefaultSession(database)
+      await database.put('meta', { key: 'needsSessionMigration', value: false })
+    }
+    return database
   })
   return databasePromise
+}
+
+async function migrateDefaultSession(database: IDBPDatabase<SmartCubeCoachDatabase>) {
+  const existingSessions = await database.getAll('sessions')
+  const defaultSession = existingSessions.find((session) => session.id === 'default') ?? createDefaultSession(Date.now())
+  await database.put('sessions', defaultSession)
+  const knownSessionIds = new Set([...existingSessions.map((session) => session.id), defaultSession.id])
+  const solves = await database.getAll('solves')
+  const migratedIds = new Set(solveIdsNeedingMigration(solves, knownSessionIds))
+  await Promise.all(
+    solves
+      .filter((solve) => migratedIds.has(solve.id))
+      .map((solve) => database.put('solves', { ...solve, sessionId: defaultSession.id }))
+  )
 }
 
 type StoreName = keyof SmartCubeCoachDatabase & string
@@ -84,6 +113,7 @@ type Repository<T> = {
   get(id: string): Promise<T | undefined>
   put(value: T): Promise<T>
   all(): Promise<T[]>
+  remove(id: string): Promise<void>
   clear(): Promise<void>
 }
 
@@ -97,6 +127,9 @@ const store = <T>(name: StoreName): Repository<T> => ({
   },
   async all() {
     return (await (await getDatabase()).getAll(name as never)) as T[]
+  },
+  async remove(id: string) {
+    await (await getDatabase()).delete(name as never, id as never)
   },
   async clear() {
     await (await getDatabase()).clear(name as never)
@@ -130,7 +163,8 @@ export const repositories = {
   prescriptions: store<PrescriptionRecord>('prescriptions'),
   transfers: store<TransferEvaluation>('transfers'),
   settings: store<KeyValueRecord>('settings'),
-  meta: store<KeyValueRecord>('meta')
+  meta: store<KeyValueRecord>('meta'),
+  sessions: store<SessionRecord>('sessions')
 }
 
 export async function clearDatabase() {

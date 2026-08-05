@@ -49,7 +49,9 @@ describe('reco.nz integration', () => {
       '2nd pair',
       'EPLL'
     ])
-    expect(reconstruction.moves).toHaveLength(21)
+    expect(reconstruction.moves).toHaveLength(22)
+    expect(reconstruction.moves[0]).toBe('z2')
+    expect(reconstruction.turnMoves).toHaveLength(21)
     expect(reconstruction.stats.Time.Total).toBe('3.45')
     expect(reconstruction.stats.STPS.F2L).toBe('13.90')
     expect(reconstruction.videoUrl).toBe('https://www.youtube.com/embed/15qHa6UCimo')

@@ -19,6 +19,7 @@ export type RecoReconstruction = {
   scramble: string
   reconstruction: string
   moves: string[]
+  turnMoves: string[]
   stages: RecoStage[]
   stats: Record<string, Record<string, string>>
   videoUrl?: string
@@ -66,9 +67,8 @@ export function parseRecoHtml(html: string, inputUrl: string): RecoReconstructio
       moves: moveTokens(alg)
     }
   })
-  const moves = stages
-    .filter((stage) => stage.label.toLowerCase() !== 'inspection')
-    .flatMap((stage) => stage.moves)
+  const moves = stages.flatMap((stage) => stage.moves)
+  const turnMoves = moves.filter((move) => !/^[xyz]/i.test(move))
   const statsTable = document.querySelector('#solvestats')
   const rows = statsTable ? Array.from(statsTable.querySelectorAll('tr')) : []
   const headers = rows[0]
@@ -96,6 +96,7 @@ export function parseRecoHtml(html: string, inputUrl: string): RecoReconstructio
     scramble,
     reconstruction: reconstructionLines.join('\n'),
     moves,
+    turnMoves,
     stages,
     stats,
     videoUrl: document.querySelector('iframe')?.getAttribute('src') || undefined

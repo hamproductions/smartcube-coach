@@ -1,1 +1,263 @@
-{"id":"13444","sourceUrl":"https://reco.nz/solve/13444","algUrl":"https://alg.cubing.net/?setup=F2+R2+D+U2+B2+D+L2+U%27+R2+U+F+R%27+F2+U%27+R2+D2+R+F%27+L%27+F%27+U%27&alg=z2+%2F%2F+inspection%0AD%27+L+R+D+R%27+U+D+%2F%2F+cross%0AL%27+U+L+%2F%2F+1st+pair%0AR%27+F+R+F%27+R%27+F+R+F%27+%2F%2F+2nd+pair%0Ay+R+R%27+R+U+R2%27+U%27+%2F%2F+3rd+pair%0AF+R+F%27+U2%27+R+U+R%27+%2F%2F+4th+pair%0AU2%27+R+U+R%27+U%27+R%27+F+R+F%27+%2F%2F+OLL%28CP%29%0AM2%27+U2+M2%27+U+M2%27+U2+M2%27+%2F%2F+EPLL","solver":"Yiheng Wang","result":"3.45","puzzle":"3x3","subtitle":"[WR] 2026-06-17 - Hefei Cubing League 3x3 III 2026 - reconstruction by Stewy","date":"2026-06-17","reconstructor":"Stewy","scramble":"F2 R2 D U2 B2 D L2 U' R2 U F R' F2 U' R2 D2 R F' L' F' U'","reconstruction":"z2 // inspection\nD' L R D R' U D // cross\nL' U L // 1st pair\nR' F R F' R' F R F' // 2nd pair\ny R R' R U R2' U' // 3rd pair\nF R F' U2' R U R' // 4th pair\nU2' R U R' U' R' F R F' // OLL(CP)\nM2' U2 M2' U M2' U2 M2' // EPLL","moves":["D'","L","R","D","R'","U","D","L'","U","L","R'","F","R","F'","R'","F","R","F'","y","R","R'","R","U","R2'","U'","F","R","F'","U2'","R","U","R'","U2'","R","U","R'","U'","R'","F","R","F'","M2'","U2","M2'","U","M2'","U2","M2'"],"stages":[{"label":"inspection","alg":"z2","moves":["z2"]},{"label":"cross","alg":"D' L R D R' U D","moves":["D'","L","R","D","R'","U","D"]},{"label":"1st pair","alg":"L' U L","moves":["L'","U","L"]},{"label":"2nd pair","alg":"R' F R F' R' F R F'","moves":["R'","F","R","F'","R'","F","R","F'"]},{"label":"3rd pair","alg":"y R R' R U R2' U'","moves":["y","R","R'","R","U","R2'","U'"]},{"label":"4th pair","alg":"F R F' U2' R U R'","moves":["F","R","F'","U2'","R","U","R'"]},{"label":"OLL(CP)","alg":"U2' R U R' U' R' F R F'","moves":["U2'","R","U","R'","U'","R'","F","R","F'"]},{"label":"EPLL","alg":"M2' U2 M2' U M2' U2 M2'","moves":["M2'","U2","M2'","U","M2'","U2","M2'"]}],"stats":{"Time":{"Total":"3.45","F2L":"2.23","LL":"1.22","Cross+1":"0.87","OLS":"0.87","PLL":"0.82"},"Split":{"Total":"100%","F2L":"64.6%","LL":"35.4%","Cross+1":"25.2%","OLS":"25.2%","PLL":"23.8%"},"STM":{"Total":"47","F2L":"31","LL":"16","Cross+1":"10","OLS":"16","PLL":"7"},"STPS":{"Total":"13.62","F2L":"13.90","LL":"13.11","Cross+1":"11.49","OLS":"18.39","PLL":"8.54"},"ETM":{"Total":"48","F2L":"32","LL":"16","Cross+1":"10","OLS":"16","PLL":"7"},"ETPS":{"Total":"13.91","F2L":"14.35","LL":"13.11","Cross+1":"11.49","OLS":"18.39","PLL":"8.54"}},"videoUrl":"https://www.youtube.com/embed/15qHa6UCimo"}
+{
+  "id": "13444",
+  "sourceUrl": "https://reco.nz/solve/13444",
+  "algUrl": "https://alg.cubing.net/?setup=F2+R2+D+U2+B2+D+L2+U%27+R2+U+F+R%27+F2+U%27+R2+D2+R+F%27+L%27+F%27+U%27&alg=z2+%2F%2F+inspection%0AD%27+L+R+D+R%27+U+D+%2F%2F+cross%0AL%27+U+L+%2F%2F+1st+pair%0AR%27+F+R+F%27+R%27+F+R+F%27+%2F%2F+2nd+pair%0Ay+R+R%27+R+U+R2%27+U%27+%2F%2F+3rd+pair%0AF+R+F%27+U2%27+R+U+R%27+%2F%2F+4th+pair%0AU2%27+R+U+R%27+U%27+R%27+F+R+F%27+%2F%2F+OLL%28CP%29%0AM2%27+U2+M2%27+U+M2%27+U2+M2%27+%2F%2F+EPLL",
+  "solver": "Yiheng Wang",
+  "result": "3.45",
+  "puzzle": "3x3",
+  "subtitle": "[WR] 2026-06-17 - Hefei Cubing League 3x3 III 2026 - reconstruction by Stewy",
+  "date": "2026-06-17",
+  "reconstructor": "Stewy",
+  "scramble": "F2 R2 D U2 B2 D L2 U' R2 U F R' F2 U' R2 D2 R F' L' F' U'",
+  "reconstruction": "z2 // inspection\nD' L R D R' U D // cross\nL' U L // 1st pair\nR' F R F' R' F R F' // 2nd pair\ny R R' R U R2' U' // 3rd pair\nF R F' U2' R U R' // 4th pair\nU2' R U R' U' R' F R F' // OLL(CP)\nM2' U2 M2' U M2' U2 M2' // EPLL",
+  "moves": [
+    "z2",
+    "D'",
+    "L",
+    "R",
+    "D",
+    "R'",
+    "U",
+    "D",
+    "L'",
+    "U",
+    "L",
+    "R'",
+    "F",
+    "R",
+    "F'",
+    "R'",
+    "F",
+    "R",
+    "F'",
+    "y",
+    "R",
+    "R'",
+    "R",
+    "U",
+    "R2'",
+    "U'",
+    "F",
+    "R",
+    "F'",
+    "U2'",
+    "R",
+    "U",
+    "R'",
+    "U2'",
+    "R",
+    "U",
+    "R'",
+    "U'",
+    "R'",
+    "F",
+    "R",
+    "F'",
+    "M2'",
+    "U2",
+    "M2'",
+    "U",
+    "M2'",
+    "U2",
+    "M2'"
+  ],
+  "stages": [
+    {
+      "label": "inspection",
+      "alg": "z2",
+      "moves": [
+        "z2"
+      ]
+    },
+    {
+      "label": "cross",
+      "alg": "D' L R D R' U D",
+      "moves": [
+        "D'",
+        "L",
+        "R",
+        "D",
+        "R'",
+        "U",
+        "D"
+      ]
+    },
+    {
+      "label": "1st pair",
+      "alg": "L' U L",
+      "moves": [
+        "L'",
+        "U",
+        "L"
+      ]
+    },
+    {
+      "label": "2nd pair",
+      "alg": "R' F R F' R' F R F'",
+      "moves": [
+        "R'",
+        "F",
+        "R",
+        "F'",
+        "R'",
+        "F",
+        "R",
+        "F'"
+      ]
+    },
+    {
+      "label": "3rd pair",
+      "alg": "y R R' R U R2' U'",
+      "moves": [
+        "y",
+        "R",
+        "R'",
+        "R",
+        "U",
+        "R2'",
+        "U'"
+      ]
+    },
+    {
+      "label": "4th pair",
+      "alg": "F R F' U2' R U R'",
+      "moves": [
+        "F",
+        "R",
+        "F'",
+        "U2'",
+        "R",
+        "U",
+        "R'"
+      ]
+    },
+    {
+      "label": "OLL(CP)",
+      "alg": "U2' R U R' U' R' F R F'",
+      "moves": [
+        "U2'",
+        "R",
+        "U",
+        "R'",
+        "U'",
+        "R'",
+        "F",
+        "R",
+        "F'"
+      ]
+    },
+    {
+      "label": "EPLL",
+      "alg": "M2' U2 M2' U M2' U2 M2'",
+      "moves": [
+        "M2'",
+        "U2",
+        "M2'",
+        "U",
+        "M2'",
+        "U2",
+        "M2'"
+      ]
+    }
+  ],
+  "stats": {
+    "Time": {
+      "Total": "3.45",
+      "F2L": "2.23",
+      "LL": "1.22",
+      "Cross+1": "0.87",
+      "OLS": "0.87",
+      "PLL": "0.82"
+    },
+    "Split": {
+      "Total": "100%",
+      "F2L": "64.6%",
+      "LL": "35.4%",
+      "Cross+1": "25.2%",
+      "OLS": "25.2%",
+      "PLL": "23.8%"
+    },
+    "STM": {
+      "Total": "47",
+      "F2L": "31",
+      "LL": "16",
+      "Cross+1": "10",
+      "OLS": "16",
+      "PLL": "7"
+    },
+    "STPS": {
+      "Total": "13.62",
+      "F2L": "13.90",
+      "LL": "13.11",
+      "Cross+1": "11.49",
+      "OLS": "18.39",
+      "PLL": "8.54"
+    },
+    "ETM": {
+      "Total": "48",
+      "F2L": "32",
+      "LL": "16",
+      "Cross+1": "10",
+      "OLS": "16",
+      "PLL": "7"
+    },
+    "ETPS": {
+      "Total": "13.91",
+      "F2L": "14.35",
+      "LL": "13.11",
+      "Cross+1": "11.49",
+      "OLS": "18.39",
+      "PLL": "8.54"
+    }
+  },
+  "videoUrl": "https://www.youtube.com/embed/15qHa6UCimo",
+  "turnMoves": [
+    "D'",
+    "L",
+    "R",
+    "D",
+    "R'",
+    "U",
+    "D",
+    "L'",
+    "U",
+    "L",
+    "R'",
+    "F",
+    "R",
+    "F'",
+    "R'",
+    "F",
+    "R",
+    "F'",
+    "R",
+    "R'",
+    "R",
+    "U",
+    "R2'",
+    "U'",
+    "F",
+    "R",
+    "F'",
+    "U2'",
+    "R",
+    "U",
+    "R'",
+    "U2'",
+    "R",
+    "U",
+    "R'",
+    "U'",
+    "R'",
+    "F",
+    "R",
+    "F'",
+    "M2'",
+    "U2",
+    "M2'",
+    "U",
+    "M2'",
+    "U2",
+    "M2'"
+  ]
+}

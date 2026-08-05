@@ -42,7 +42,14 @@ self.addEventListener('fetch', (event) => {
     return
   }
   event.respondWith(caches.match(request).then((cached) => cached ?? fetch(request).then((response) => {
-    if (response.ok) void caches.open(CACHE).then((cache) => cache.put(request, response.clone()))
+    // Clone before returning, not inside the cache callback: by the time that callback
+    // runs the returned response has already been read and its body is gone, which threw
+    // "Failed to execute 'clone' on 'Response': Response body is already used" on every
+    // cacheable request. Same order the navigate branch above uses.
+    if (response.ok) {
+      const copy = response.clone()
+      void caches.open(CACHE).then((cache) => cache.put(request, copy))
+    }
     return response
   })))
 })

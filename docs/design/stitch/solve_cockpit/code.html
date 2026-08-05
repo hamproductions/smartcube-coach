@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Solve Cockpit - Cube Coach</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary-fixed-dim": "#adc6ff",
+                        "on-tertiary": "#472a00",
+                        "inverse-primary": "#006e2f",
+                        "on-surface-variant": "#bccbb9",
+                        "surface-container": "#201f22",
+                        "on-tertiary-fixed": "#2a1700",
+                        "tertiary-fixed": "#ffddb8",
+                        "inverse-surface": "#e5e1e4",
+                        "error-container": "#93000a",
+                        "surface-tint": "#4ae176",
+                        "on-primary-fixed-variant": "#005321",
+                        "outline": "#869585",
+                        "primary-fixed": "#6bff8f",
+                        "on-error-container": "#ffdad6",
+                        "error": "#ffb4ab",
+                        "surface-dim": "#131315",
+                        "on-background": "#e5e1e4",
+                        "tertiary": "#ffba61",
+                        "surface-container-lowest": "#0e0e10",
+                        "tertiary-container": "#ef9900",
+                        "on-primary-fixed": "#002109",
+                        "on-primary": "#003915",
+                        "on-secondary-container": "#e6ecff",
+                        "secondary-fixed": "#d8e2ff",
+                        "primary-fixed-dim": "#4ae176",
+                        "inverse-on-surface": "#313032",
+                        "surface-container-low": "#1c1b1d",
+                        "surface-container-high": "#2a2a2c",
+                        "secondary-container": "#0566d9",
+                        "primary-container": "#22c55e",
+                        "on-secondary": "#002e6a",
+                        "on-secondary-fixed": "#001a42",
+                        "on-secondary-fixed-variant": "#004395",
+                        "on-surface": "#e5e1e4",
+                        "background": "#131315",
+                        "surface-variant": "#353437",
+                        "on-error": "#690005",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-primary-container": "#004b1e",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-tertiary-container": "#5c3800",
+                        "secondary": "#adc6ff",
+                        "surface": "#131315",
+                        "primary": "#4be277",
+                        "surface-bright": "#39393b",
+                        "surface-container-highest": "#353437",
+                        "outline-variant": "#3d4a3d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "margin-desktop": "32px",
+                        "touch-target-min": "48px",
+                        "margin-mobile": "16px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "scramble-lg": ["JetBrains Mono"],
+                        "headline-lg": ["Geist"],
+                        "timer-display": ["JetBrains Mono"],
+                        "timer-display-mobile": ["JetBrains Mono"],
+                        "table-data": ["JetBrains Mono"],
+                        "label-caps": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "scramble-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "timer-display": ["120px", { "lineHeight": "120px", "letterSpacing": "-0.05em", "fontWeight": "700" }],
+                        "timer-display-mobile": ["72px", { "lineHeight": "72px", "letterSpacing": "-0.05em", "fontWeight": "700" }],
+                        "table-data": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface h-screen w-screen overflow-hidden flex flex-col antialiased">
+<!-- TopNavBar (Web) -->
+<header class="bg-surface dark:bg-surface text-primary dark:text-primary font-headline-lg text-headline-lg docked full-width top-0 bg-surface-container-low border-b border-outline-variant flat no shadows hidden md:flex justify-between items-center w-full px-margin-desktop h-touch-target-min">
+<div class="font-headline-lg text-headline-lg font-bold text-primary dark:text-primary tracking-tight">CUBE_COACH</div>
+<nav class="flex gap-6">
+<div class="text-primary font-bold border-b-2 border-primary pb-1 font-label-caps text-label-caps cursor-pointer">Solve</div>
+<div class="text-on-surface-variant font-medium pb-1 font-label-caps text-label-caps cursor-pointer hover:text-primary-fixed-dim transition-colors">Coach</div>
+<div class="text-on-surface-variant font-medium pb-1 font-label-caps text-label-caps cursor-pointer hover:text-primary-fixed-dim transition-colors">Train</div>
+<div class="text-on-surface-variant font-medium pb-1 font-label-caps text-label-caps cursor-pointer hover:text-primary-fixed-dim transition-colors">Stats</div>
+</nav>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-on-surface-variant font-label-caps text-label-caps">
+<span>QiYi Smart Cube • Connected • 85%</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">bluetooth_connected</span>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">battery_full</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary-fixed-dim transition-colors">settings</span>
+</div>
+</header>
+<!-- Main Workspace -->
+<div class="flex flex-1 overflow-hidden h-full">
+<!-- SideNavBar (Web) -->
+<aside class="bg-surface-container dark:bg-surface-container text-primary dark:text-primary font-label-caps text-label-caps docked h-full left-0 w-64 border-r border-outline-variant flat no shadows hidden md:flex flex-col h-full py-6">
+<div class="px-6 mb-8">
+<div class="font-headline-lg text-headline-lg font-bold text-primary tracking-tight">CUBE_COACH</div>
+<div class="text-on-surface-variant mt-1">V2.4.1 PRO</div>
+</div>
+<nav class="flex flex-col gap-2 flex-1">
+<div class="bg-secondary-container text-on-secondary-container rounded-xl mx-2 px-4 py-3 flex items-center gap-4 cursor-pointer Active: scale-98 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span>Solve</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">psychology</span>
+<span>Coaching</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">grid_view</span>
+<span>Training</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-xl mx-2 px-4 py-3 flex items-center gap-4 cursor-pointer hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined">history</span>
+<span>History</span>
+</div>
+</nav>
+<div class="px-4 mt-auto mb-4">
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg font-label-caps text-label-caps hover:bg-primary-fixed transition-colors flex justify-center items-center h-touch-target-min">NEW SESSION</button>
+</div>
+<div class="mt-4 border-t border-outline-variant pt-4 px-2">
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-3 flex items-center gap-4 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+<span>Profile</span>
+</div>
+<div class="text-on-surface-variant hover:bg-surface-container-high rounded-xl px-4 py-3 flex items-center gap-4 cursor-pointer transition-colors">
+<span class="material-symbols-outlined">help</span>
+<span>Support</span>
+</div>
+</div>
+</aside>
+<!-- Center Cockpit (Canvas) -->
+<main class="flex-1 flex flex-col items-center justify-between relative bg-surface-lowest">
+<!-- Scramble Panel -->
+<div class="w-full max-w-4xl mt-8 px-6">
+<div class="bg-surface-container rounded-xl border border-outline-variant p-4 flex justify-center items-center shadow-sm">
+<p class="font-scramble-lg text-scramble-lg text-on-surface text-center">
+                        D2 R2 B2 L' F2 L' B2 R D2 R2 U2 B L' U' R2 F D' R' F2 R2
+                    </p>
+</div>
+</div>
+<!-- Central 3D Cube & Timer Layering -->
+<div class="relative flex flex-col items-center justify-center flex-1 w-full">
+<!-- 3D Cube Placeholder (Background layer) -->
+<div class="absolute inset-0 flex justify-center items-center pointer-events-none opacity-40 blur-[1px]">
+<div class="w-96 h-96 bg-surface-container-highest rounded-full blur-3xl absolute"></div>
+<img alt="3D Cube Placeholder" class="w-80 h-80 object-contain z-0 relative" data-alt="A highly detailed, hyper-realistic 3D rendering of a modern speedcube floating in empty black space. The cube is slightly rotated, showcasing vibrant, glossy stickers in standard colors (red, blue, white visible). The lighting is moody and cinematic, with subtle edge highlights reflecting off the glossy plastic surface, fitting perfectly into a dark-mode technical UI cockpit design." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA10Tqx-CsUW75mcatjo65Z5oWQ-uBrDiXcYxLshqACznTcCenoWXOcF2OKAOIzV9vrEdJ7hq84v9g71Ejz8hLrPA1mRPOLlXbmwvAsNHvLKiBgAD5yTvStvsoTIMIDMv1UsNDUE8La0uTAKs3M9w36IQ_Fcuv8gfBxWxKkPoO6Q64DuMqXb8HPyxuOx7cnjkEKcUZIi2wsWYVsnklTliMQRpPu7STAbQKLhdWyagV_PaAqJQyLsS0a"/>
+</div>
+<!-- Timer -->
+<div class="relative z-10 flex flex-col items-center mt-32 md:mt-0">
+<div class="font-timer-display text-timer-display md:font-timer-display md:text-timer-display text-on-surface tracking-tighter tabular-nums drop-shadow-md">
+                        12.45
+                    </div>
+<div class="mt-4 flex items-center gap-2 text-on-surface-variant bg-surface-container px-6 py-2 rounded-full border border-outline-variant">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-caps text-label-caps">READY - START ON FIRST TURN</span>
+</div>
+</div>
+</div>
+<div class="h-24 w-full md:hidden"></div> <!-- Spacer for mobile bottom nav -->
+</main>
+<!-- Right Sidebar (Session Stats) -->
+<aside class="hidden xl:flex flex-col w-80 bg-surface-container border-l border-outline-variant p-6 gap-6 h-full overflow-y-auto">
+<div class="flex justify-between items-center border-b border-outline-variant pb-4">
+<h3 class="font-headline-lg text-headline-lg text-base text-on-surface font-semibold">Session Stats</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer">more_vert</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface p-4 rounded-lg border border-outline-variant">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">CURRENT AO5</div>
+<div class="font-table-data text-table-data text-xl text-primary font-bold tabular-nums">13.21</div>
+</div>
+<div class="bg-surface p-4 rounded-lg border border-outline-variant">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-1">CURRENT AO12</div>
+<div class="font-table-data text-table-data text-xl text-on-surface font-bold tabular-nums">14.05</div>
+</div>
+</div>
+<div class="flex flex-col gap-2 flex-1">
+<div class="font-label-caps text-label-caps text-on-surface-variant mb-2">RECENT SOLVES</div>
+<div class="bg-surface rounded-lg border border-outline-variant overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-4 px-4 py-2 border-b border-outline-variant bg-surface-container-low font-label-caps text-label-caps text-on-surface-variant">
+<div class="col-span-1">#</div>
+<div class="col-span-2">TIME</div>
+<div class="col-span-1 text-right">ACT</div>
+</div>
+<!-- Solve Rows -->
+<div class="flex flex-col">
+<div class="grid grid-cols-4 px-4 py-3 border-b border-outline-variant hover:bg-surface-container-high transition-colors items-center group cursor-pointer">
+<div class="col-span-1 font-table-data text-table-data text-on-surface-variant">5</div>
+<div class="col-span-2 font-table-data text-table-data text-on-surface font-bold tabular-nums">12.45</div>
+<div class="col-span-1 text-right flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant text-sm opacity-0 group-hover:opacity-100 transition-opacity">close</span>
+</div>
+</div>
+<div class="grid grid-cols-4 px-4 py-3 border-b border-outline-variant hover:bg-surface-container-high transition-colors items-center group cursor-pointer">
+<div class="col-span-1 font-table-data text-table-data text-on-surface-variant">4</div>
+<div class="col-span-2 font-table-data text-table-data text-on-surface font-bold tabular-nums">14.12</div>
+<div class="col-span-1 text-right flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant text-sm opacity-0 group-hover:opacity-100 transition-opacity">close</span>
+</div>
+</div>
+<div class="grid grid-cols-4 px-4 py-3 border-b border-outline-variant hover:bg-surface-container-high transition-colors items-center group cursor-pointer">
+<div class="col-span-1 font-table-data text-table-data text-on-surface-variant">3</div>
+<div class="col-span-2 font-table-data text-table-data text-on-surface font-bold tabular-nums">13.88</div>
+<div class="col-span-1 text-right flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant text-sm opacity-0 group-hover:opacity-100 transition-opacity">close</span>
+</div>
+</div>
+<div class="grid grid-cols-4 px-4 py-3 border-b border-outline-variant hover:bg-surface-container-high transition-colors items-center group cursor-pointer">
+<div class="col-span-1 font-table-data text-table-data text-on-surface-variant">2</div>
+<div class="col-span-2 font-table-data text-table-data text-error font-bold tabular-nums">15.42 <span class="text-xs text-on-surface-variant font-normal">+2</span></div>
+<div class="col-span-1 text-right flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant text-sm opacity-0 group-hover:opacity-100 transition-opacity">close</span>
+</div>
+</div>
+<div class="grid grid-cols-4 px-4 py-3 hover:bg-surface-container-high transition-colors items-center group cursor-pointer">
+<div class="col-span-1 font-table-data text-table-data text-on-surface-variant">1</div>
+<div class="col-span-2 font-table-data text-table-data text-on-surface font-bold tabular-nums">11.95</div>
+<div class="col-span-1 text-right flex justify-end">
+<span class="material-symbols-outlined text-on-surface-variant text-sm opacity-0 group-hover:opacity-100 transition-opacity">close</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-auto pt-4 flex gap-2">
+<button class="flex-1 bg-surface-container-high text-on-surface py-2 rounded border border-outline-variant hover:bg-surface-variant transition-colors font-label-caps text-label-caps">PENALTY +2</button>
+<button class="flex-1 bg-surface-container-high text-error py-2 rounded border border-error hover:bg-error-container transition-colors font-label-caps text-label-caps">DNF</button>
+</div>
+</aside>
+</div>
+<!-- BottomNavBar (Mobile) -->
+<nav class="bg-surface-container-highest dark:bg-surface-container-highest text-primary dark:text-primary font-label-caps text-label-caps docked full-width bottom-0 rounded-t-xl bg-surface-container-highest border-t border-outline-variant flat no shadows fixed bottom-0 left-0 w-full z-50 flex justify-around items-center h-16 md:hidden px-margin-mobile pb-safe">
+<div class="flex flex-col items-center justify-center text-primary bg-primary-container/20 rounded-xl px-4 py-1 Active: scale-90 duration-150 cursor-pointer">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">timer</span>
+<span>Solve</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim cursor-pointer">
+<span class="material-symbols-outlined">bolt</span>
+<span>Coach</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim cursor-pointer">
+<span class="material-symbols-outlined">menu_book</span>
+<span>Train</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant px-4 py-1 hover:text-primary-fixed-dim cursor-pointer">
+<span class="material-symbols-outlined">leaderboard</span>
+<span>Stats</span>
+</div>
+</nav>
+<!-- Mobile Connection & Stats Overlay (visible only on mobile) -->
+<div class="md:hidden absolute top-4 left-4 right-4 flex justify-between items-start pointer-events-none z-20">
+<div class="bg-surface-container-low/80 backdrop-blur-md px-3 py-1.5 rounded border border-outline-variant flex items-center gap-2 pointer-events-auto shadow-sm">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">bluetooth_connected</span>
+<span class="font-label-caps text-[10px] text-on-surface-variant">Qiyi 85%</span>
+</div>
+<div class="flex flex-col gap-2 pointer-events-auto">
+<div class="bg-surface-container-low/80 backdrop-blur-md px-3 py-1.5 rounded border border-outline-variant shadow-sm text-right">
+<div class="font-label-caps text-[8px] text-on-surface-variant">AO5</div>
+<div class="font-table-data text-xs text-primary font-bold">13.21</div>
+</div>
+<div class="bg-surface-container-low/80 backdrop-blur-md px-3 py-1.5 rounded border border-outline-variant shadow-sm text-right">
+<div class="font-label-caps text-[8px] text-on-surface-variant">AO12</div>
+<div class="font-table-data text-xs text-on-surface font-bold">14.05</div>
+</div>
+</div>
+</div>
+</body></html>

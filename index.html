@@ -1,5 +1,8 @@
 <!doctype html>
-<html lang="en">
+<!-- Park UI resolves its semantic colour tokens against a `.dark` ancestor. This
+     app has always been dark-only (see docs/design-system.md), so without this a
+     migrated component renders light-on-light against the unmigrated dark chrome. -->
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

@@ -1,181 +1,205 @@
 # Feature harvest
 
-## Ao1K/Ao1K_site — tranche 1
+Rewritten 2026-08-03 from a fresh read of every source in the closed research set (`AGENTS.md`). The previous revision listed capabilities; this revision records the data, encodings, formulas and thresholds needed to reimplement them, plus the licence boundary that governs each one. Working notes and the reading ledger are in `harvest-refresh-2026-08-03.md`.
 
-License: MIT (`LICENSE:1-21`). Source reuse permitted with copyright and permission notice retained.
+## Source ledger and licence matrix
 
-| Capability | Evidence | Behavior | Integration destination | Caveats |
-|---|---|---|---|---|
-| Cube-state-driven reconstruction suggestions | `docs/suggestion-system.md:22-45` | Replays scramble + solution, derives completed steps and algorithm suggestions from cube state, and only emits a changed suggestion list. | Reconstruction editor and post-solve alternative finder | Current UX generates suggestions only on an empty active line. |
-| Inline move autocomplete | `docs/suggestion-system.md:47-84`, `SuggestionManager.tsx:61-102` | Filters algorithms by literal typed prefix and displays the exact remaining suffix, preserving spacing and partial-move completion. | Editor ghost text, algorithm exploration, manual reconstruction | Suppressed on comment lines; stale suggestions are hidden when line indices differ (`SuggestionManager.tsx:127-136`). |
-| Non-destructive ghost completion | `docs/suggestion-system.md:86-153`, `SuggestionManager.tsx:166-203` | Renders completion outside `contentEditable`, anchors at end-of-line text, accepts with Tab/card click, dismisses with Escape, and avoids corrupting serialized solve text. | Reconstruction editor | Requires layout-phase caret measurement to prevent one-frame jitter. |
-| Position-indexed F2L algorithm search | `ExactAlgSuggester.tsx:45-72`, `ExactAlgSuggester.tsx:87-190` | Builds an inverted index for every character position in a cube-state hash; intersects `must`, unions `may`, removes `not`, scores, sorts, and limits candidates. | F2L alternatives, “what should I have done?” coaching | Ranking score is structural, not personalized execution evidence. |
-| Rotation-invariant OLL/PLL recognition | `LLinterpreter.tsx:29-81`, `LLinterpreter.tsx:83-145`, `LLinterpreter.tsx:219-260`, `LLinterpreter.tsx:288-324` | Applies step masks, canonicalizes a 5×5 sticker grid across four U rotations, encodes it as a base-6 key, and maps the key to named OLL/PLL cases. | Automatic case labels, trainer case detection, solve reconstruction | Only OLL and PLL maps are populated in the constructor. ZBLL/EO/CP/1LLL types are scaffolding with no loaded database (`LLinterpreter.tsx:8-27`). |
-| AUF-aware last-layer algorithm selection | `LLsuggester.tsx:27-80`, `LLsuggester.tsx:102-165` | Calculates pre-AUF and post-AUF, minimizes AUF turn cost, prefers no AUF/U/U′/U2, repairs terminal rotations, and attaches competition frequency. | OLL/PLL alternatives and alg trainer | Frequency defaults to zero where absent; algorithm ownership/provenance in generated JSON must be audited separately. |
-| Rich notation parser | `validateTextInput.tsx:8-23`, `validateTextInput.tsx:117-173`, `validateTextInput.tsx:178-227`, `validateTextInput.tsx:240-319` | Parses comments, hashtags, nested parentheses, bounded repetitions, HTML-painted lines, face/wide/slice/rotation moves, and invalid tokens. | Reconstruction editor, algorithm editor, import validation | Hardcoded 3×3 repetition limit and move vocabulary. |
-| Automatic solve-method and step inference | `getLineStepInfo.ts:4-110`, `getLineStepInfo.ts:112-165`, `getLineStepInfo.ts:167-216`, `getLineStepInfo.ts:243-313` | Detects CFOP cross/X-cross/F2L/multislot/OLL/PLL/advanced LL, Roux blocks/CMLL/LSE, ZZ EO-line, generic blocks, and APB, selecting likely method from cumulative steps. | Solve segmentation and coaching taxonomy | Heuristic; unknown/ambiguous lines intentionally return no display step. F2L vs ZBLS is explicitly not distinguished (`getLineStepInfo.ts:39-41`). |
-| Auto-highlight relevant pieces | `autoHighlight.ts:24-85` | Highlights cross edges, solved/active F2L pair pieces, and centers based on detected history; returns all pieces when not in cross/F2L or after four pairs. | Reconstruction playback and lesson visuals | CFOP-centric behavior. |
-| Manual per-line splits | `SplitsStack.tsx:9-29`, `SplitsStack.tsx:92-137`, `SplitsStack.tsx:139-177` | Aligns split inputs to dynamically wrapping solution lines, skips whitespace lines, formats milliseconds, supports keyboard navigation, and serializes compactly to URL. | Manual recon timing and imported video splits | Manual input, not smart-cube telemetry. |
-| URL-shareable reconstruction | `urlEncoding.tsx:1-38`, `docs/suggestion-system.md:149-153` | Compact readable encoding for moves, apostrophes, spaces, daily-scramble/date comments; ghost content never enters URL. | Share links and immutable solve snapshots | URL length limits remain. |
-| Text/image/GIF/share-preview export | `CopySolveDropdown.tsx:10-40`, `CopySolveDropdown.tsx:102-125`, `InfoPanelContent.tsx:195-245` | Copies reconstruction text, renders screenshot, creates GIF, generates preview links, and captures arbitrary cube states. | Share/export center and coach-report artifacts | Rendering pipeline still needs separate source audit. |
-| STM/TPS reporting | `InfoPanelContent.tsx:85-104` | Shows solve time, slice-turn metric, and turns per second; excludes x/y/z from STM. | Solve report headline metrics | Aggregate TPS alone does not expose pauses or recognition. |
-| Reconstruction typing ergonomics | `InfoPanelContent.tsx:108-191` | Substitutes repeated moves, inserts spaces/grouping, normalizes wide moves and rotations; provides mirror X/Y/Z, invert, and comment removal tools. | Editor command palette and mobile shorthand | Help text confirms behavior; implementation details still pending review. |
-| Algorithm ranking signals | `AlgSpeedEstimator.tsx:8-39`, `AlgSpeedEstimator.tsx:41-74`, `InfoPanelContent.tsx:256-284` | Scores by move face, turn amount, generator count, and rough EO penalty; LL uses competition frequency. | Initial alternative ranking before personalization data exists | Author labels score “meaningless”; EO detection and weights are knowingly naive. Replace with execution-derived model after smart-cube history exists. |
-| Rotation sequence simplification | `simplifyRotations.tsx:19-42`, `simplifyRotations.tsx:64-149` | Multiplies rotation matrices and finds an equivalent sequence of at most two rotations with axis-sensitive preference. | Reconstruction cleanup and normalized analytics | Function assumes non-empty, valid, space-delimited rotations; unsafe as a general parser. |
-
-### Ao1K product decisions
-
-- Reuse MIT reconstruction primitives and autocomplete interaction patterns.
-- Keep deterministic state/step/case analysis separate from coaching language.
-- Extend suggestions from manual empty lines to automatic smart-cube checkpoints and post-solve branch exploration.
-- Replace static F2L speed weights with personalized execution time, pause, regrip, rotation, and success-rate evidence while retaining deterministic fallback ranking.
-- Preserve CFOP depth, but retain Ao1K’s Roux/ZZ/Blocks/APB detection adapters instead of making the core model permanently CFOP-only.
-
-## poliva/smartcube-web-bluetooth
-
-License: MIT (`LICENSE.txt:1-22`). Direct library use and source adaptation are permitted with attribution notice retained.
-
-| Capability | Evidence | Behavior | Integration destination | Caveats |
-|---|---|---|---|---|
-| Unified multi-vendor connection | `README.md:34-85`, `src/smartcube/index.ts:2-36` | Registers GAN, Giiker, GoCube, MoYu MHC/WRM, MoYu32, and QiYi protocol drivers behind `connectSmartCube()`. | Device connection layer | Actual capability varies per protocol/device. |
-| Typed event stream | `src/smartcube/types.ts:4-55` | Emits MOVE, FACELETS, GYRO, BATTERY, HARDWARE, and DISCONNECT with a host timestamp; moves additionally carry local and cube timestamps. | Live solve recorder, cube renderer, device panel | Some timestamps and telemetry are nullable or optional. |
-| Capability-negotiated commands | `src/smartcube/types.ts:57-79` | Exposes request-facelets, battery, hardware, and reset commands plus per-connection capability flags. | Connection diagnostics and recovery | Never assume reset or state reads exist; gate every command. |
-| Device picker and protocol resolution | `src/smartcube/connect.ts:132-188`, `src/smartcube/protocol.ts:5-38` | Builds filtered/any-device picker options, gathers advertised/GATT services, ranks matching drivers, and cleans up failed attachments. | Connect flow | Must run from a Web Bluetooth-supported secure browser context and user gesture. |
-| Encrypted-protocol/MAC verification | `src/smartcube/connect.ts:15-44`, `src/smartcube/connect.ts:46-114`, `src/smartcube/connect.ts:189-221` | Validates a decrypted 54-facelet state as a legal cube before caching MAC hints; requests fresh state and removes bad cache entries on timeout. | Robust reconnect and setup diagnostics | Wrong cryptographic keys can still produce structurally shaped payloads, so event type alone is insufficient. |
-| Abortable connection UX | `src/smartcube/attachment/types.ts:14-34`, `src/smartcube/connect.ts:142-176` | Supports filtered/any selection, known device name, AbortSignal, status callbacks, and bounded address search. | Connection modal with visible stages and cancel action | Address search is intentionally slower and opt-in. |
-| Drift-corrected move timing | `README.md:176-183`, `src/utils.ts:16-40`, `src/utils.ts:43-78` | Fits cube clock to monotonic host clock using linear regression and interpolates missing cube timestamps before normalization. | Accurate move intervals, pauses, stage times, TPS bursts | Missing timestamps are currently imputed at ±50 ms; retain provenance/confidence in analysis. |
-| Clock-skew diagnostics | `src/utils.ts:80-89` | Reports cube/host clock skew percentage. | Device health and telemetry-quality report | Needs enough timestamped moves for a meaningful fit. |
-| Cubie-to-facelet conversion | `src/utils.ts:91-158` | Converts corner/edge permutation and orientation arrays to Kociemba facelet strings. | Shared state representation for solver, verification, and renderer | Representation is fixed to 3×3 URFDLB ordering. |
-| GAN Smart Timer support | `README.md:108-174`, `src/gan-smart-timer.ts:12-70`, `src/gan-smart-timer.ts:153-216` | Emits hands-on/get-set/running/stopped/finished/reset/disconnect states, validates packets with CRC, exposes exact stopped time and last three recorded times. | Optional physical timer integration | Timer memory is not intended for polling current display time (`README.md:138-145`). |
-| Hardware and orientation telemetry | `src/smartcube/types.ts:18-41` | Quaternion orientation, optional angular velocity, hardware/software versions, product date, gyro support, and battery state. | 3D cube orientation, regrip/rotation analysis, diagnostics | Gyro support and semantics differ by cube. Face-turn inference must remain move-event based. |
-| Protocol extension API | `src/smartcube/protocol.ts:10-38` | External protocol drivers provide scan filters, services, GATT affinity, device matcher, and connection implementation. | Future cube support without modifying coach core | Driver quality and licensing must be audited independently. |
-| Recorded-traffic replay tests | `src/test/fixtures/types.ts:1-45`, `src/test/helpers/fixture-replay.ts:1-10`, protocol `*.replay.test.ts` files | Captures service discovery, reads, writes, notifications, timing, expected protocol, and emitted events for deterministic replay. | Hardware regression suite without requiring every physical cube on every CI run | Replay supports parser/protocol confidence, not browser permission or radio reliability proof. Real cube testing remains required. |
-
-### Bluetooth product decisions
-
-- Use this library as the browser hardware layer rather than rewriting vendor protocols.
-- Persist raw move events, both clocks, fitted time, protocol/device identity, facelet checkpoints, and telemetry-quality flags. Never keep only final elapsed time.
-- Begin scramble verification from live FACELETS plus replayed moves; reject impossible states and visibly recover from packet loss.
-- Treat timer, cube, and host clocks as separate evidence streams and reconcile them explicitly.
-- Build replay fixtures into our test suite, then verify supported physical cubes separately in Chromium-based browsers.
-
-## hakatashi/smart-cube-timer
-
-License: MIT (`LICENSE:1-21`). Reusable with attribution. Code is from a 2018-era Nuxt/Vue stack, so preserve algorithms/data concepts rather than UI implementation.
-
-| Capability | Evidence | Behavior | Integration destination | Caveats |
-|---|---|---|---|---|
-| Move-triggered timer lifecycle | `pages/index.vue:315-338`, `pages/index.vue:377-428` | Requires solved cube, verifies scramble through inverse move reduction, enters inspection when scramble reaches identity, starts on first solve move, stops when cube becomes solved. | Core smart-cube timer state machine | Legacy implementation uses wall-clock `Date` and a display interval; our recorder must use fitted event timestamps. |
-| Real-time scramble correction | `pages/index.vue:260-292`, `pages/index.vue:387-399` | Prepends inverse physical moves into a reducing move sequence; correct moves disappear while deviations dynamically alter the remaining sequence and display. | Guided scrambling with error recovery | Assumes fixed white-top/green-front onboarding in UI; our verifier should support chosen orientation. |
-| Automatic CFOP/Roux detection | `lib/SolveAnalyzer.js:74-161` | Replays every move, detects cross or first Roux block, selects method, transitions through stage predicates, recognizes OLL/PLL/CLL, 2-look OLL and PLL look count. | Solve segmentation engine and live stage panel | Supports CFOP and Roux only; Ao1K offers broader method heuristics. |
-| Per-stage timed move sequences | `lib/SolveAnalyzer.js:24-50`, `lib/SolveAnalyzer.js:164-197` | Stores sequence, completion timestamp, orientation, computes stage deltas, normalized turns, and move count. | Solve report timeline | Stage completion time is the timestamp of the final move; recognition time needs interval analysis. |
-| Recognition vs execution estimation | `lib/SolveAnalyzer.js:199-223`, `components/Stages.vue:131-146`, `components/Stages.vue:322-334` | Derives OLL/PLL/CLL inspection and execution portions and displays them beside total stage time. | Case-level recognition/execution analytics | Estimator logic lives in `getInspectionTime`; validate against modern telemetry before reuse. |
-| Rich persisted solve record | `lib/SolveAnalyzer.js:224-302` | Records method, scramble, raw turns, stage records, error status, cross face, X-cross, OLL/PLL/CLL case and looks, Roux block orientation, TPS, recognition/execution timing, and every stage duration. | Canonical solve schema | Underscore-prefixed denormalized fields were designed for IndexedDB querying, not API shape. |
-| Orientation-normalized move notation | `lib/MoveSequence.js:50-99`, `lib/MoveSequence.js:101-215` | Normalizes faces relative to cross/Roux orientation, detects slice moves from opposite-face turns, tracks rotations, and emits human-readable notation. | Reconstruction and stage explanations | Assertions expect valid move structures; modern TypeScript wrapper required. |
-| Move reduction and cancellation | `lib/MoveSequence.js:231-280`, `lib/MoveSequence.js:282-355` | Cancels sequential same-face turns, identifies first non-trivial move after U/AUF noise, and supports raw/reduction/addition sequence modes. | Scramble correction, pause/recognition boundary estimation, cleanup | TODO notes incomplete cancellation for commuting U/D patterns. |
-| X-cross and skip detection | `lib/SolveAnalyzer.js:224-228`, `components/Stages.vue:148-200`, `components/Stages.vue:213-219` | Marks X-cross when first F2L stage completes with zero moves, reports skipped stages, OLL case, PLL case, and multi-look badges. | Achievement/context labels and coaching | Detection is stage-model-dependent. |
-| Stage cards with sequence/time/TPS | `components/Stages.vue:25-89`, `components/Stages.vue:131-146`, `components/Stages.vue:213-334` | Each stage shows label, case metadata, delta time, inspection/execution, move count, TPS, normalized sequence, orientation rotations, and skipped state. | Solve report UI | Visual implementation is obsolete, information architecture is still useful. |
-| Replay export | `components/Stages.vue:337-352` | Builds an alg.cubing.net URL with line-separated stage moves and comments plus scramble setup. | External replay/share fallback | External URL dependency; internal interactive replay should be primary. |
-| Versioned local database | `lib/db.js:11-138`, `lib/db.js:139-261` | Dexie migrations preserve solves, recompute analysis from raw turns, and aggregate OLL/PLL/CLL statistics. | Local-first persistence/migrations | Migration code reveals a strong rule: retain raw telemetry so analysis can be recomputed after algorithm upgrades. |
-| Case-level aggregate statistics | `lib/db.js:211-260`, `lib/db.js:265-314` | Accumulates count, total time, recognition time, and execution time per OLL/PLL/CLL case. | Weak-case detection and training queue | `saveSolve()` appears to fetch PLL record with `ollCase` at `lib/db.js:299-303`; do not copy this bug. |
-| Full OLL/PLL/CMLL/LSEO recognition datasets | `lib/data.js:1-75`, `lib/data.js:77-105`, `lib/data.js:107-175` | Encodes named orientation/permutation patterns for all OLL, PLL, CMLL, and Roux LSEO cases. | Case recognition and trainer metadata | Confirm data provenance/modern correctness before shipping even though repository code is MIT. |
-| Export and raw dump | `lib/db.js:346-363` | Exports timer-compatible text and complete JSON solve records. | Backup/import/export | New export must be versioned, include all raw events and analysis version, and support round-trip import. |
-
-### Smart-cube-timer product decisions
-
-- Adopt the no-button lifecycle: verify scramble, inspect, start on first move, stop on solved state.
-- Keep its stage-card information density, but derive timing from corrected event clocks and explicitly identify pauses.
-- Store raw immutable telemetry and recompute derived stages/statistics after analysis-engine upgrades.
-- Merge its strong timing schema with Ao1K’s stronger reconstruction, suggestions, and broader method detection.
-
-## cs0x7f/cstimer
-
-License: GPL-3.0 (`LICENSE:1-674`). **Do not copy or link csTimer code into a differently licensed product unless the entire combined distribution is intentionally GPL-compatible.** Use it as behavior/reference unless the new app is deliberately GPL-3.0.
-
-| Capability | Evidence | Behavior | Integration destination | Reuse boundary / caveats |
-|---|---|---|---|---|
-| Two-phase 3×3 solver | `src/js/lib/min2phase.js:17-18`, `src/js/lib/min2phase.js:599-602`, `src/js/lib/min2phase.js:1330-1389` | Solves arbitrary legal facelet states, generates random legal cubes, and converts scrambles to state. | State solver, scramble generation, alternative-path baseline | GPL implementation; use an independently licensed solver package or clean implementation. |
-| State-constrained scramble generator | `src/js/scramble/scramble_333_edit.js:44-55`, `src/js/scramble/scramble_333_edit.js:89-180`, `src/js/scramble/scramble_333_edit.js:1109-1150` | Samples legal permutation/orientation masks with parity repair and solves the sampled state into a scramble. Registers full solve, edges/corners, LL, F2L, ZBLL, ZZLL, ZBLS, TTLL, EOLS, WVLS, VLS, LSE, CMLL/CLL/COLL/ELL/PLL/OLL, 2-gen/3-gen, easy cross/X-cross, EO-line/cross, Mehta subsets, and more. | Trainer scramble service and case filters | GPL source. Reimplement behavior using permissive `cubing.js`/solver primitives and our own case descriptors. |
-| Case images and probability/filter metadata | `src/js/scramble/scramble_333_edit.js:1095-1102`, `src/js/scramble/scramble_333_edit.js:1113-1132` | Scrambler registration can expose case names, probabilities, and an image renderer alongside generation. | Trainer case picker, weighted scheduling, visual recognition | Data provenance must be checked; do not copy GPL tables blindly. |
-| Step-by-step method solvers | `src/js/tools/gsolver.js:375-397`, `src/js/tools/gsolver.js:480-521`, `src/js/tools/gsolver.js:1240-1253` | Solves stages independently and links a complete annotated solution. Covers Cross+F2L, Roux S1+S2, Petrus blocks, ZZ EO-line+F2L, 2×2×2, EO+DR, generic facelet and two-phase 3×3, plus other puzzles. | “Show me a better route” and method-specific drills | GPL implementation; behavior/reference only. Solver output optimizes search metric, not necessarily human fingertrick quality. |
-| EOLine/EOCross solver across orientations | `src/js/tools/eoline.js:28-43`, `src/js/tools/eoline.js:49-69`, `src/js/tools/eoline.js:84-87` | Uses pruning solvers for EO plus line/cross pieces and emits solutions for twelve face/orientation choices. | ZZ and EO planning trainer | GPL source; clean reimplementation required. |
-| Roux first-block solver | `src/js/tools/roux1.js:45-86`, `src/js/tools/roux1.js:89-122` | Searches first-block corner/edge coordinates across four orientations and outputs solutions for LU/LD/FU/FD. | Roux training adapter | GPL source. |
-| Cross, Thistlethwaite, pattern, metronome and competition tools | Tool registrations in `src/js/tools/cross.js:501-503`, `thistlethwaite.js:274-276`, `pat3x3gen.js:193-195`, `metronome.js:161-163`, `onlinecomp.js:451-453`, `battle.js:436-438` | Provides cross solutions, EO→DR→HTR staged solving, pattern generation, TPS metronome, online competition and head-to-head rooms. | Cross trainer, cadence drills, optional social competition | Product inspiration; avoid copying GPL code and avoid bloating MVP with social rooms. |
-| Smart-cube virtual cube and state repair | `src/js/timer/giiker.js:19-114`, `src/js/timer/giiker.js:128-216` | Maintains a virtual cube, repairs from facelet state if move history diverges, checks scramble readiness, records timestamped moves, recognizes solved/subset targets, reconstructs and fits move timing. | Live cube view, packet-loss recovery, training-target completion | Hardware protocols are superseded by the supplied MIT Bluetooth library. |
-| Automatic smart-cube reconstruction | `src/js/timer/giiker.js:191-213`, `src/js/stats/recons.js:79-162` | Stores timestamped move strings, computes method progress, slices solves into steps, tracks first-move and end timestamps, move counts and transformed state. | Post-solve segmentation | GPL algorithm; use Ao1K/MIT analyzer plus independent timing segmentation. |
-| Inspection/execution/move/TPS reconstruction stats | `src/js/stats/recons.js:164-248`, `src/js/stats/recons.js:466-506` | Reports per-step inspection, execution, turns and TPS for CFOP, Roux and ZBLL variants; registers Cross/F2L/OLL/PLL and aggregate metrics. | Core coaching evidence and trend metrics | Reimplement formulas; preserve raw event timeline so definitions can evolve. |
-| Case statistics and export | `src/js/stats/recons.js:359-397`, `src/js/stats/recons.js:682-690`, `src/js/stats/trainstat.js:13-101`, `src/js/stats/trainstat.js:121-139` | Computes attempts, successes, best and mean by PLL/OLL/COLL/ZBLL/CLL case, renders case image, and exports case-stat JSON. | Weak-case ranking and trainer queue | Case assignment depends on scramble/reconstruction metadata quality. |
-| Statistical surfaces | Registrations in `src/js/stats/hugestat.js:164-166`, `distribution.js:75-78`, `trend.js:206-210`, `dlystat.js:173-178`, `stattool.js:65-69` | Huge/session statistics, distributions, trends, daily summaries, configurable statistic tool. | Progress dashboard | Copy information design, not GPL code or legacy jQuery UI. |
-| Blindfold helper | `src/js/tools/bldhelper.js:5-112`, `src/js/tools/bldhelper.js:265-394`, `src/js/tools/bldhelper.js:396-517`, `src/js/tools/bldhelper.js:616-797`, `src/js/tools/bldhelper.js:802-809` | Generates BLD states constrained by cycle/error/code counts, supports corner/edge buffers, Speffz/ChiChu/custom schemes and orders, emits memo letter sequences, validates memo back to state/scramble. | BLD memo trainer, custom lettering, targeted parity/twist/flip drills | GPL source; reimplement from cubie-cycle math. Avoid legacy `prompt()` UX. |
-| Synchronized scramble seed | `src/js/tools/syncseed.js:73-75` | Shares deterministic scramble sequences between users/devices. | Coach-assigned drill packs and competition rooms | Use cryptographically explicit seeded RNG and version the generator. |
-
-### csTimer product decisions
-
-- Treat csTimer as the comprehensive capability checklist and algorithmic reference, not our codebase.
-- Ship a narrow 3×3 coaching product first, but design trainer definitions so csTimer-scale subsets can be added as data.
-- Implement generator/solver interfaces independently and record generator version + case constraints with every scramble.
-- Include BLD letter scheme, buffer, memo validation, constrained-state generation, and cycle/error drills as first-class modules—not a token “BLD mode.”
-
-## Dave2ooo/F2LTrainer
-
-License metadata says MIT in `package.json:2-9` and the README badge (`README.md:1-7`), but the checkout contains no `LICENSE` file. Treat direct reuse as **license-text pending**; concepts can be reimplemented and `smartcube-web-bluetooth` remains separately MIT-licensed.
-
-| Capability | Evidence | Behavior | Integration destination | Caveats |
-|---|---|---|---|---|
-| Deep F2L case taxonomy | `src/lib/types/group.ts:35-161`, `src/lib/types/group.ts:163-328`, `src/lib/types/group.ts:330-388` | Defines Basic front-slot, Basic back-slot, Advanced/free-slot and Expert groups; categories encode piece location, sticker direction, edge orientation, blocked/free slots and special labels. | F2L curriculum and case browser | Validate algorithms/scrambles independently before shipping; license file is absent. |
-| Unified static case model | `src/lib/casesStatic.ts:5-58`, `src/lib/data/index.ts:21-35` | Merges group definitions, algorithm pools, scramble pools, categories, AUF rules, hidden pieces and display names into one case record. | Generic `TrainerCase` schema | Strong pattern to adapt beyond F2L to OLL/PLL/BLD. |
-| Learning-state progression | `src/lib/casesState.svelte.ts:15-53`, `src/lib/casesState.svelte.ts:238-276` | Every case is `unlearned`, `learning` or `finished`, persisted locally and optionally synced. | Curriculum state and trainer filters | Three states are useful but insufficient for spaced repetition; add due/mastery/confidence fields. |
-| Left/right algorithms and custom algorithms | `src/lib/casesState.svelte.ts:184-228`, `src/lib/components/Modals/EditAlgModal.svelte:48-136`, `EditAlgModal.svelte:173-235` | Selects an algorithm from a pool per side, supports custom text, mirrors right↔left, optionally keeps both sides identical and previews/autoplays changes. | Algorithm library and personal repertoire | Preserve exact user algorithm as primary; generated mirror should be editable. |
-| Group or individual case selection | `src/lib/trainCases.ts:39-75`, `src/lib/trainCaseQueue.svelte.ts:270-287` | Builds candidates from selected groups + learning states or explicit individual cases; independently selects left/right sides. | Session builder | Add saved filters and coach-generated assignments. |
-| Smart weak-case weighting | `src/lib/trainCases.ts:77-145`, `src/lib/trainCases.ts:177-192` | Gives more queue copies to under-practiced cases and cases slower than selected-set average using recent-five averages; caps weight at 3 and shuffles. | Adaptive drill scheduler | This is weighted random review, not true spaced repetition. Replace hard thresholds with explainable mastery/due scoring. |
-| Recap queue and history navigation | `src/lib/trainCaseQueue.svelte.ts:57-92`, `src/lib/trainCaseQueue.svelte.ts:96-147`, `src/lib/trainCaseQueue.svelte.ts:149-268` | Regenerates batches, cycles once per case in recap mode, navigates previous solves, jumps into history and returns to active unsolved edge. | Drill queue UX and review history | Current queue mutates historical cases into the active queue; separate immutable attempt history from scheduler queue. |
-| Random AUF, handedness and color neutrality | `src/lib/trainCases.ts:195-327` | Randomizes scramble variant, optional AUF, valid cross/front color pairs and left/right case side. | Recognition-robustness controls | Store all randomization factors with each attempt for reproducibility. |
-| Progressive hints | `src/lib/utils/hintManager.svelte.ts:34-63`, `src/lib/utils/hintManager.svelte.ts:65-139` | Supports always visible, reveal-all and move-by-move reveal; degrades to text when visual move elements are unavailable. | Hint ladder and hint-cost metric | Track hint usage as evidence; currently it is not included in solve statistics. |
-| State-based F2L completion | `src/lib/utils/checkF2LState.ts:30-81`, `src/lib/utils/checkF2LState.ts:83-115`, `src/lib/utils/checkF2LState.ts:146-203` | Checks cross, all required slots, excluded target slot, mirrored side, full F2L and full-cube completion from `cubing.js` KPattern state. | Smart-cube drill completion and target predicates | Correctly checks state rather than requiring one exact algorithm. Generalize to declarative target predicates. |
-| Recognition/execution drill state machine | `src/lib/components/TrainView/TrainDrill.svelte:59-176`, `TrainDrill.svelte:219-323`, `TrainDrill.svelte:347-422` | Countdown → recognition → execution → transition; first non-U move ends recognition, F2L state ends execution, records both splits, supports give-up/redo/skip/continuous flow. | Core deliberate-practice loop | “First non-U” is a heuristic; smart-cube pauses and AUF intent need explicit confidence/error handling. |
-| Exact-algorithm smart coaching | `src/lib/components/TrainView/TrainClassicSmart.svelte:77-173`, `TrainClassicSmart.svelte:254-395`, `TrainClassicSmart.svelte:397-500` | Tracks expected move index, normalizes moves, auto-applies rotations, handles wide/slice moves and double-turn packet sequences, detects wrong moves and enters an undo-guidance path. | Optional guided algorithm mode | Must not be the default correctness criterion; alternate algorithms can solve the state correctly. Use as “practice this algorithm” mode only. |
-| Real-time scramble verification | `src/lib/components/TrainView/TrainClassicScramble.svelte:62-126`, `TrainClassicScramble.svelte:212-269`, `TrainClassicScramble.svelte:315-472` | Uses the same move matcher for scramble and solve phases, transforms hardware orientation to selected colors, requires corrections after wrong turns, then starts recognition after a configurable countdown. | Scramble assistant and automatic timer readiness | Verify final cube state too; sequence-only matching can reject equivalent scrambles or mishandle dropped packets. |
-| Bluetooth connection lifecycle | `src/lib/bluetooth/actions.ts:16-139`, `src/lib/bluetooth/actions.ts:142-154` | Connect/reconnect saved cube, cache/provide MAC, subscribe to move/facelet/battery/gyro/hardware/disconnect events, request capabilities and clean up subscription. | Device settings and connection manager | Reuse the underlying MIT library; adapt the lifecycle UX. Device name fallback is not a unique physical ID. |
-| Priority-based move consumers | `src/lib/bluetooth/store.svelte.ts:31-35`, `src/lib/bluetooth/store.svelte.ts:151-193` | Keeps bounded move history and routes each move only to the highest-priority subscriber, preventing modal/trainer contention. | Input-router service | Add explicit ownership state and diagnostics rather than silent priority conflict. |
-| Session-specific training configuration | `src/lib/sessionState.svelte.ts:14-43`, `src/lib/sessionState.svelte.ts:132-157`, `src/lib/sessionState.svelte.ts:227-245` | Saves case/side/state filters, smart weighting, mode, AUF, hint behavior, gyro, colors, EO learning, transition timing and scramble-yourself settings; sessions can duplicate/archive/restore. | Training plan presets and coach assignments | Keep settings versioned and separate goals from UI preferences. |
-| Detailed attempt schema | `src/lib/types/statisticsState.ts:5-23`, `src/lib/statisticsState.svelte.ts:78-115` | Stores case, side, AUF, scramble variant, session, total/recognition/execution time, mode and deletion marker; uses compressed local representation. | Attempt event and case analytics | `localStorage` will not scale to raw move telemetry; use IndexedDB. |
-| Case/time statistics | `src/lib/utils/statistics.ts:4-60`, `src/lib/utils/statistics.ts:72-146` | Per-case filtering, best, mean, rolling Ao5/Ao12, and execution fallback for untimed modes. | Trainer dashboard | Add penalties/DNFs and WCA-average semantics; current functions ignore them. |
-| Local-first plus optional sync | `src/lib/statisticsState.svelte.ts:117-194`, `src/lib/statisticsState.svelte.ts:204-240`, `src/lib/sessionState.svelte.ts:80-130` | Runs from local storage, soft-deletes for seven days, then optionally merges to Convex for cross-device sync. | Local-first persistence policy | Preserve local usability without account; move large data to IndexedDB and make sync opt-in. |
-| Compact URL sharing | `src/lib/utils/urlSave.ts:10-95`, `urlSave.ts:98-165`, `urlSave.ts:167-270`, `urlSave.ts:273-420` | Encodes train states in base-3→Base62 and selected/custom algorithms into compact URL parameters; confirmation-gated import restores them. | Shareable drill packs and repertoire | Include schema/version/checksum; current format silently discards unknown algorithm tokens. |
-
-### F2LTrainer product decisions
-
-- Adopt the case schema, session builder, smart weighting, progressive hints, state predicates, scramble verification and recognition/execution drill loop.
-- Keep two distinct modes: **state-success drills** accept any valid solution; **algorithm rehearsal** enforces a selected sequence and guides undo.
-- Upgrade weighted random scheduling into explainable spaced repetition using recency, success, recognition, execution, hints, pauses and full-solve recurrence.
-- Store immutable attempt telemetry in IndexedDB; keep optional account sync separate from local ownership.
-
-## Solved.no live product
-
-Source availability/license: no source repository or reusable-code license was supplied. Treat all Solved.no findings as **product behavior and UX inspiration only**. Evidence below is from the public pages inspected on 2026-07-30.
-
-| Capability | Live evidence | Behavior | Integration destination |
+| Source | Checkout / access | Licence evidence | Reuse boundary |
 |---|---|---|---|
-| Broad trainer catalog | [`/trainers`](https://www.solved.no/trainers) | Algorithm trainers: F2L, OLL, PLL, COLL, WV, 2GLL, ZBLS, ZBLL, LXS. Inspection trainers: Cross, xCross, Pseudo xCross, xxCross, EOCross, EOLine, First Block. Predictor trainers: Pair, OLL, PLL, ZBLL. Individual trainers: Track the Piece, Guess the Color, Free Pair, Follow the Moves, Two-Sided Recognition, Time Attack. | Training taxonomy and navigation |
-| Drill/Learn/Review lifecycle | [`/trainers/3x3/algs/F2L`](https://www.solved.no/trainers/3x3/algs/F2L), “How to Use the F2L Trainer” | Drill supports Normal/Recap/Weighted; Learn advances cases when selected-mean goals are beaten; Review exposes per-case stats and known/learning/unknown filters. | Unified curriculum state instead of disconnected mini-tools |
-| Full F2L trainer controls | F2L trainer main page | Selectable cases and AUFs; timer toggle; smartcube mode; short scrambles; Quick Mode; revealable scramble image; step/full solution; mean, best, ao5/ao12/ao100. | F2L trainer parity target |
-| Trainer rendering/settings | F2L “Trainer Settings” dialog | Bottom/front color, hidden/drawn scramble, box/3D/top/front renders, line width, timer precision, start cooldown, cube-player TPS and camera orientation. | Shared visual/trainer preferences |
-| Selective export/import with undo | F2L “Import / Export” dialog | Independently exports/imports times, cases, mode settings, learnt cases and learn settings; merges progress/times, replaces config; reset/delete can be undone until modal closes. | Versioned local backup and safe destructive operations |
-| Piece tracking | [`/trainers/3x3/track-the-piece`](https://www.solved.no/trainers/3x3/track-the-piece) | Tracks corner, edge or pair through 1–20 random moves or F2L solutions; optional moving sticker target and timer; score feedback. | Lookahead and visual tracking drills |
-| Color inference | [`/trainers/3x3/guess-the-color`](https://www.solved.no/trainers/3x3/guess-the-color), “How Guess the Color Works” | 1×1 orientation and 3×3 hidden-corner modes; infer missing color from visible stickers; orientation-aware answers, optional centers, neutrality/corner-position controls, remappable keys, timed accuracy. | Color-neutral recognition foundation |
-| Free-pair decision training | [`/trainers/3x3/free-pair`](https://www.solved.no/trainers/3x3/free-pair), “How Free Pair Trainer Works” | Shows partial F2L state with multiple candidate algorithms; answer is which preserves a free pair. Editable presets/rows/algorithm columns/colors/keybinds, reviewable history and redo-incorrect queue. | F2L planning and preservation drills |
-| Two-sided last-layer recognition | [`/trainers/3x3/two-sided-recognition`](https://www.solved.no/trainers/3x3/two-sided-recognition) | Pre-AUF, select-by-name, confirmation and prediction modes; configurable solution playback, correct-vs-shortest AUF criterion, optional post-AUF, alg-set stickering, keyboard answers, accuracy/streak/mean history. | OLL/PLL recognition under limited visual information |
-| Per-case time attack | [`/trainers/3x3/time-attack`](https://www.solved.no/trainers/3x3/time-attack) | F2L/OLL/PLL/COLL/WV/2GLL/ZBLL/ZBLS sets; enable cases, assign individual target times, reorder cards, mark current card and track session times. | Mastery gates and measurable target ladders |
-| Inspection planning | [`/trainers/3x3/inspection/cross`](https://www.solved.no/trainers/3x3/inspection/cross) | Cross/EOCross/EOLine/xCross/Pseudo xCross/xxCross/First Block categories, selectable solution length, inspection-only, execution-only or two-phase timing, and rapid reset after target. | Cross planning and execution split drills |
-| Prediction trainers | [`/trainers/3x3/predicter/pair`](https://www.solved.no/trainers/3x3/predicter/pair) and sibling OLL/PLL/ZBLL pages | Editable algorithms/settings, review mode, yes/no prediction, history with accuracy, incorrect count, streak and mean. | Lookahead prediction: identify resulting next pair/LL before executing current alg |
-| Algorithm library | [`/algs`](https://www.solved.no/algs) | Public CFOP library includes 2OLL, 2PLL, F2L, OLL, PLL and AF2L, plus WV; connected trainer sets extend to COLL/2GLL/ZBLS/ZBLL/LXS. | Personal repertoire with source alternatives and train links |
-| Multi-event timer | [`/timer`](https://www.solved.no/timer) | Worker-backed scramble queue; 3×3 through NxN, OH, BLD, Pyraminx, Skewb, Megaminx, Clock, Square-1, MBLD and FMC; sessions; event options; scramble image; current/best single, mo3, ao5/12/100; import/export. | General timer shell, while coaching remains 3×3-first |
-| Reconstructor and advanced search | [`/reconstructor`](https://www.solved.no/reconstructor) | Event/method selection, title/time/scramble/reconstruction, live playback/step/orient, ghost text and execution style, advanced search by cross color and start (Cross/xCross/EO variants), finish (CFOP/ZB) and OLL/PLL constraints; copy link/solution/profile save. | Manual reconstruction fallback, solver-backed route search and sharing |
-| Daily deliberate-practice challenges | [`/daily-puzzles`](https://www.solved.no/daily-puzzles), “How Daily Puzzles Work” | Daily easy/intermediate/hard puzzles, different attempt limits, streaks, points, perfect-day/weekly/monthly bonuses, multipliers and leaderboards; challenges cross building, recognition, algorithms and spatial awareness. | Optional adherence layer after core coaching works |
+| `Ao1K/Ao1K_site` | re-cloned 2026-08-03 | `LICENSE:1-21` MIT, © 2025 Ao1K | Code **and** the compiled algorithm databases may be reused, including verbatim, if the MIT notice travels with them |
+| `poliva/smartcube-web-bluetooth` | re-cloned 2026-08-03 | `LICENSE.txt:1-22` MIT | Direct dependency or fork with notice retained |
+| `hakatashi/smart-cube-timer` | re-cloned 2026-08-03 | `LICENSE:1-21` MIT, © 2018 Koki Takahashi | Algorithms and case tables reusable with notice; the 2018 Nuxt UI is not worth porting |
+| `cs0x7f/cstimer` | re-cloned 2026-08-03 | `LICENSE` GPL-3.0 (675 lines) | **Behaviour reference only.** No code text, no pruning tables, no case tuples, no key tables. Formulas, WCA conventions, BLE UUIDs and CRC polynomials are facts and may be reimplemented |
+| `Dave2ooo/F2LTrainer` | re-cloned 2026-08-03 | **No licence file exists in the repository** — verified by listing the root; MIT is declared only in `package.json` and the README badge | Concepts and structure may be reimplemented with attribution; do not copy case data or code text until a licence text exists |
+| `solved.no` | public pages fetched 2026-08-03 | none supplied | Product behaviour inspiration only |
+| `reco.nz` | public pages fetched 2026-08-03 | no terms, licence or API policy exists on the site (`/about`, `/faq` read in full) | Keep the single attributed bundled solve; no bulk reuse |
 
-### Solved.no product decisions
+## 1. Ao1K/Ao1K_site — MIT, the richest reusable asset
 
-- Organize training by cognitive skill—planning, tracking, prediction, recognition, execution—not only by algorithm set.
-- Every trainer uses the same attempt/history/mastery engine and can feed or consume coach assignments.
-- Add daily prescriptions from actual weakness evidence before adding public points/leaderboards.
-- Preserve separate timer, reconstruction and algorithm-library surfaces, but connect them through one solve and case data model.
+### 1.1 Shipped data (the reason this source matters)
+
+| Asset | Shape | Contents |
+|---|---|---|
+| `public/recon/compiled-exact-algs.json` | `{timestamp, step, totalAlgorithms, algorithms[]}` | **5 805** F2L algorithms, each `{alg, hash (26 chars), eoValue (12-bit), step}`, speed-sorted. First record: `{"alg":"R U R'","hash":"ibdaefghcjkljhbodqtwabcdef","eoValue":0}` |
+| `public/recon/compiled-oll-algs.json` | same wrapper | **282** OLL algorithms, `{alg, caseIndex 1-57, refPieceMovement 0-3, minMovements[], frequency}`. First record: `{"alg":"R U R' U R U2' R'","caseIndex":27,"frequency":34}` |
+| `public/recon/compiled-pll-algs.json` | same wrapper | **126** PLL algorithms, `{alg, caseIndex 1-21, refPieceMovement, minMovements[], frequency}` |
+| `public/recon/oll-patterns.json` | `{patterns[]}` | **57** `{caseIndex, name, pattern}` where `pattern` is the canonical base-6 integer, e.g. case 1 → `132231612201978000` |
+| `public/recon/pll-patterns.json` | `{patterns[]}` | **21** `{caseIndex, name, pattern}`, e.g. `Aa` → `836671553945855` |
+| `utils/algFrequencies.tsx` | arrays | 261 OLL + 86 PLL competition-frequency entries |
+| `utils/rawGenericData.json` | 806 KB | 5 805 raw F2L candidates before compilation |
+
+Records live under the `algorithms` / `patterns` key, not at the top level — a loader must unwrap the envelope.
+
+### 1.2 Algorithms worth reimplementing or importing
+
+| Capability | Evidence | Behaviour | Destination | Caveat |
+|---|---|---|---|---|
+| 26-character state hash | `composables/recon/SimpleCubeInterpreter.tsx:1637-1841`, `docs/hash-system.md` | 12 edge chars + 8 corner chars + 6 centre chars; solved = `abcdefghijklehkbnqtwabcdef`. Rotation recovered from U and F centre colours via a 24-entry map, colours remapped into that frame, each piece encoded as slot+orientation (`location*3+axis` for corners) | `src/domain/faceletReconciliation.ts` as an O(26) equality key instead of full facelet diffing | Fixed to 3×3 and to the repository's solved-state string |
+| Positional inverted index for algorithm lookup | `composables/recon/ExactAlgSuggester.tsx:32-191` | `Map<position 0..25, Map<char, Set<algId>>>` built from every algorithm's hash; query supplies `must`/`may`/`not` per position, intersect–union–subtract, score `100 × musts + 1 × mays`, sort, limit | Upgrade for `suggestReconstructionCompletions`, which today only matches literal typed prefixes | Requires the hash above; index build is O(algs × 26) |
+| Rotation-invariant OLL/PLL recognition | `composables/recon/LLinterpreter.tsx:6-324` | Build a 5×5 last-layer colour grid, apply a step mask, remap PLL through a spiral index so an AUF becomes an array rotation, encode base-6, take the **minimum across the four U rotations** as the canonical key, look it up in the pattern JSON | `src/domain/lastLayer.ts` already derives the same invariant from cubie orientation/permutation classes; the sticker-grid form is what a camera or facelet packet gives us | Only OLL and PLL populated; ZBLL/EO/CP maps are scaffolding |
+| AUF optimisation | `composables/recon/LLsuggester.tsx:12-169` | OLL: `preAUF = (4 + algMove − caseMove) % 4`, preference order `[0,1,3,2]`. PLL: brute-force all 16 pre/post pairs against cost table `[0,1,2,1]`, tie-break by the same preference order; trailing rotations rewritten to F/F'/F2 | Trainer case presentation and reconstruction alternatives | Assumes the green-white edge as reference piece |
+| Ergonomics score | `composables/recon/AlgSpeedEstimator.tsx:6-75` | `score = Σ(base[face] × modifier) × 1.2^distinct-move-types × (1.5 if EO-affecting) / 10`, base U=1, R=1, D=1.05, L=1.05, B=1.3, M=1.3, F=1.5, E=3.0; modifier plain 1, prime 1, double 1.6 | Ranking alternatives before personal execution data exists | The author labels the constants uncalibrated |
+| Alg database compiler | `utils/AlgCompiler.tsx:31-1123` | Parse → combine → expand F2L angle variants (`y`, `U`) → filter known-inefficient endings → dedup by normalised form → stamp hash + `eoValue` by inverse-applying to a solved cube → stamp `caseIndex`/AUF/frequency for LL → sort by speed | Build script if we generate our own corpus | 1 100 lines, heuristic filters |
+| Ghost-text completion UX | `docs/suggestion-system.md`, `components/recon/SuggestionManager.tsx`, `MovesTextEditor.tsx` | Completion rendered outside the contentEditable, anchored by a caret rectangle measured in a layout effect (not `useEffect`, to avoid one-frame jitter); Tab accepts, Escape dismisses; the ghost never enters the serialized text or URL | `src/components/ReconstructEditor.tsx` | Documented jitter gotcha |
+| Move-text parser | `composables/recon/validateTextInput.tsx:8-320` | Tokenises comments, hashtags, nested parentheses, bounded repetitions, painted HTML, and 66 legal move strings | Editor validation | Syntax only, no legality checks |
+| Adaptive replay tempo | `components/recon/TwistyPlayer.tsx:61-67,680-782` | `tempoScale = 1.5^(speed/15) − 0.6`; single-move diffs use `experimentalAddMove` instead of a re-render; queue backlog accelerates tempo; 2 s safety timeout | `src/components/CubePlayback.tsx` for live BLE-driven playback | Hardcoded timeout |
+| Untimed practice with pre/post-solve checklists | `app/notimer/page.tsx`, `composables/notimer/db.tsx` | Dexie stores solves plus checklist items whose state is inherited from the previous solve; checks are placed pre- or post-solve | A pre-solve routine drill we do not have | Author flags unfinished delete/scroll paths |
+| EO lesson content | `components/learn/postContent/eo.tsx:1-265` | Good/bad edge definition through RLUD-solvability, sticker-orbit model, y-rotation flip rule, pair-selection strategy | Teaching copy for the edge-orientation drill | Content, not algorithm |
+| Rotation simplification | `composables/recon/simplifyRotations.tsx:19-149` | Multiplies rotation matrices, returns an equivalent sequence of at most two rotations | Reconstruction cleanup | Assumes valid space-delimited input |
+
+**Decision.** Import the MIT OLL/PLL corpora and the pattern tables with the notice retained, and keep our state-verified generator (`src/domain/lastLayer.ts`) as the acceptance test for anything imported. Adopt the hash + inverted index before writing any more hand-authored case data.
+
+## 2. poliva/smartcube-web-bluetooth — MIT hardware layer
+
+Drivers present in `src/smartcube/protocols/`: `gan.ts`, `giiker.ts`, `gocube.ts`, `moyu-mhc.ts`, `moyu-v1.ts`, `moyu32.ts`, `qiyi.ts`, each with replay or unit tests beside it, behind `connectSmartCube()` (`src/smartcube/connect.ts`).
+
+### 2.1 QiYi — the exact reason our pairing fails
+
+Read directly this turn, because `Unable to determine QiYi cube MAC address` is the live blocker:
+
+- The protocol needs the six-byte BLE MAC as message content, not as a key: `QiYiConnection` splits the MAC and appends the six bytes in reverse order to every hello frame (`src/smartcube/protocols/qiyi.ts:133-167`).
+- Transport: service `0000fff0-…`, characteristic `0000fff6-…`, AES-128-**ECB** with the fixed key `[87,177,249,171,205,90,232,167,156,185,140,231,87,140,81,8]`, frame `0xFE, length, content…, CRC-16/Modbus (poly 0xA001) little-endian`, zero-padded to a 16-byte block (`src/smartcube/attachment/mac-probe-qiyi.ts:1-50`).
+- MAC resolution order (`qiyi.ts:404-461`): advertisement manufacturer data → cached MAC for the device → `macProvider(device, false)` → manufacturer data read again → **name-derived candidates** → optional cryptographic address search over those candidates → `macProvider(device, true)` → throw.
+- Name-derived candidates (`src/smartcube/attachment/mac-candidates.ts`) accept only three exact patterns: `QY-QYSC-A-XXXX` → `CC:A2:00:00:XX:XX`; `QY-QYSC-S-XXXX` → `CC:A3:00:00:XX:XX` and `CC:A3:00:01:XX:XX`; `XMD-TornadoV4-i-XXXX` → `CC:A6:00:00:XX:XX`. The regexes are anchored and require exactly four hex characters.
+- Scan filters accept only `QY-QYSC` and `XMD-TornadoV4-i` name prefixes (`qiyi.ts:469-478`).
+
+Consequence for us: the failure means the browser supplied no manufacturer data and the advertised name did not match those anchored patterns. The correct next moves are (a) surface the exact advertised name — already done in `src/device/webBluetooth.ts` — and (b) expose a **user-entered MAC** through the existing `macProvider` hook rather than inventing a candidate. No MAC may be guessed.
+
+### 2.2 Protocol breadth and delivery guarantees
+
+The dependency is already `github:poliva/smartcube-web-bluetooth#44f1f09` (`package.json:22`) and `src/device/webBluetooth.ts` imports its source entry point, so **all** drivers — GAN gen1–4, Giiker, GoCube, MoYu MHC, MoYu v1, MoYu32 and QiYi — are reachable today; only QiYi has been exercised in our UI. Reported by the protocol read and not independently re-verified here: GAN gen3/gen4 support a move FIFO with history requests, QiYi carries an eleven-slot embedded move history, and MoYu32 only logs on loss with no recovery. Our capture layer treats every protocol identically, so that asymmetry is currently invisible to `src/device/capture.ts`.
+
+The capability list from the previous harvest revision (multi-vendor connection, typed event stream, capability-gated commands, drift-corrected move timing via linear regression, cubie-to-facelet conversion, GAN Smart Timer states, recorded-traffic replay tests) remains accurate and is retained below.
+
+| Capability | Evidence | Behaviour | Destination | Caveat |
+|---|---|---|---|---|
+| Unified multi-vendor connection | `README.md:34-85`, `src/smartcube/index.ts:2-36` | GAN, Giiker, GoCube, MoYu MHC/WRM, MoYu32 and QiYi drivers behind one entry point | `src/device/webBluetooth.ts` | Capability varies per device |
+| Typed event stream | `src/smartcube/types.ts:4-55` | MOVE, FACELETS, GYRO, BATTERY, HARDWARE, DISCONNECT with host timestamps; moves also carry local and cube clocks | `src/device/capture.ts` | Several fields nullable |
+| Capability-gated commands | `src/smartcube/types.ts:57-79` | request-facelets, battery, hardware, reset plus per-connection capability flags | Connection diagnostics | Never assume a command exists |
+| Drift-corrected move timing | `README.md:176-183`, `src/utils.ts:16-78` | Linear regression fits the cube clock to the host clock and interpolates missing cube timestamps | Stage and pause metrics | Missing timestamps imputed at ±50 ms; keep provenance |
+| Clock-skew diagnostic | `src/utils.ts:80-89` | Reports cube/host skew as a percentage | Device health panel | Needs enough timestamped moves |
+| Cubie→facelet conversion | `src/utils.ts:91-158` | Corner/edge permutation and orientation to a Kociemba facelet string | Shared state representation | Fixed URFDLB ordering |
+| Recorded-traffic replay tests | `src/test/fixtures/types.ts:1-45`, `src/test/helpers/fixture-replay.ts:1-10`, `protocols/*.replay.test.ts` | Captured service discovery, reads, writes, notifications and expected events replayed deterministically | Hardware regression suite without every physical cube | Proves parsing, not radio behaviour |
+
+## 3. hakatashi/smart-cube-timer — MIT, solve analysis
+
+| Capability | Evidence | Behaviour | Destination | Caveat |
+|---|---|---|---|---|
+| Four recognition datasets | `lib/data.js:16-175` | OLL 57, PLL 21, **CLL 43**, **LSEO 9**, each `[name, algdbId, pattern]`. OLL pattern `[CO1..CO4, EO1..EO4]` clockwise per the diagram at `lib/data.js:6-13`; PLL `[CP1..CP4, EP1..EP4]`; CLL `[CP…, CO…]`; LSEO `[bottomMisorientedCount, EO1..EO4]` | Case metadata and Roux support | Provenance of the tables is not documented upstream |
+| State → case mapping | `lib/utils.js:64-113` (`facePiecesMap`), `674-723` (`getFaceOrientations`, `getFacePermutations`), `541-629` (`getOll`, `getPll`, `getCll`, `getLseo`) | Project cubie arrays onto a per-face four-slot ordering, then rotate (OLL/LSEO) or rotate **and** modularly shift (PLL/CLL) and compare | Recognition for captured solves | Both lookups `assert(false)` when nothing matches — a crash, not a fallback |
+| Recognition vs execution split | `lib/utils.js:967-973`, `lib/MoveSequence.js:231-280` | `inspection = firstNonTrivialMove.time − previousStageTime`, `execution = stageEnd − firstNonTrivialMove.time`; "first non-trivial move" is a fixed-point same-face cancellation that also skips a single leading up-face turn | `src/domain/reconstruction.ts` stage metrics | TODO in source: slice/commuting cancellation such as `U D U' D'` is unhandled |
+| Stage state machine | `lib/SolveAnalyzer.js:74-162` | Mirror each move onto a cube, probe `findCross`/`findRouxBlock` while the method is unknown, then advance one stage per satisfied predicate, recording the move timestamp as stage completion | `src/domain/reconstruction.ts` | F2L progress is "≥ N pairs solved" (`utils.js:725-827`), never per slot |
+| Cross detection | `lib/utils.js:528-539` | For each of six faces, all four touching edges must satisfy `eo === 0 && ep === index` | Segmentation | Complete cross only, no partial scoring |
+| Roux block detection | `lib/utils.js:496-526`, `831-940` | Search six candidate side faces × four rotations for two stacked 2×2 blocks, then walk `block2 → cll → lseo → lsep` | A Roux adapter we do not have | Source comment at `utils.js:909`: LSEO detection ignores centre orientation |
+| Two-look detection | `lib/SolveAnalyzer.js:146-157` | `isOll2Look` fires when an edge-oriented-but-unsolved OLL state appears after a check where edges were unoriented; `pllLooks` counts distinct PLL cases seen while still in the PLL stage | Weakness detection | Runs the predicate on every move |
+| Slice recovery and notation | `lib/MoveSequence.js:107-215` | Opposite-face opposite-sign adjacent pairs collapse into M/E/S, with the implied cube rotation folded into a running orientation so subsequent moves stay readable | Reconstruction display | Stateful and fragile; the Roux branch asserts an orientation assumption |
+| Move accumulation modes | `lib/MoveSequence.js:70-99`, `282-356` | `reduction` cancels opposite turns to zero (used to consume a scramble); `addition` merges same-sign turns and splits overflow beyond ±2 (used to accumulate a live solve) | Capture and scramble verification | Keep the two modes distinct |
+| Migration by replay | `lib/db.js:139-261` | Schema v4 re-runs `SolveAnalyzer` over stored raw turns to regenerate every derived field and rebuilds the aggregate case tables | Our migration policy, which claims raw-event primacy but has never exercised it | — |
+| Per-case aggregates | `lib/db.js:265-315` | Running `{count, times, inspectionTimes, executionTimes}` per case | Weak-case ranking | **Bug not to copy:** `lib/db.js:299-312` reads the PLL record keyed by `ollCase` |
+| Export | `lib/db.js:346-363` | `"time";"scramble";"iso date"` text plus a full JSON dump | Backup parity | Import was never implemented upstream |
+
+## 4. cs0x7f/csTimer — GPL-3.0, behaviour reference only
+
+### 4.1 The 3×3 trainer subset checklist
+
+Registered in `src/js/scramble/scramble_333_edit.js:1109-1150` (verified by reading the registration block): `333`, `333fm`, `edges`, `corners`, `333custom`, `ll`, `lsll2`, `f2l`, `zbll`, `zzll`, `zbls`, `ttll`, `eols`, `wvls`, `vls`, `lse`, `cmll`, plus `cll`, `coll`, `ell`, `2gll`, the Mehta family (`mt3qb`, `mteole`, `mttdr`, `mt6cp`, `mtl5ep`, `mtcdrll`), the restricted-generator sets (`2gen`, `2genl`, `3gen_F`, `3gen_L`, `RrU`, `half`, `333drud`), and the planning sets (`easyc`, `easyxc`, `eoline`, `eocross`). Each registration may carry a filter, a probability table and an image generator — that triple is the shape a trainer catalogue needs. **We currently ship none of these subsets**; this list is the roadmap.
+
+### 4.2 Statistics definitions (facts, safe to reimplement)
+
+- Solve record: `[[penalty, base, phaseEnd…], scramble, comment, timestampSeconds, extension?]` with `penalty ∈ {0, 2000, −1}` so `+2` adds directly and `−1` is the DNF sentinel (`src/js/stats/stats.js:4`, `951-960`).
+- Trim rule (`src/js/stats/timestat.js:12-31`, read directly): `p<N>` trims `ceil(n × N/100)`, `m` trims `n >> 1`, otherwise a fixed count; when `triml + trimr === n` both decrement by one. `ao` trims, `mo` does not.
+- DNF invalidation (`timestat.js:145-156`): the average is DNF when `dnfCount ≥ size − rightTrim`.
+- Personal-best threshold (`timestat.js:214-254`): `tgt = bestAvg × nEff − (keptSum − valueLeavingWindow)`, returning −1 for impossible and −2 for always-breaks.
+- Reconstruction metrics (`src/js/stats/recons.js:79-162`, `218/230/238`): per step `inspection = firstMove − stepStart`, `execution = stepEnd − firstMove`, `TPS = moves / (inspection + execution)`.
+- Inspection penalty, applied identically by every timer input (`src/js/timer/virtual.js:29`, verified): `> 17 000 ms → DNF`, `> 15 000 ms → +2`, else none.
+- Period bucketing (`src/js/stats/dlystat.js:42-96`) and histogram binning (`distribution.js:28-57`).
+
+### 4.3 Techniques to reimplement independently
+
+Random-state-then-inverse-solve scrambling; constrained sampling for case subsets; coordinate + pruning-table IDA* for step solvers (`tools/cross.js:14-101`, `tools/roux1.js:8-87`, `tools/eoline.js:7-70`); Thistlethwaite staging with NISS (`tools/thistlethwaite.js:6-137`); BLD cycle enumeration and constrained state sampling (`tools/bldhelper.js:6-255`) plus buffer-cycle memo encode/decode (`265-394`); pattern probability as `matchingStates / 43 252 003 274 489 856 000` (`tools/pat3x3gen.js:124-142`); live scramble hinting (`tools/bluetoothutil.js:11-102`); swapped-move detection by bounded DFS (`302-321`); device-clock least-squares fit (`407-435`); an order-statistics tree for O(log n) rolling averages (`timestat.js`).
+
+**Boundary restated.** Do not copy pruning tables, case tuples, probability weights, key tables, or any function body. BLE UUIDs, CRC polynomials, WCA conventions and the formulas above are not csTimer's expression.
+
+## 5. Dave2ooo/F2LTrainer — licence text absent, reimplement
+
+### 5.1 Case model, counted from the data
+
+| Group | Cases | Categories | Algorithm strings | Scramble strings | AUF |
+|---|---|---|---|---|---|
+| `basic` | 41 | 11 | 279 | 338 | ignored for 37–41 |
+| `basicBack` | 41 | 11 | 82 | 809 | ignored for 37–41 |
+| `advanced` | 60 | 9 | 132 | 768 | ignored for 55–60 |
+| `expert` | 33 | 6 | 119 | 340 | ignored for all |
+
+Total **175 cases** (`src/lib/types/group.ts:4-428`). A second orthogonal taxonomy in `src/lib/types/caseAttributes.ts:19-1149` tags every case with corner position (`top`/`bottom_correct`/`bottom_wrong`), corner orientation (`up_down`/`front_back`/`side`), edge position (`top`/`solved_slot`/`wrong_slot`) and edge orientation, which drives the filter UI. Case records also carry `pieceToHide` for the free-slot groups and an alias table for advanced cases 43–60.
+
+### 5.2 Mechanisms
+
+| Capability | Evidence | Behaviour |
+|---|---|---|
+| Smart weighting | `src/lib/trainCases.ts:81-191` | `solveWeight = 1 + min(2, (maxSolves − solves)/3)`, `timeWeight = 1 + min(2, max(0, caseAverage − overallAverage)/100)` over the last five timed solves, `weight = round(min(3, max(...)))`, candidates pushed `weight` times then shuffled once. Recap mode forces weight 1 |
+| Queue and history | `src/lib/trainCaseQueue.svelte.ts:27-268` | Regenerates a whole batch when the index runs off the end; history navigation rebuilds a case from the stored solve so the replayed prompt is identical |
+| State predicates | `src/lib/utils/checkF2LState.ts:31-176` | KPattern slots `fr {edge 8, corner 4}`, `fl {9,5}`, `br {10,7}`, `bl {11,6}`; cross edges `[4,5,6,7]`; a slot is solved when `pieces[i] === i && orientation[i] === 0`; the trained slot is excluded and mirrored for the left side; `entireF2LSolved` is computed separately |
+| Smart-cube move matching | `src/lib/utils/moveValidator.ts:104-615`, `TrainClassicSmart.svelte:292-591` | Transform the absolute frame into the algorithm frame through a cumulative rotation; auto-apply rotations in the expected algorithm; map a wide move to its opposite single layer and **prepend** the implied rotation; likewise for slice moves (M→x', E→y', S→z); match against a five-move lookahead trying every slice expansion; defer the wrong-move verdict while a buffered turn could still be half of a double or slice move; on a real mismatch build an undo stack the user must clear |
+| Hint ladder | `src/lib/utils/hintManager.svelte.ts:34-139` | `step`, `allAtOnce` (revealed but blurred until the first physical move), `always`, `hidden` (no algorithm validation at all) |
+| Drill loop | `TrainDrill.svelte:66-423` | `stopped → countdown (3 × 500 ms) → solving → executing → transitioning`, with give-up, redo and resume paths; completion is decided by the state predicate, never by move identity |
+| Recognition boundary | `TrainDrill.svelte:132-164` | Recognition ends on the first non-U move, so AUF time counts as recognition — a deliberate choice we must either match or document as different |
+| URL sharing | `src/lib/utils/urlSave.ts:38-420` | Learning states encoded base-3 per case → BigInt → Base62; custom algorithms tokenised against a closed 57-symbol alphabet, unknown tokens silently dropped |
+| Statistics | `src/lib/utils/statistics.ts:16-146` | Best, mean, Ao5/Ao12 and rolling variants; recognition and execution get no rolling statistics |
+
+## 6. solved.no — behaviour reference
+
+Trainer pages are server-rendered enough to read modes and settings; `/trainers` and `/algs` are client-rendered, so the trainer card grid and the algorithm database itself could not be verified.
+
+| Area | Behaviour captured (URL evidence) |
+|---|---|
+| Alg trainers | `/trainers/3x3/algs/{F2L,OLL,PLL,COLL,WV,2GLL,ZBLS,ZBLL,LXS}` share one engine with Drill (Normal / Recap / Weighted), Learn and Review modes; per-case mean, best single, best/worst pre-AUF, ao5/ao12/ao100 and count, filtered by Today/24h/7d/30d/All/Custom |
+| Recap parameters | repeat count, instant, repeat goal in seconds, in-order or random, quick mode, verify wait time |
+| Weighted parameters | strength Weak/Medium/Strong/Extreme |
+| Learn mode | login-gated: goal seconds, criteria over a mean of N, 1–5 cases at once, 30 % new-case chance |
+| F2L specifics | mirror/rotate toggle, "consider each AUF its own case", per-case pre-AUF allow list |
+| Smart cube | connect/disconnect with battery percentage, timer start on case shown / first move / cooldown end, Bluetooth-stats-only mode, reset gyro per case, neutrality fixed / single-y / dual-x2y / colour neutral, finish when step solved or cube solved |
+| Import/export | selective export of times, selected cases, mode settings, learnt cases and learn settings; merge for times and learnt cases, replace for configuration; reset and delete undoable until the modal closes |
+| Inspection trainer | categories Cross, EOCross, EOLine, XCross, Pseudo XCross, XXCross, First Block, CPLine, CPFB; solution length 1–7; timer off / one-phase inspection / one-phase execution / two-phase; slot selection; short scrambles; force front; bottom-half-moves-only; allow one F move; reveal one move at a time; hint levels 1/5/10/25/all; batch generation with copy and record-times list; saved scrambles with comments and category tags |
+| Predicters | Pair/OLL/PLL/ZBLL with pair/corner/edge targets, "don't place pairs in slots", force one correct, force orientation only, and per-set sub-modes such as force-2GLL or force-EPLL; editable algorithm presets; history with accuracy and streak |
+| Two-sided recognition | pre-AUF, select-by-name, verification-confirm and verification-predict (about half the rounds show a deliberately wrong result); sets F2L/OLL/PLL/2GLL/COLL/ZBLL/ZBLS/WV plus ZBLL angle subsets; Baum-Harris pre-AUF coding |
+| Other drills | Track the Piece (corner/edge/pair, 1–20 moves or F2L solutions, moving sticker target, colour-coded grading), Guess the Colour (1×1 and 3×3 hidden-corner modes, neutrality and corner-position locks, remappable keys), Free Pair (presets, rows with a single valid answer auto-ignored, five redo-incorrect queue modes), Follow the Moves (per-session trigger sets, repeat chance, best-TPS-paced highlighting), Time Attack (per-case target times, reorderable cards, current-card indicator) |
+| Timer and reconstructor | multi-session with comp-sim, scramble alerts, csTimer CSV import, per-solve inspection/penalty/comment/written solution/copy-reconstruct; reconstructor with ghost text, state-search suggestions from the current position, advanced criteria search with a known-vs-all algorithm scope, sticker editor and share links |
+| Daily puzzles | three tiers, attempt limits, streaks, 100 points per puzzle, +25 all tried, +75 perfect day, +50 at a 7-day streak, +100 at 30 days, occasional multipliers; explicitly labelled work in progress |
+| Blind settings | click-to-set target letters per sticker with uniqueness enforcement, and target-priority lists used only to break permutation cycles |
+
+## 7. reco.nz — study import
+
+- URL scheme `https://reco.nz/solve/{id}`; index at `https://reco.nz/solve/index`; algorithm pages at `/algs/oll` and `/algs/pll`. Low ids 404, so ids are sparse.
+- A solve page carries solver, result, competition line, reconstructor credit, a phase-labelled solution using `//` comments (`inspection`, `cross`, `1st pair` … `OLL(CP)`, `EPLL`), an `alg.cubing.net` link, a stats table with columns Total/F2L/LL/Cross+1/OLS/PLL over rows Time, Split %, STM, STPS, ETM, ETPS, the other solves in the average, and a YouTube embed. No WCA scramble string is published on the page.
+- Server-rendered PHP. **No JSON API** (`/api`, `/api/solve/13444`, `/solve/13444.json` all 404), no `robots.txt`, and **no `Access-Control-Allow-Origin` header**, which is the wire-level reason the static build cannot import arbitrary solves and needs the local Bun proxy.
+- The index filters by official/unofficial, puzzle, method (CFOP, Roux, ZB, ZZ, Petrus, Yau, Redux, Lin, Vandenbergh) and solver name.
+- No terms of use, licence or attribution policy exists on the site. Keep exactly one attributed bundled solve; do not crawl.
+- Our parser (`src/integrations/reco.ts:29-103`) already matches this structure: it restricts URLs to `https://reco.nz/solve/<digits>`, prefers the `alg.cubing.net` `setup` parameter for the scramble, splits stage labels on `//`, and folds `#solvestats` into a nested map.
+
+## 8. Gap register against the current implementation
+
+Ranked by coaching value. "Have" refers to this repository on 2026-08-03.
+
+| # | Gap | Evidence in the sources | Have today |
+|---|---|---|---|
+| 1 | Case-subset scramble generation (OLL, PLL, COLL, ZBLL, CMLL, F2L, EOLine, Mehta, restricted generators) | csTimer registry §4.1 | Only a 25-move axis-safe training scramble (`src/domain/scramble.ts`) |
+| 2 | Licensed algorithm corpus with case index, AUF data and competition frequency | Ao1K §1.1 | 57 OLL + 21 PLL hand-authored and state-verified (`src/domain/algorithmCatalogue.ts`), 3 F2L starters |
+| 3 | Full F2L case taxonomy (175 cases, two orthogonal attribute axes) | F2LTrainer §5.1 | 3 F2L cases |
+| 4 | Smart-cube move matching with rotation, wide and slice compensation plus undo guidance | F2LTrainer §5.2 | State-agnostic controller only (`src/domain/remoteController.ts`) |
+| 5 | Per-slot F2L identification instead of a solved-pair count | smart-cube-timer §3 gap, F2LTrainer predicates | `segmentCfop` counts stages, not slots |
+| 6 | Per-step TPS and inspection/execution split on captured solves | csTimer §4.2, smart-cube-timer §3 | Stage metrics exist; TPS and the non-trivial-move boundary do not |
+| 7 | Personal-best threshold, rolling averages, distribution and period trends | csTimer §4.2 | Basic statistics only (`src/domain/statistics.ts`) |
+| 8 | Recognition datasets for CLL and LSEO (Roux) | smart-cube-timer §3 | None |
+| 9 | State-aware suggestion (hash + inverted index) instead of literal prefix completion | Ao1K §1.2 | Literal prefix, now shortest-completion-first |
+| 10 | Prediction, two-sided recognition and time-attack drills | solved.no §6 | Absent (`docs/feature-status.md` already says so) |
+| 11 | Device-clock regression and swapped-move detection during capture | csTimer §4.3, smartcube-web-bluetooth | Facelet reconciliation only |
+| 12 | Pre-solve checklist routine | Ao1K notimer §1.2 | Absent |
+
+## 9. Adoption decisions
+
+1. The MIT sources are the supply chain: Ao1K for algorithm data, recognition keys and suggestion machinery; `smartcube-web-bluetooth` for hardware; smart-cube-timer for stage analysis and the replay-based migration policy. csTimer stays a specification, never a dependency. F2LTrainer stays a design reference until a licence text exists.
+2. Anything imported must pass our own state verification. `src/domain/lastLayer.ts` classifies a last-layer algorithm by cubie orientation and permutation classes modulo AUF, and `src/domain/algorithmCatalogue.test.ts` requires 57 distinct OLL orientation classes and 21 distinct PLL permutation classes with the first two layers intact. Imported data must satisfy the same test before it ships.
+3. Keep two trainer contracts separate: state-success drills accept any solution that reaches the target predicate; algorithm rehearsal enforces a chosen sequence and guides undo. The current controller mode is a third, explicitly state-agnostic route and must stay labelled as such.
+4. Record recognition boundaries explicitly. F2LTrainer counts AUF as recognition; smart-cube-timer strips a leading up-face turn before measuring. Whichever we choose must be stored with the attempt so old data stays interpretable.
+5. Raw telemetry stays the only durable truth; every derived metric must be regenerable by replaying stored events, as smart-cube-timer's v4 migration demonstrates.

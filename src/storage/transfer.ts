@@ -1,4 +1,5 @@
 import type { SmartCubeCoachBackup } from '../domain/models'
+import { exportCsTimerCsv, importCsTimerCsv } from '../domain/csTimerFormat'
 import { clearDatabase, repositories } from './database'
 
 export async function exportAllData(): Promise<SmartCubeCoachBackup> {
@@ -82,6 +83,26 @@ export function downloadBackup(backup: SmartCubeCoachBackup) {
   const anchor = document.createElement('a')
   anchor.href = url
   anchor.download = `smart-cube-coach-backup-${new Date(backup.exportedAt).toISOString().slice(0, 10)}.json`
+  anchor.click()
+  URL.revokeObjectURL(url)
+}
+
+export async function exportSessionAsCsTimerCsv(sessionId: string) {
+  const solves = (await repositories.solves.all()).filter((solve) => solve.sessionId === sessionId)
+  return exportCsTimerCsv(solves)
+}
+
+export async function importSessionFromCsTimerCsv(text: string, sessionId: string) {
+  const result = importCsTimerCsv(text, sessionId)
+  await Promise.all(result.solves.map(repositories.solves.put))
+  return result
+}
+
+export function downloadCsTimerCsv(csv: string, sessionId: string) {
+  const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }))
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = `smart-cube-coach-${sessionId}-cstimer.csv`
   anchor.click()
   URL.revokeObjectURL(url)
 }

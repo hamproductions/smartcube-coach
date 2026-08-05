@@ -52,19 +52,24 @@ const priority = (impactMs: number, recurrence: number, confidence: number, trai
   Number(((impactMs / 1000) * recurrence * confidence * trainability).toFixed(3))
 
 export function analyzeSolve(solve: SolveTelemetry): SolveAnalysis {
+  if (!solve.stages.length) throw new Error('Solve analysis requires at least one segmented stage')
   const pairStage = solve.stages
     .filter((stage) => stage.name.startsWith('F2L'))
     .sort((a, b) => b.recognitionMs - a.recognitionMs)[0]
-  const pairStart = solve.stages
-    .slice(0, solve.stages.findIndex((stage) => stage.name === pairStage.name))
-    .reduce((total, stage) => total + stage.timeMs, 0)
-  const pairImpact = Math.max(0, pairStage.recognitionMs - solve.history.pairTransitionMedianMs)
+  const pairStart = pairStage
+    ? solve.stages
+      .slice(0, solve.stages.findIndex((stage) => stage.name === pairStage.name))
+      .reduce((total, stage) => total + stage.timeMs, 0)
+    : 0
+  const pairImpact = pairStage ? Math.max(0, pairStage.recognitionMs - solve.history.pairTransitionMedianMs) : 0
   const cross = solve.stages.find((stage) => stage.name === 'Cross') ?? solve.stages[0]
   const crossImpact = Math.max(0, cross.timeMs - 1800)
   const rotationCount = solve.stages.reduce((total, stage) => total + stage.rotations, 0)
 
-  const findings: Finding[] = [
-    {
+  const findings: Finding[] = []
+
+  if (pairStage) {
+    findings.push({
       id: 'finding-pair-2',
       metric: 'pair_transition_pause',
       title: 'Second-pair lookahead stalls',
@@ -81,7 +86,10 @@ export function analyzeSolve(solve: SolveTelemetry): SolveAnalysis {
         fromMs: pairStart,
         toMs: pairStart + pairStage.recognitionMs
       }
-    },
+    })
+  }
+
+  findings.push(
     {
       id: 'finding-cross-time',
       metric: 'cross_time',
@@ -118,14 +126,16 @@ export function analyzeSolve(solve: SolveTelemetry): SolveAnalysis {
         toMs: solve.totalMs
       }
     }
-  ]
+  )
 
   findings.sort((a, b) => b.priority - a.priority)
+  const primary = findings[0]
+  if (!primary) throw new Error('Solve analysis produced no finding')
 
   return {
     totalMoves: solve.stages.reduce((total, stage) => total + stage.moves, 0),
     rotationCount,
-    primary: findings[0],
+    primary,
     findings
   }
 }

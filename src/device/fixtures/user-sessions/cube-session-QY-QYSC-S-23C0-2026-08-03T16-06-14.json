@@ -1,0 +1,3229 @@
+{
+  "format": "smartcube-coach-session",
+  "version": 1,
+  "recordedAt": "2026-08-03T16:06:14.422Z",
+  "device": {
+    "name": "QY-QYSC-S-23C0       ",
+    "mac": "CC:A3:00:01:23:C0",
+    "protocol": "QiYi"
+  },
+  "scramble": "B' D2 R B U' B L' U F2 D' R2 B2 U2 F2 U' B2 R2 F2 R2 B D2",
+  "capabilities": {
+    "gyroscope": false,
+    "battery": true,
+    "facelets": true,
+    "hardware": true,
+    "reset": false
+  },
+  "diagnostics": [],
+  "events": [
+    {
+      "t": 0,
+      "event": {
+        "timestamp": 605783,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 605783,
+        "cubeTimestamp": 860138
+      }
+    },
+    {
+      "t": 0,
+      "event": {
+        "timestamp": 605783,
+        "type": "FACELETS",
+        "facelets": "FBBLURDBBRBLFRLDBBRLUUFLRUFDFLRDDUFDUDBFLRLDFUURUBDLRF"
+      }
+    },
+    {
+      "t": 420,
+      "event": {
+        "timestamp": 606203,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 606203,
+        "cubeTimestamp": 860630
+      }
+    },
+    {
+      "t": 420,
+      "event": {
+        "timestamp": 606203,
+        "type": "FACELETS",
+        "facelets": "BRBBUBFLDRLUFRLDBBUDBUFLRUFDFLRDDUFDUURFLRLDFRBLUBDLRF"
+      }
+    },
+    {
+      "t": 2677,
+      "event": {
+        "timestamp": 608460,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 608460,
+        "cubeTimestamp": 862882
+      }
+    },
+    {
+      "t": 2677,
+      "event": {
+        "timestamp": 608460,
+        "type": "FACELETS",
+        "facelets": "FBBLURDBBRBLFRLDBBRLUUFLRUFDFLRDDUFDUDBFLRLDFUURUBDLRF"
+      }
+    },
+    {
+      "t": 2992,
+      "event": {
+        "timestamp": 608776,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 608776,
+        "cubeTimestamp": 863148
+      }
+    },
+    {
+      "t": 2992,
+      "event": {
+        "timestamp": 608776,
+        "type": "FACELETS",
+        "facelets": "BRBBUBFLDRLUFRLDBBUDBUFLRUFDFLRDDUFDUURFLRLDFRBLUBDLRF"
+      }
+    },
+    {
+      "t": 3990,
+      "event": {
+        "timestamp": 609773,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 609773,
+        "cubeTimestamp": 864214
+      }
+    },
+    {
+      "t": 3990,
+      "event": {
+        "timestamp": 609773,
+        "type": "FACELETS",
+        "facelets": "BRBBUBFRRFLULRLDBBRUUUFDFLBDFRRDDUFDUUDFLFLDLRBLUBDLRF"
+      }
+    },
+    {
+      "t": 4042,
+      "event": {
+        "timestamp": 609826,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 609826,
+        "cubeTimestamp": 864288
+      }
+    },
+    {
+      "t": 4042,
+      "event": {
+        "timestamp": 609826,
+        "type": "FACELETS",
+        "facelets": "FBBRURRBBRBLLRLDBBFLUUFDFLBDFRRDDUFDRUUFLFLDLUUDUBDLRF"
+      }
+    },
+    {
+      "t": 4147,
+      "event": {
+        "timestamp": 609930,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 609930,
+        "cubeTimestamp": 864346
+      }
+    },
+    {
+      "t": 4147,
+      "event": {
+        "timestamp": 609930,
+        "type": "FACELETS",
+        "facelets": "FBBRURRLDRBLFRLDBBUDBLFLFUFUFLRDDUFDRUBFLBLDRUUDUBDLRF"
+      }
+    },
+    {
+      "t": 5513,
+      "event": {
+        "timestamp": 611296,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 611296,
+        "cubeTimestamp": 865670
+      }
+    },
+    {
+      "t": 5513,
+      "event": {
+        "timestamp": 611296,
+        "type": "FACELETS",
+        "facelets": "FBBDURDLDRBLFRLDBBFDBRFLRUFUFLLDDFFDLFRDLURBBUUUUBRLRU"
+      }
+    },
+    {
+      "t": 5565,
+      "event": {
+        "timestamp": 611348,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 611348,
+        "cubeTimestamp": 865787
+      }
+    },
+    {
+      "t": 5565,
+      "event": {
+        "timestamp": 611348,
+        "type": "FACELETS",
+        "facelets": "DDFLUBDRBUUUFRLDBBRBLRFLRUFUFLLDDFFDFDBDLURBBLFRUBRLRU"
+      }
+    },
+    {
+      "t": 5722,
+      "event": {
+        "timestamp": 611505,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 611505,
+        "cubeTimestamp": 865923
+      }
+    },
+    {
+      "t": 5722,
+      "event": {
+        "timestamp": 611505,
+        "type": "FACELETS",
+        "facelets": "DDFLUBBUBDUURRLBBBRRRUFBFLLDFULDDFFDFDUDLFRBLLFRUBRLRU"
+      }
+    },
+    {
+      "t": 5775,
+      "event": {
+        "timestamp": 611558,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 611558,
+        "cubeTimestamp": 866035
+      }
+    },
+    {
+      "t": 5775,
+      "event": {
+        "timestamp": 611558,
+        "type": "FACELETS",
+        "facelets": "BLDUUDBBFLFRRRLBBBDUUUFBFLLDFULDDFFDRRRDLFRBLFDUUBRLRU"
+      }
+    },
+    {
+      "t": 5932,
+      "event": {
+        "timestamp": 611715,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 611715,
+        "cubeTimestamp": 866136
+      }
+    },
+    {
+      "t": 5932,
+      "event": {
+        "timestamp": 611715,
+        "type": "FACELETS",
+        "facelets": "BUBBULFDDFDURRLBBBLFRUFBFLLDFULDDFFDDUUDLFRBLRRRUBRLRU"
+      }
+    },
+    {
+      "t": 5985,
+      "event": {
+        "timestamp": 611768,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 611768,
+        "cubeTimestamp": 866229
+      }
+    },
+    {
+      "t": 5985,
+      "event": {
+        "timestamp": 611768,
+        "type": "FACELETS",
+        "facelets": "BUBBULFRBUDUFRLDBBRBLFFLLUFUFLLDDFFDDUDDLDRBFRRRUBRLRU"
+      }
+    },
+    {
+      "t": 6143,
+      "event": {
+        "timestamp": 611926,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 611926,
+        "cubeTimestamp": 866340
+      }
+    },
+    {
+      "t": 6143,
+      "event": {
+        "timestamp": 611926,
+        "type": "FACELETS",
+        "facelets": "BLBUURBBFRBLFRLDBBDUDFFLLUFUFLLDDFFDRRRDLDRBFUDUUBRLRU"
+      }
+    },
+    {
+      "t": 6195,
+      "event": {
+        "timestamp": 611978,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 611978,
+        "cubeTimestamp": 866486
+      }
+    },
+    {
+      "t": 6195,
+      "event": {
+        "timestamp": 611978,
+        "type": "FACELETS",
+        "facelets": "BLBUURFDRBBLBRLFBBLFDUFUFLDDFRLDDFFDRRUDLFRBLUDUUBRLRU"
+      }
+    },
+    {
+      "t": 6300,
+      "event": {
+        "timestamp": 612083,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 612083,
+        "cubeTimestamp": 866550
+      }
+    },
+    {
+      "t": 6300,
+      "event": {
+        "timestamp": 612083,
+        "type": "FACELETS",
+        "facelets": "FUBDULRRBUDUBRLFBBBBLUFUFLDDFRLDDFFDLFDDLFRBLRRUUBRLRU"
+      }
+    },
+    {
+      "t": 6458,
+      "event": {
+        "timestamp": 612241,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 612241,
+        "cubeTimestamp": 866661
+      }
+    },
+    {
+      "t": 6458,
+      "event": {
+        "timestamp": 612241,
+        "type": "FACELETS",
+        "facelets": "RDFRUUBLBRRUBRLFBBUDUUFUFLDDFRLDDFFDBBLDLFRBLLFDUBRLRU"
+      }
+    },
+    {
+      "t": 6510,
+      "event": {
+        "timestamp": 612293,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 612293,
+        "cubeTimestamp": 866758
+      }
+    },
+    {
+      "t": 6510,
+      "event": {
+        "timestamp": 612293,
+        "type": "FACELETS",
+        "facelets": "RDFRUURBFRRUFRLDBBUUDDFLUUFLFLLDDFFDBBBDLLRBBLFDUBRLRU"
+      }
+    },
+    {
+      "t": 6562,
+      "event": {
+        "timestamp": 612346,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 612346,
+        "cubeTimestamp": 866836
+      }
+    },
+    {
+      "t": 6563,
+      "event": {
+        "timestamp": 612346,
+        "type": "FACELETS",
+        "facelets": "FUFDUBRRRUUDFRLDBBBBBDFLUUFLFLLDDFFDLFDDLLRBBRRUUBRLRU"
+      }
+    },
+    {
+      "t": 6877,
+      "event": {
+        "timestamp": 612661,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 612661,
+        "cubeTimestamp": 867089
+      }
+    },
+    {
+      "t": 6878,
+      "event": {
+        "timestamp": 612661,
+        "type": "FACELETS",
+        "facelets": "BUFDUBURRUUDFRLDBBLBBLFLFUFUFLRDDUFDDLBFLBLDRRRRUBDLRF"
+      }
+    },
+    {
+      "t": 7614,
+      "event": {
+        "timestamp": 613397,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 613397,
+        "cubeTimestamp": 867826
+      }
+    },
+    {
+      "t": 7614,
+      "event": {
+        "timestamp": 613397,
+        "type": "FACELETS",
+        "facelets": "FBRUURBDULBBFRLDBBDLBLFLFUFUFLRDDUFDRRRFLBLDRUUDUBDLRF"
+      }
+    },
+    {
+      "t": 7822,
+      "event": {
+        "timestamp": 613605,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 613605,
+        "cubeTimestamp": 868028
+      }
+    },
+    {
+      "t": 7822,
+      "event": {
+        "timestamp": 613605,
+        "type": "FACELETS",
+        "facelets": "FBRUURRBRBBBDRLUBBFLDUFLFLBDFLRDDUFDRRUFLFLDLUUDUBDLRF"
+      }
+    },
+    {
+      "t": 7875,
+      "event": {
+        "timestamp": 613658,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 613658,
+        "cubeTimestamp": 868146
+      }
+    },
+    {
+      "t": 7875,
+      "event": {
+        "timestamp": 613658,
+        "type": "FACELETS",
+        "facelets": "RRRBUBFURFLDDRLUBBRRUUFLFLBDFLRDDUFDUUDFLFLDLBBBUBDLRF"
+      }
+    },
+    {
+      "t": 8032,
+      "event": {
+        "timestamp": 613816,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 613816,
+        "cubeTimestamp": 868264
+      }
+    },
+    {
+      "t": 8033,
+      "event": {
+        "timestamp": 613816,
+        "type": "FACELETS",
+        "facelets": "RRRBUBLFDFLDURLRBBFURLFRBLUUDFRDDUFDUUDFLFLDLBBBUBDLRF"
+      }
+    },
+    {
+      "t": 8243,
+      "event": {
+        "timestamp": 614026,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 614026,
+        "cubeTimestamp": 868448
+      }
+    },
+    {
+      "t": 8243,
+      "event": {
+        "timestamp": 614026,
+        "type": "FACELETS",
+        "facelets": "LBRFURDBRBBBURLRBBFLDLFRBLUUDFRDDUFDFURFLFLDLUUDUBDLRF"
+      }
+    },
+    {
+      "t": 8558,
+      "event": {
+        "timestamp": 614341,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 614341,
+        "cubeTimestamp": 868720
+      }
+    },
+    {
+      "t": 8558,
+      "event": {
+        "timestamp": 614341,
+        "type": "FACELETS",
+        "facelets": "LBRFURLFRDBBBRLRBBBLFLFLURDRUBRDDUFDFUUFLDLDFUUDUBDLRF"
+      }
+    },
+    {
+      "t": 8610,
+      "event": {
+        "timestamp": 614393,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 614393,
+        "cubeTimestamp": 868804
+      }
+    },
+    {
+      "t": 8610,
+      "event": {
+        "timestamp": 614393,
+        "type": "FACELETS",
+        "facelets": "LFLFUBRRRUUDBRLRBBDBBLFLURDRUBRDDUFDBLFFLDLDFFUUUBDLRF"
+      }
+    },
+    {
+      "t": 8662,
+      "event": {
+        "timestamp": 614446,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 614446,
+        "cubeTimestamp": 868888
+      }
+    },
+    {
+      "t": 8662,
+      "event": {
+        "timestamp": 614446,
+        "type": "FACELETS",
+        "facelets": "LFLFUBFDFRUDRRLRBBULDRFBDLBRBURDDUFDBLRFLULDBFUUUBDLRF"
+      }
+    },
+    {
+      "t": 8820,
+      "event": {
+        "timestamp": 614603,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 614603,
+        "cubeTimestamp": 868973
+      }
+    },
+    {
+      "t": 8820,
+      "event": {
+        "timestamp": 614603,
+        "type": "FACELETS",
+        "facelets": "LBFFUDLFFULDRRLRBBBLRRFBDLBRBURDDUFDFUUFLULDBRUDUBDLRF"
+      }
+    },
+    {
+      "t": 8873,
+      "event": {
+        "timestamp": 614656,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 614656,
+        "cubeTimestamp": 869127
+      }
+    },
+    {
+      "t": 8873,
+      "event": {
+        "timestamp": 614656,
+        "type": "FACELETS",
+        "facelets": "LBFFUDURRULDBRLRBBRBBLFLBRDUUBRDDUFDFUFFLFLDLRUDUBDLRF"
+      }
+    },
+    {
+      "t": 9031,
+      "event": {
+        "timestamp": 614814,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 614814,
+        "cubeTimestamp": 869277
+      }
+    },
+    {
+      "t": 9031,
+      "event": {
+        "timestamp": 614814,
+        "type": "FACELETS",
+        "facelets": "FDRBURLFURBBBRLRBBFUFLFLBRDUUBRDDUFDRUDFLFLDLULDUBDLRF"
+      }
+    },
+    {
+      "t": 9189,
+      "event": {
+        "timestamp": 614972,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 614972,
+        "cubeTimestamp": 869433
+      }
+    },
+    {
+      "t": 9189,
+      "event": {
+        "timestamp": 614972,
+        "type": "FACELETS",
+        "facelets": "FDRBURRBRBBBURLUBBFLDUFRFLBDFLRDDUFDRUUFLFLDLULDUBDLRF"
+      }
+    },
+    {
+      "t": 9242,
+      "event": {
+        "timestamp": 615025,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 615025,
+        "cubeTimestamp": 869490
+      }
+    },
+    {
+      "t": 9242,
+      "event": {
+        "timestamp": 615025,
+        "type": "FACELETS",
+        "facelets": "FDRBURBUULBBFRLDBBDRBLFLFUFUFLRDDUFDRURFLBLDRULDUBDLRF"
+      }
+    },
+    {
+      "t": 10501,
+      "event": {
+        "timestamp": 616285,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 616285,
+        "cubeTimestamp": 870748
+      }
+    },
+    {
+      "t": 10502,
+      "event": {
+        "timestamp": 616285,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDRBFRLDBBRURLFLFUFUFLRDDUFDULDFLBLDRLBBUBDLRF"
+      }
+    },
+    {
+      "t": 11707,
+      "event": {
+        "timestamp": 617491,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDRBFRLDBBRURLFLFUFUFLRDDUFDULDFLBLDRLBBUBDLRF"
+      }
+    },
+    {
+      "t": 16381,
+      "event": {
+        "timestamp": 622164,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 622164,
+        "cubeTimestamp": 876562
+      }
+    },
+    {
+      "t": 16381,
+      "event": {
+        "timestamp": 622164,
+        "type": "FACELETS",
+        "facelets": "LFUDUUFBBDRRFRRDBURURLFLFUFUFLRDDBLBULDFLBDDRBDFBBRLUL"
+      }
+    },
+    {
+      "t": 17588,
+      "event": {
+        "timestamp": 623372,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 623372,
+        "cubeTimestamp": 877899
+      }
+    },
+    {
+      "t": 17589,
+      "event": {
+        "timestamp": 623372,
+        "type": "FACELETS",
+        "facelets": "LFUDUUFBBDRRFRRLULRURLFLDBULDBFDLURBULDFLBFUFBDFBBRDDR"
+      }
+    },
+    {
+      "t": 17799,
+      "event": {
+        "timestamp": 623582,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 623582,
+        "cubeTimestamp": 878057
+      }
+    },
+    {
+      "t": 17799,
+      "event": {
+        "timestamp": 623582,
+        "type": "FACELETS",
+        "facelets": "LFUDUUFBBDRRFRRDDRRURLFLLULBLBDDRLFUULDFLBDBUBDFBBRFUF"
+      }
+    },
+    {
+      "t": 18008,
+      "event": {
+        "timestamp": 623791,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 623791,
+        "cubeTimestamp": 878230
+      }
+    },
+    {
+      "t": 18008,
+      "event": {
+        "timestamp": 623791,
+        "type": "FACELETS",
+        "facelets": "LFRDULFBLDFDDRRRRRRUBLFRLUUBLFDDBLFBULDFLBDBUBDFUBRUUF"
+      }
+    },
+    {
+      "t": 18481,
+      "event": {
+        "timestamp": 624264,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 624264,
+        "cubeTimestamp": 878730
+      }
+    },
+    {
+      "t": 18481,
+      "event": {
+        "timestamp": 624264,
+        "type": "FACELETS",
+        "facelets": "DRRDULFBLDFBDRFRRLRUBLFRLUUBLFDDBUFDRLDFLBLBUUUBUBDFRF"
+      }
+    },
+    {
+      "t": 18796,
+      "event": {
+        "timestamp": 624579,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 624579,
+        "cubeTimestamp": 879110
+      }
+    },
+    {
+      "t": 18796,
+      "event": {
+        "timestamp": 624579,
+        "type": "FACELETS",
+        "facelets": "RLLRUBDDFRUBDRFRRLRLDLFRLUUBLFDDBUFDUUBFLBLBUDFBUBDFRF"
+      }
+    },
+    {
+      "t": 19899,
+      "event": {
+        "timestamp": 625682,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 625682,
+        "cubeTimestamp": 880171
+      }
+    },
+    {
+      "t": 19899,
+      "event": {
+        "timestamp": 625682,
+        "type": "FACELETS",
+        "facelets": "BFLRUBDDFRUDDRFRRURLDLFRLUUBLFDDBUFLLUBLLBRBUFUDRBFFDB"
+      }
+    },
+    {
+      "t": 20267,
+      "event": {
+        "timestamp": 626050,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 626050,
+        "cubeTimestamp": 880518
+      }
+    },
+    {
+      "t": 20267,
+      "event": {
+        "timestamp": 626050,
+        "type": "FACELETS",
+        "facelets": "RFLLUBLDFRUDDRFRRUBLDDFRUUUBLFFDBDFLBBUULBLLRFUDRBRFDB"
+      }
+    },
+    {
+      "t": 20844,
+      "event": {
+        "timestamp": 626627,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 626627,
+        "cubeTimestamp": 881116
+      }
+    },
+    {
+      "t": 20844,
+      "event": {
+        "timestamp": 626627,
+        "type": "FACELETS",
+        "facelets": "LLRDUFFBLFUDDRFRRURUDDFRUUUBLFFDBDFLBLDULBLLRBBURBRFDB"
+      }
+    },
+    {
+      "t": 21526,
+      "event": {
+        "timestamp": 627309,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 627309,
+        "cubeTimestamp": 881793
+      }
+    },
+    {
+      "t": 21526,
+      "event": {
+        "timestamp": 627309,
+        "type": "FACELETS",
+        "facelets": "LLRDUFRBDFUDBRFLRUUDRUFUURDRDFFDBDFLBLBULLLLFBBURBRFDB"
+      }
+    },
+    {
+      "t": 21683,
+      "event": {
+        "timestamp": 627466,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 627466,
+        "cubeTimestamp": 881913
+      }
+    },
+    {
+      "t": 21683,
+      "event": {
+        "timestamp": 627466,
+        "type": "FACELETS",
+        "facelets": "LLRDUFFLBRUDBRFDRUUUURFDDURLBFFDBDFLBLRULDLLFBBURBRFDB"
+      }
+    },
+    {
+      "t": 21999,
+      "event": {
+        "timestamp": 627782,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 627782,
+        "cubeTimestamp": 882314
+      }
+    },
+    {
+      "t": 21999,
+      "event": {
+        "timestamp": 627782,
+        "type": "FACELETS",
+        "facelets": "LLRDUFFLBRUDBRFFDBUUURFDDRUFBLBDFLFDBLRULDDURBBURBRLLF"
+      }
+    },
+    {
+      "t": 22261,
+      "event": {
+        "timestamp": 628044,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 628044,
+        "cubeTimestamp": 882508
+      }
+    },
+    {
+      "t": 22261,
+      "event": {
+        "timestamp": 628044,
+        "type": "FACELETS",
+        "facelets": "LLUDUDFLUFBRDRUBFDUULRFFDRDFBLBDRLFBBLRULDDURBBUFBRRLF"
+      }
+    },
+    {
+      "t": 22313,
+      "event": {
+        "timestamp": 628096,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 628096,
+        "cubeTimestamp": 882621
+      }
+    },
+    {
+      "t": 22313,
+      "event": {
+        "timestamp": 628096,
+        "type": "FACELETS",
+        "facelets": "LLLDUFFLDBDFFRBDURUULRFRDRBFBRBDFLFBBLRULDDURUBUDBRULF"
+      }
+    },
+    {
+      "t": 22891,
+      "event": {
+        "timestamp": 628674,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 628674,
+        "cubeTimestamp": 883181
+      }
+    },
+    {
+      "t": 22892,
+      "event": {
+        "timestamp": 628674,
+        "type": "FACELETS",
+        "facelets": "DUBDUFFLDBDLFRLDULUULRFRDRBFBRBDFRBFLLRFLDBURURFBBLUDU"
+      }
+    },
+    {
+      "t": 23154,
+      "event": {
+        "timestamp": 628937,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 628937,
+        "cubeTimestamp": 883338
+      }
+    },
+    {
+      "t": 23154,
+      "event": {
+        "timestamp": 628937,
+        "type": "FACELETS",
+        "facelets": "BFLDUFFLDBDDFRUDUBUULRFRDRBFBRBDFLLLRLRBLDFURFLURBDUBU"
+      }
+    },
+    {
+      "t": 23313,
+      "event": {
+        "timestamp": 629096,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 629096,
+        "cubeTimestamp": 883576
+      }
+    },
+    {
+      "t": 23314,
+      "event": {
+        "timestamp": 629096,
+        "type": "FACELETS",
+        "facelets": "LFDFULBDFUULFRUDUBRLRRFRDRBFBRBDFLLLFLUBLDFURBDDRBDUBU"
+      }
+    },
+    {
+      "t": 23521,
+      "event": {
+        "timestamp": 629304,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 629304,
+        "cubeTimestamp": 883765
+      }
+    },
+    {
+      "t": 23521,
+      "event": {
+        "timestamp": 629304,
+        "type": "FACELETS",
+        "facelets": "DLFFUDLFBRLRFRUDUBFLURFRDRBFBRBDFLLLBDDBLDFURUULRBDUBU"
+      }
+    },
+    {
+      "t": 23837,
+      "event": {
+        "timestamp": 629620,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 629620,
+        "cubeTimestamp": 884097
+      }
+    },
+    {
+      "t": 23837,
+      "event": {
+        "timestamp": 629620,
+        "type": "FACELETS",
+        "facelets": "DLFFUDRDDLLRFRUBUBDRFRFLBRUDFRBDFLLLBDFBLBFURUULRBDUBU"
+      }
+    },
+    {
+      "t": 23941,
+      "event": {
+        "timestamp": 629724,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 629724,
+        "cubeTimestamp": 884246
+      }
+    },
+    {
+      "t": 23941,
+      "event": {
+        "timestamp": 629724,
+        "type": "FACELETS",
+        "facelets": "DLFFUDRBFRLRDRUDUBBRDRFRULFBFLBDFLLLBDDBLFFURUULRBDUBU"
+      }
+    },
+    {
+      "t": 24362,
+      "event": {
+        "timestamp": 630145,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 630145,
+        "cubeTimestamp": 884595
+      }
+    },
+    {
+      "t": 24362,
+      "event": {
+        "timestamp": 630145,
+        "type": "FACELETS",
+        "facelets": "FDFLUBDFRBRDDRUDUBBDDRFRULFBFLBDFLLLUULBLFFURRLRRBDUBU"
+      }
+    },
+    {
+      "t": 25254,
+      "event": {
+        "timestamp": 631037,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 631037,
+        "cubeTimestamp": 885393
+      }
+    },
+    {
+      "t": 25254,
+      "event": {
+        "timestamp": 631037,
+        "type": "FACELETS",
+        "facelets": "FBULUBDFRBRFDRDDUFBDDRFRULFBFLBDFBUDLULLLFLURRDULBBRRU"
+      }
+    },
+    {
+      "t": 25306,
+      "event": {
+        "timestamp": 631089,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 631089,
+        "cubeTimestamp": 885586
+      }
+    },
+    {
+      "t": 25306,
+      "event": {
+        "timestamp": 631089,
+        "type": "FACELETS",
+        "facelets": "LLLLUBDFRBRFDRBDUUBDDRFRULFBFLBDFFDFBULULFDURUBUDBRRLR"
+      }
+    },
+    {
+      "t": 25621,
+      "event": {
+        "timestamp": 631404,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 631404,
+        "cubeTimestamp": 885829
+      }
+    },
+    {
+      "t": 25622,
+      "event": {
+        "timestamp": 631404,
+        "type": "FACELETS",
+        "facelets": "LLDLURDFFDDBURRUBFBDLRFFULFBFRBDDFDUBULULFDURRBUBBRLLR"
+      }
+    },
+    {
+      "t": 25673,
+      "event": {
+        "timestamp": 631456,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 631456,
+        "cubeTimestamp": 885936
+      }
+    },
+    {
+      "t": 25673,
+      "event": {
+        "timestamp": 631456,
+        "type": "FACELETS",
+        "facelets": "LLLLUFDFFUUDBRDFRBBDRRFDULUBFLBDBFDRBULULFDURFBURBRDLR"
+      }
+    },
+    {
+      "t": 26304,
+      "event": {
+        "timestamp": 632087,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 632087,
+        "cubeTimestamp": 886555
+      }
+    },
+    {
+      "t": 26304,
+      "event": {
+        "timestamp": 632087,
+        "type": "FACELETS",
+        "facelets": "LLLLUFRFLDUDFRDFRBURBLFDUDRFBUBDBFDRBUBULFDULFBURBRDLR"
+      }
+    },
+    {
+      "t": 26409,
+      "event": {
+        "timestamp": 632192,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 632192,
+        "cubeTimestamp": 886690
+      }
+    },
+    {
+      "t": 26409,
+      "event": {
+        "timestamp": 632192,
+        "type": "FACELETS",
+        "facelets": "LLLLUFLFBRUDFRDLRBULUDFRRDBFFDBDBFDRBUFULBDUUFBURBRDLR"
+      }
+    },
+    {
+      "t": 26567,
+      "event": {
+        "timestamp": 632350,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 632350,
+        "cubeTimestamp": 886836
+      }
+    },
+    {
+      "t": 26567,
+      "event": {
+        "timestamp": 632350,
+        "type": "FACELETS",
+        "facelets": "LLULURLFBLFRRRUBDDULDDFBRDRFFDBDRFDFBUFULBDUUBBUFBRLLR"
+      }
+    },
+    {
+      "t": 26724,
+      "event": {
+        "timestamp": 632507,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 632507,
+        "cubeTimestamp": 886905
+      }
+    },
+    {
+      "t": 26724,
+      "event": {
+        "timestamp": 632507,
+        "type": "FACELETS",
+        "facelets": "LLDLUBLFRBRLDRFDURULDDFRRDFFFLBDFFDBBUFULBDUUBBURBRULR"
+      }
+    },
+    {
+      "t": 27039,
+      "event": {
+        "timestamp": 632822,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 632822,
+        "cubeTimestamp": 887350
+      }
+    },
+    {
+      "t": 27039,
+      "event": {
+        "timestamp": 632822,
+        "type": "FACELETS",
+        "facelets": "LFRLUBLFRBRBDRDDUFULDDFRRDFFFLBDFBUDDUFLLBLUUURBLBBRRU"
+      }
+    },
+    {
+      "t": 27879,
+      "event": {
+        "timestamp": 633662,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 633662,
+        "cubeTimestamp": 888183
+      }
+    },
+    {
+      "t": 27879,
+      "event": {
+        "timestamp": 633662,
+        "type": "FACELETS",
+        "facelets": "LFRLUBLFRBRBDRDRRUULDDFRDUFLFDFDUFBBDUFLLBRDFURBLBBLUU"
+      }
+    },
+    {
+      "t": 28090,
+      "event": {
+        "timestamp": 633873,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 633873,
+        "cubeTimestamp": 888336
+      }
+    },
+    {
+      "t": 28090,
+      "event": {
+        "timestamp": 633873,
+        "type": "FACELETS",
+        "facelets": "LFRLUBLFRBRBDRDLUUULDDFRRRUDUBFDBLFFDUFLLBDUFURBLBBRDF"
+      }
+    },
+    {
+      "t": 35439,
+      "event": {
+        "timestamp": 641222,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 641222,
+        "cubeTimestamp": 895735
+      }
+    },
+    {
+      "t": 35439,
+      "event": {
+        "timestamp": 641222,
+        "type": "FACELETS",
+        "facelets": "LFRLUBLFRBRBDRDRDFULDDFRLUUBBFUDFDFLDUFLLBRRUURBLBBDUF"
+      }
+    },
+    {
+      "t": 35597,
+      "event": {
+        "timestamp": 641379,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 641379,
+        "cubeTimestamp": 895891
+      }
+    },
+    {
+      "t": 35597,
+      "event": {
+        "timestamp": 641379,
+        "type": "FACELETS",
+        "facelets": "BDFLUBLFRBRLDRFRDDULDDFRLUUBBFUDFDLRRUFFLBLRUDLUUBRFBB"
+      }
+    },
+    {
+      "t": 35913,
+      "event": {
+        "timestamp": 641696,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 641696,
+        "cubeTimestamp": 896115
+      }
+    },
+    {
+      "t": 35913,
+      "event": {
+        "timestamp": 641696,
+        "type": "FACELETS",
+        "facelets": "BDDLURLFURDBDRRDFLULFDFFLURBBFUDUDLDRUFFLBLRURLUBBRFBB"
+      }
+    },
+    {
+      "t": 36227,
+      "event": {
+        "timestamp": 642010,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 642010,
+        "cubeTimestamp": 896564
+      }
+    },
+    {
+      "t": 36227,
+      "event": {
+        "timestamp": 642010,
+        "type": "FACELETS",
+        "facelets": "DRUDUFBLLULFDRRDFLRUFDFFLURBBFUDUDLDRLUFLBLRURDBBBRFBB"
+      }
+    },
+    {
+      "t": 36541,
+      "event": {
+        "timestamp": 642324,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 642324,
+        "cubeTimestamp": 896770
+      }
+    },
+    {
+      "t": 36542,
+      "event": {
+        "timestamp": 642324,
+        "type": "FACELETS",
+        "facelets": "FRLDUFBLLULDDRLDFDRUFDFFLURBBFUDURFLULURLBDRUFBRBBDBRB"
+      }
+    },
+    {
+      "t": 36805,
+      "event": {
+        "timestamp": 642588,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 642588,
+        "cubeTimestamp": 897095
+      }
+    },
+    {
+      "t": 36805,
+      "event": {
+        "timestamp": 642588,
+        "type": "FACELETS",
+        "facelets": "FRLDUFUBUBLDLRLLFDLDRUFURFFDDUUDURFLULBRLBDRFFBRBBDBRB"
+      }
+    },
+    {
+      "t": 37014,
+      "event": {
+        "timestamp": 642797,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 642797,
+        "cubeTimestamp": 897181
+      }
+    },
+    {
+      "t": 37014,
+      "event": {
+        "timestamp": 642797,
+        "type": "FACELETS",
+        "facelets": "FRLDUFFBBULDBRLUFDRULFFDFURLLBUDURFLULDRLDDRUFBRBBDBRB"
+      }
+    },
+    {
+      "t": 37277,
+      "event": {
+        "timestamp": 643060,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 643060,
+        "cubeTimestamp": 897549
+      }
+    },
+    {
+      "t": 37278,
+      "event": {
+        "timestamp": 643060,
+        "type": "FACELETS",
+        "facelets": "FRLDUFFBBULDBRLFURRULFFDDRURULFDLLUBULDRLDBRBFBRBBDUFD"
+      }
+    },
+    {
+      "t": 37434,
+      "event": {
+        "timestamp": 643217,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 643217,
+        "cubeTimestamp": 897696
+      }
+    },
+    {
+      "t": 37434,
+      "event": {
+        "timestamp": 643217,
+        "type": "FACELETS",
+        "facelets": "FRLDUFFBBULDBRLDRURULFFDBRBLFRUDUBLLULDRLDUFDFBRBBDFUR"
+      }
+    },
+    {
+      "t": 37750,
+      "event": {
+        "timestamp": 643533,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 643533,
+        "cubeTimestamp": 898048
+      }
+    },
+    {
+      "t": 37751,
+      "event": {
+        "timestamp": 643533,
+        "type": "FACELETS",
+        "facelets": "FRLDUDFBBDBURRLULDRURFFUBRLLFFUDBBLFULDRLDUFDBBRFBDLUR"
+      }
+    },
+    {
+      "t": 37907,
+      "event": {
+        "timestamp": 643690,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 643690,
+        "cubeTimestamp": 898196
+      }
+    },
+    {
+      "t": 37907,
+      "event": {
+        "timestamp": 643690,
+        "type": "FACELETS",
+        "facelets": "FRRDUUFBLURDLRBDLURUFFFBBRFLFLUDFBLBULDRLDUFDBBRDBDLUR"
+      }
+    },
+    {
+      "t": 38747,
+      "event": {
+        "timestamp": 644530,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 644530,
+        "cubeTimestamp": 898953
+      }
+    },
+    {
+      "t": 38747,
+      "event": {
+        "timestamp": 644530,
+        "type": "FACELETS",
+        "facelets": "FRRDUUFBLURDLRBLURRUFFFBDLULFBFDLLUBULDRLDBRFBBRDBDUFD"
+      }
+    },
+    {
+      "t": 38799,
+      "event": {
+        "timestamp": 644582,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 644582,
+        "cubeTimestamp": 899120
+      }
+    },
+    {
+      "t": 38799,
+      "event": {
+        "timestamp": 644582,
+        "type": "FACELETS",
+        "facelets": "BRUDUUFBLURFLRRLURRUFFFBDLULFBFDLRBDLLDULDBRFRDDBBFBDU"
+      }
+    },
+    {
+      "t": 39167,
+      "event": {
+        "timestamp": 644950,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 644950,
+        "cubeTimestamp": 899366
+      }
+    },
+    {
+      "t": 39167,
+      "event": {
+        "timestamp": 644950,
+        "type": "FACELETS",
+        "facelets": "BRUDUUFBLURFLRRBDURUFFFBLURBLDFDBLFRLLDULDDLURDDBBFBRF"
+      }
+    },
+    {
+      "t": 39219,
+      "event": {
+        "timestamp": 645002,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 645002,
+        "cubeTimestamp": 899570
+      }
+    },
+    {
+      "t": 39219,
+      "event": {
+        "timestamp": 645002,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFBLURRLRFBDLRUFFFBLURBLDFDBLUDULDRLDBLUBBRRBDFFD"
+      }
+    },
+    {
+      "t": 39640,
+      "event": {
+        "timestamp": 645423,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 645423,
+        "cubeTimestamp": 899941
+      }
+    },
+    {
+      "t": 39640,
+      "event": {
+        "timestamp": 645423,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFBLURRLRFFFDRUFFFBBDLDBDLDUBFLULDRLDLURBBRRBDBLU"
+      }
+    },
+    {
+      "t": 39907,
+      "event": {
+        "timestamp": 645690,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 645690,
+        "cubeTimestamp": 900145
+      }
+    },
+    {
+      "t": 39907,
+      "event": {
+        "timestamp": 645690,
+        "type": "FACELETS",
+        "facelets": "FRUDUURDDFRRBRFLFDBFRDFULBFFLULDUBFLULDRLBLUDBBRRBDBLU"
+      }
+    },
+    {
+      "t": 39954,
+      "event": {
+        "timestamp": 645737,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 645737,
+        "cubeTimestamp": 900232
+      }
+    },
+    {
+      "t": 39954,
+      "event": {
+        "timestamp": 645737,
+        "type": "FACELETS",
+        "facelets": "FRUDUURDDFRRBRFLBFBFRDFULUDBLFFDLLUUULDRLBBLUBBRRBDLFD"
+      }
+    },
+    {
+      "t": 40007,
+      "event": {
+        "timestamp": 645790,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 645790,
+        "cubeTimestamp": 900314
+      }
+    },
+    {
+      "t": 40007,
+      "event": {
+        "timestamp": 645790,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFBLFRRLRFBBFRUDFFUBDLDBUFDLLUUULDRLDBLRBBRRBDLFD"
+      }
+    },
+    {
+      "t": 40322,
+      "event": {
+        "timestamp": 646105,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 646105,
+        "cubeTimestamp": 900648
+      }
+    },
+    {
+      "t": 40322,
+      "event": {
+        "timestamp": 646105,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFBLFRRLRFBDLRUDFFUBLRLFDUDBULUULDRLDLFDBBRRBDBBF"
+      }
+    },
+    {
+      "t": 40900,
+      "event": {
+        "timestamp": 646683,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 646683,
+        "cubeTimestamp": 901140
+      }
+    },
+    {
+      "t": 40900,
+      "event": {
+        "timestamp": 646683,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFBLFRRLRFBLRRUDFFULFDUULLDFUBDULDRLDBBFBBRRBDBDL"
+      }
+    },
+    {
+      "t": 40953,
+      "event": {
+        "timestamp": 646736,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 646736,
+        "cubeTimestamp": 901210
+      }
+    },
+    {
+      "t": 40953,
+      "event": {
+        "timestamp": 646736,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFDDFRRBRFLLRLFRFFUDUDBLFLDFUBDULURLUBBLBBRRBDBDL"
+      }
+    },
+    {
+      "t": 41005,
+      "event": {
+        "timestamp": 646788,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 646788,
+        "cubeTimestamp": 901306
+      }
+    },
+    {
+      "t": 41005,
+      "event": {
+        "timestamp": 646788,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFDDFRRBRFBDLLFRFFULLRFFDLDBBLUULURLUDUDBBRRBDBBL"
+      }
+    },
+    {
+      "t": 41162,
+      "event": {
+        "timestamp": 646944,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 646944,
+        "cubeTimestamp": 901428
+      }
+    },
+    {
+      "t": 41162,
+      "event": {
+        "timestamp": 646944,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFBBDRRFRFFDLRURFFLLFLUUDLDBBLUULDRLDDUFBBRRBDBBL"
+      }
+    },
+    {
+      "t": 42006,
+      "event": {
+        "timestamp": 647789,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 647789,
+        "cubeTimestamp": 902323
+      }
+    },
+    {
+      "t": 42007,
+      "event": {
+        "timestamp": 647789,
+        "type": "FACELETS",
+        "facelets": "LRUDUURBBDRRFRFFDLFURDFLFFLRUDFDBLLUDRUULLFDDBBBRBLBBU"
+      }
+    },
+    {
+      "t": 42160,
+      "event": {
+        "timestamp": 647943,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 647943,
+        "cubeTimestamp": 902425
+      }
+    },
+    {
+      "t": 42161,
+      "event": {
+        "timestamp": 647943,
+        "type": "FACELETS",
+        "facelets": "LRUDUURBBDRRFRFFFLFURDFLFDDLFRLDUUBDDRUULLBBUBBBRBLFDL"
+      }
+    },
+    {
+      "t": 42212,
+      "event": {
+        "timestamp": 647994,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 647994,
+        "cubeTimestamp": 902553
+      }
+    },
+    {
+      "t": 42212,
+      "event": {
+        "timestamp": 647994,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFBBDRRFRFFFLLURLFLUDDLFRLDUBBDULURLBDUBBBRRBDFDL"
+      }
+    },
+    {
+      "t": 42842,
+      "event": {
+        "timestamp": 648625,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 648625,
+        "cubeTimestamp": 903117
+      }
+    },
+    {
+      "t": 42843,
+      "event": {
+        "timestamp": 648625,
+        "type": "FACELETS",
+        "facelets": "LRUDUURBBDRRFRFFFLFURDFLFDDLFRLDUUBDDRUULLBBUBBBRBLFDL"
+      }
+    },
+    {
+      "t": 42894,
+      "event": {
+        "timestamp": 648677,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 648677,
+        "cubeTimestamp": 903240
+      }
+    },
+    {
+      "t": 42895,
+      "event": {
+        "timestamp": 648677,
+        "type": "FACELETS",
+        "facelets": "LRUDUURBBDRRFRFFDLFURDFLFFLRUDFDBLLUDRUULLFDDBBBRBLBBU"
+      }
+    },
+    {
+      "t": 43104,
+      "event": {
+        "timestamp": 648887,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 648887,
+        "cubeTimestamp": 903382
+      }
+    },
+    {
+      "t": 43105,
+      "event": {
+        "timestamp": 648887,
+        "type": "FACELETS",
+        "facelets": "FRUDUUFBBDRRFRFFDLRURFFLLFLUUDLDBBLUULDRLDDUFBBRRBDBBL"
+      }
+    },
+    {
+      "t": 43525,
+      "event": {
+        "timestamp": 649308,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 649308,
+        "cubeTimestamp": 903824
+      }
+    },
+    {
+      "t": 43526,
+      "event": {
+        "timestamp": 649308,
+        "type": "FACELETS",
+        "facelets": "RRUFUULBBDRRFRFFDLUURLFLBFLLUDDDBRLUDDFLLUURDBBFRBDBBF"
+      }
+    },
+    {
+      "t": 43682,
+      "event": {
+        "timestamp": 649464,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 649464,
+        "cubeTimestamp": 903919
+      }
+    },
+    {
+      "t": 43682,
+      "event": {
+        "timestamp": 649464,
+        "type": "FACELETS",
+        "facelets": "RRUFUULBBDRRFRFBFLUURLFLURDRDLLDUUBDDDFLLUBBFBBFRBDFDL"
+      }
+    },
+    {
+      "t": 43734,
+      "event": {
+        "timestamp": 649517,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 649517,
+        "cubeTimestamp": 904068
+      }
+    },
+    {
+      "t": 43734,
+      "event": {
+        "timestamp": 649517,
+        "type": "FACELETS",
+        "facelets": "RRUFUULBBDRRFRFURDUURLFLBBFULRBDDDULDDFLLUFDLBBFRBDBFL"
+      }
+    },
+    {
+      "t": 43786,
+      "event": {
+        "timestamp": 649569,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 649569,
+        "cubeTimestamp": 904126
+      }
+    },
+    {
+      "t": 43787,
+      "event": {
+        "timestamp": 649569,
+        "type": "FACELETS",
+        "facelets": "LRUDUUFBBDRRFRFURDRURFFLLBFULRLDDBULFLDDLDLUFBBDRBBBFU"
+      }
+    },
+    {
+      "t": 43997,
+      "event": {
+        "timestamp": 649780,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 649780,
+        "cubeTimestamp": 904277
+      }
+    },
+    {
+      "t": 43997,
+      "event": {
+        "timestamp": 649780,
+        "type": "FACELETS",
+        "facelets": "LRUDUUFBBDRRFRFBFURURFFLURDRDLLDUULBFLDDLDLBFBBDRBBLUF"
+      }
+    },
+    {
+      "t": 44417,
+      "event": {
+        "timestamp": 650200,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 650200,
+        "cubeTimestamp": 904718
+      }
+    },
+    {
+      "t": 44417,
+      "event": {
+        "timestamp": 650200,
+        "type": "FACELETS",
+        "facelets": "FRUBUUDBBDRRFRFBFULURDFLFRDRDLFDUULBLDFBLLFDDBBURBLLUR"
+      }
+    },
+    {
+      "t": 44574,
+      "event": {
+        "timestamp": 650357,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 650357,
+        "cubeTimestamp": 904831
+      }
+    },
+    {
+      "t": 44574,
+      "event": {
+        "timestamp": 650357,
+        "type": "FACELETS",
+        "facelets": "RFUBUUDBBDRBFRLBFULURDFLFRDRDLFDULBFUDFRLLFDDLRBUBBRLU"
+      }
+    },
+    {
+      "t": 44732,
+      "event": {
+        "timestamp": 650515,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 1,
+        "move": "R'",
+        "localTimestamp": 650515,
+        "cubeTimestamp": 904996
+      }
+    },
+    {
+      "t": 44732,
+      "event": {
+        "timestamp": 650515,
+        "type": "FACELETS",
+        "facelets": "RFRBUUDBLBLURRFDFBLUUDFUFRBRDRFDLLBDUDFRLLFDDFRBUBBLLU"
+      }
+    },
+    {
+      "t": 44785,
+      "event": {
+        "timestamp": 650567,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 650567,
+        "cubeTimestamp": 905126
+      }
+    },
+    {
+      "t": 44785,
+      "event": {
+        "timestamp": 650567,
+        "type": "FACELETS",
+        "facelets": "FRUBUUDBLBLRRRFDFRLUUDFUFRBRDRFDLBFULDFBLLDDDBBURBLFUL"
+      }
+    },
+    {
+      "t": 44995,
+      "event": {
+        "timestamp": 650778,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 650778,
+        "cubeTimestamp": 905259
+      }
+    },
+    {
+      "t": 44995,
+      "event": {
+        "timestamp": 650778,
+        "type": "FACELETS",
+        "facelets": "FRUBUUDBBDRBFRLRFRLURDFLFRURDFFDRBFBLDFBLLDDDLBUUBLUUL"
+      }
+    },
+    {
+      "t": 45047,
+      "event": {
+        "timestamp": 650829,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 650829,
+        "cubeTimestamp": 905280
+      }
+    },
+    {
+      "t": 45047,
+      "event": {
+        "timestamp": 650829,
+        "type": "FACELETS",
+        "facelets": "LRUDUUFBBDRBFRLRFRRURFFLBRULDFLDRUFBFLDDLDLBDLBDUBBUUF"
+      }
+    },
+    {
+      "t": 46780,
+      "event": {
+        "timestamp": 652563,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 652563,
+        "cubeTimestamp": 907072
+      }
+    },
+    {
+      "t": 46781,
+      "event": {
+        "timestamp": 652563,
+        "type": "FACELETS",
+        "facelets": "LRUDUUFBBDRBFRLUUFRURFFLRFRFRBDDFLLUFLDDLDBRULBDUBBLBD"
+      }
+    },
+    {
+      "t": 46832,
+      "event": {
+        "timestamp": 652615,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 652615,
+        "cubeTimestamp": 907194
+      }
+    },
+    {
+      "t": 46832,
+      "event": {
+        "timestamp": 652615,
+        "type": "FACELETS",
+        "facelets": "RRUFUURBBDRBFRLUUFFURDFLLFRDRBBDFDLUDDULLRFDBLBFUBDLBL"
+      }
+    },
+    {
+      "t": 47153,
+      "event": {
+        "timestamp": 652935,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 652935,
+        "cubeTimestamp": 907504
+      }
+    },
+    {
+      "t": 47153,
+      "event": {
+        "timestamp": 652935,
+        "type": "FACELETS",
+        "facelets": "RRUFUUBRURRBBRLBUFLDFFFURLRUFDBDFDLUDDDLLRFDBLBFUBDLBL"
+      }
+    },
+    {
+      "t": 48040,
+      "event": {
+        "timestamp": 653823,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 653823,
+        "cubeTimestamp": 908355
+      }
+    },
+    {
+      "t": 48040,
+      "event": {
+        "timestamp": 653823,
+        "type": "FACELETS",
+        "facelets": "LRUDUUFRURRBBRLBUFRDFFFUBLRLFDFDFRLUFLDDLDBRDLBDUBBLBU"
+      }
+    },
+    {
+      "t": 48255,
+      "event": {
+        "timestamp": 654038,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 654038,
+        "cubeTimestamp": 908524
+      }
+    },
+    {
+      "t": 48256,
+      "event": {
+        "timestamp": 654038,
+        "type": "FACELETS",
+        "facelets": "BDFDUUFRURRLBRRBUURDFFFUBLRLFDFDFFLBRLDLLDURDDBUBBBLUL"
+      }
+    },
+    {
+      "t": 48407,
+      "event": {
+        "timestamp": 654190,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 0,
+        "move": "U",
+        "localTimestamp": 654190,
+        "cubeTimestamp": 908693
+      }
+    },
+    {
+      "t": 48407,
+      "event": {
+        "timestamp": 654190,
+        "type": "FACELETS",
+        "facelets": "FDBRUDUUFDBUBRRBUURRLFFUBLRLFDFDFFLBRDFLLDURDRLDBBBLUL"
+      }
+    },
+    {
+      "t": 48617,
+      "event": {
+        "timestamp": 654400,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 654400,
+        "cubeTimestamp": 908887
+      }
+    },
+    {
+      "t": 48618,
+      "event": {
+        "timestamp": 654400,
+        "type": "FACELETS",
+        "facelets": "LDBBUDDUFDBUBRRBUUFRLRFUULRRFDFDFBLBULRRLDDDFRLFBBFLUL"
+      }
+    },
+    {
+      "t": 48669,
+      "event": {
+        "timestamp": 654452,
+        "type": "MOVE",
+        "face": 0,
+        "direction": 1,
+        "move": "U'",
+        "localTimestamp": 654452,
+        "cubeTimestamp": 909000
+      }
+    },
+    {
+      "t": 48669,
+      "event": {
+        "timestamp": 654452,
+        "type": "FACELETS",
+        "facelets": "BDFDUULBDFRLBRRBUUULRRFUULRRFDFDFBLBRLFRLDDDFDBUBBFLUL"
+      }
+    },
+    {
+      "t": 49355,
+      "event": {
+        "timestamp": 655137,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 655137,
+        "cubeTimestamp": 909629
+      }
+    },
+    {
+      "t": 49355,
+      "event": {
+        "timestamp": 655137,
+        "type": "FACELETS",
+        "facelets": "UDFRUUUBDFRLBRRBUURLRFFUBLRLFDFDFULBFDFLLDRRDDBLBBDLUB"
+      }
+    },
+    {
+      "t": 49667,
+      "event": {
+        "timestamp": 655450,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 655450,
+        "cubeTimestamp": 909979
+      }
+    },
+    {
+      "t": 49668,
+      "event": {
+        "timestamp": 655450,
+        "type": "FACELETS",
+        "facelets": "BDFDUULBDFRLBRRBUUULRRFUULRRFDFDFBLBRLFRLDDDFDBUBBFLUL"
+      }
+    },
+    {
+      "t": 51032,
+      "event": {
+        "timestamp": 656815,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 656815,
+        "cubeTimestamp": 911366
+      }
+    },
+    {
+      "t": 51032,
+      "event": {
+        "timestamp": 656815,
+        "type": "FACELETS",
+        "facelets": "BDFDUUFBBDRLFRRRUURURLFLURUFDFFDFBLBRLDRLBDDLDBUBBFLUL"
+      }
+    },
+    {
+      "t": 51084,
+      "event": {
+        "timestamp": 656867,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 656867,
+        "cubeTimestamp": 911394
+      }
+    },
+    {
+      "t": 51084,
+      "event": {
+        "timestamp": 656867,
+        "type": "FACELETS",
+        "facelets": "LRUDUUFBBDRBFRLRUBRURLFLURUFDFFDFRRDFLDDLBBDLLBDUBBLFU"
+      }
+    },
+    {
+      "t": 51924,
+      "event": {
+        "timestamp": 657707,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 657707,
+        "cubeTimestamp": 912221
+      }
+    },
+    {
+      "t": 51925,
+      "event": {
+        "timestamp": 657707,
+        "type": "FACELETS",
+        "facelets": "BLBDUUFBBDRDFRRRURRURLFLURUFDFFDFFDBULDRLBLDLLULFBBUBD"
+      }
+    },
+    {
+      "t": 51977,
+      "event": {
+        "timestamp": 657759,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 657759,
+        "cubeTimestamp": 912292
+      }
+    },
+    {
+      "t": 51977,
+      "event": {
+        "timestamp": 657759,
+        "type": "FACELETS",
+        "facelets": "BLBDUUFBBDRDFRRUBDRURLFLRURFFBDDDFFFULDRLBURULULFBBLDL"
+      }
+    },
+    {
+      "t": 52187,
+      "event": {
+        "timestamp": 657970,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 657970,
+        "cubeTimestamp": 912420
+      }
+    },
+    {
+      "t": 52187,
+      "event": {
+        "timestamp": 657970,
+        "type": "FACELETS",
+        "facelets": "URUDUUFBBDRBFRLUBBRURLFLRURFFBDDDDRDFLDFLBFRULBLUBDLFL"
+      }
+    },
+    {
+      "t": 52347,
+      "event": {
+        "timestamp": 658129,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 658129,
+        "cubeTimestamp": 912619
+      }
+    },
+    {
+      "t": 52347,
+      "event": {
+        "timestamp": 658129,
+        "type": "FACELETS",
+        "facelets": "URUDUUFBBDRBFRLLFLRURLFLUBBBDDFDRFDDFLDFLBRURLBLUBDFRU"
+      }
+    },
+    {
+      "t": 52397,
+      "event": {
+        "timestamp": 658180,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 658180,
+        "cubeTimestamp": 912765
+      }
+    },
+    {
+      "t": 52397,
+      "event": {
+        "timestamp": 658180,
+        "type": "FACELETS",
+        "facelets": "BLLDUUFBBDRDFRDLFFRURLFLUBBBDDFDRFFRULDRLBUURFULRBBUDL"
+      }
+    },
+    {
+      "t": 52504,
+      "event": {
+        "timestamp": 658287,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 658287,
+        "cubeTimestamp": 912831
+      }
+    },
+    {
+      "t": 52505,
+      "event": {
+        "timestamp": 658287,
+        "type": "FACELETS",
+        "facelets": "BLLDUUFBBDRDFRDUBBRURLFLUURFFBFDDRRDULDRLBUDLFULRBBLFF"
+      }
+    },
+    {
+      "t": 52661,
+      "event": {
+        "timestamp": 658444,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 658444,
+        "cubeTimestamp": 912923
+      }
+    },
+    {
+      "t": 52661,
+      "event": {
+        "timestamp": 658444,
+        "type": "FACELETS",
+        "facelets": "URUDUUFBBDRBFRLUBLRURLFLUURFFBFDDBDDRLDRLBDDLLBFUBFFRL"
+      }
+    },
+    {
+      "t": 52712,
+      "event": {
+        "timestamp": 658494,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 658494,
+        "cubeTimestamp": 912994
+      }
+    },
+    {
+      "t": 52712,
+      "event": {
+        "timestamp": 658494,
+        "type": "FACELETS",
+        "facelets": "URUDUUFBBDRBFRLFRLRURLFLUBLBDDFDDFFBRLDRLBUURLBFUBFDDL"
+      }
+    },
+    {
+      "t": 52817,
+      "event": {
+        "timestamp": 658600,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 658600,
+        "cubeTimestamp": 913113
+      }
+    },
+    {
+      "t": 52817,
+      "event": {
+        "timestamp": 658600,
+        "type": "FACELETS",
+        "facelets": "URUDUUFBBDRBFRLDDLRURLFLFRLDDBDDFBFFRLDRLBUBLLBFUBFUUR"
+      }
+    },
+    {
+      "t": 52975,
+      "event": {
+        "timestamp": 658757,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 658757,
+        "cubeTimestamp": 913237
+      }
+    },
+    {
+      "t": 52975,
+      "event": {
+        "timestamp": 658757,
+        "type": "FACELETS",
+        "facelets": "BLLDUUFBBDRFFRFDDBRURLFLFRLDDBDDFRRUULDRLBUBLUULUBBRFF"
+      }
+    },
+    {
+      "t": 53028,
+      "event": {
+        "timestamp": 658811,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 658811,
+        "cubeTimestamp": 913325
+      }
+    },
+    {
+      "t": 53028,
+      "event": {
+        "timestamp": 658811,
+        "type": "FACELETS",
+        "facelets": "BLLDUUFBBDRFFRFFRLRURLFLUBLRDDRDDUFBULDRLBRFFUULUBBDDB"
+      }
+    },
+    {
+      "t": 53079,
+      "event": {
+        "timestamp": 658862,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 658862,
+        "cubeTimestamp": 913400
+      }
+    },
+    {
+      "t": 53079,
+      "event": {
+        "timestamp": 658862,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDRBFRLFRLRURLFLUBLRDDRDDLFFULDFLBBFFLBBUBDUUD"
+      }
+    },
+    {
+      "t": 54760,
+      "event": {
+        "timestamp": 660543,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 660543,
+        "cubeTimestamp": 915033
+      }
+    },
+    {
+      "t": 54760,
+      "event": {
+        "timestamp": 660543,
+        "type": "FACELETS",
+        "facelets": "RRUDUUDFFDRBDRLRRLRLLUFBRLUDBFRDDLFFULBFLBBFFLBBUBDUUD"
+      }
+    },
+    {
+      "t": 54813,
+      "event": {
+        "timestamp": 660596,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 1,
+        "move": "R'",
+        "localTimestamp": 660596,
+        "cubeTimestamp": 915098
+      }
+    },
+    {
+      "t": 54813,
+      "event": {
+        "timestamp": 660596,
+        "type": "FACELETS",
+        "facelets": "RRUDUUDFLBLLRRRDDRRLUUFURLFDBLRDBLFUULBFLBBFFFBBDBDFUD"
+      }
+    },
+    {
+      "t": 54970,
+      "event": {
+        "timestamp": 660752,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 660752,
+        "cubeTimestamp": 915270
+      }
+    },
+    {
+      "t": 54970,
+      "event": {
+        "timestamp": 660752,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDLLFRRLDRRURLFLFUUDRBRDBLFUULDFLBBFLFBBDBDFUD"
+      }
+    },
+    {
+      "t": 55291,
+      "event": {
+        "timestamp": 661074,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 661074,
+        "cubeTimestamp": 915513
+      }
+    },
+    {
+      "t": 55291,
+      "event": {
+        "timestamp": 661074,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDLLFRRFUDRURLFLLDRBBURDFDRLULDFLBFUUFBBDBDBFL"
+      }
+    },
+    {
+      "t": 55337,
+      "event": {
+        "timestamp": 661120,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 661120,
+        "cubeTimestamp": 915663
+      }
+    },
+    {
+      "t": 55337,
+      "event": {
+        "timestamp": 661120,
+        "type": "FACELETS",
+        "facelets": "FFUDUUFBBDLRFRRFUURURLFLLDRBBURDFDRLDLDRLBLUUBDLBBFFDB"
+      }
+    },
+    {
+      "t": 55496,
+      "event": {
+        "timestamp": 661278,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 661278,
+        "cubeTimestamp": 915743
+      }
+    },
+    {
+      "t": 55496,
+      "event": {
+        "timestamp": 661278,
+        "type": "FACELETS",
+        "facelets": "FFUDUUFBBDLRFRRLDRRURLFLLUUDRBRDBLFUDLDRLBFDBBDLBBFFUU"
+      }
+    },
+    {
+      "t": 55601,
+      "event": {
+        "timestamp": 661383,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 661383,
+        "cubeTimestamp": 915806
+      }
+    },
+    {
+      "t": 55601,
+      "event": {
+        "timestamp": 661383,
+        "type": "FACELETS",
+        "facelets": "RRRDUUFBBDLUFRFLDLRURLFLLUUDRBRDBDRFULDFLBFDBFBBUBDUFL"
+      }
+    },
+    {
+      "t": 55605,
+      "event": {
+        "timestamp": 661388,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 661388,
+        "cubeTimestamp": 915894
+      }
+    },
+    {
+      "t": 55605,
+      "event": {
+        "timestamp": 661388,
+        "type": "FACELETS",
+        "facelets": "RRRDUUFBBDLUFRFUFLRURLFLLDLBBFRDRDRDULDFLBLUUFBBUBDFDB"
+      }
+    },
+    {
+      "t": 55653,
+      "event": {
+        "timestamp": 661436,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 661436,
+        "cubeTimestamp": 916029
+      }
+    },
+    {
+      "t": 55653,
+      "event": {
+        "timestamp": 661436,
+        "type": "FACELETS",
+        "facelets": "LFUDUUFBBDLRFRRUFRRURLFLLDLBBFRDRLFUDLDRLBDUUBDBBBDFUF"
+      }
+    },
+    {
+      "t": 55863,
+      "event": {
+        "timestamp": 661645,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 661645,
+        "cubeTimestamp": 916111
+      }
+    },
+    {
+      "t": 55863,
+      "event": {
+        "timestamp": 661645,
+        "type": "FACELETS",
+        "facelets": "LFUDUUFBBDLRFRRLDLRURLFLDUULRBFDBURFDLDRLBFUFBDBBBDUFR"
+      }
+    },
+    {
+      "t": 55915,
+      "event": {
+        "timestamp": 661698,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 661698,
+        "cubeTimestamp": 916171
+      }
+    },
+    {
+      "t": 55915,
+      "event": {
+        "timestamp": 661698,
+        "type": "FACELETS",
+        "facelets": "RRLDUUFBBDLFFRRLDURURLFLDUULRBFDBDRFULDFLBLUFUBBFBDRDB"
+      }
+    },
+    {
+      "t": 56072,
+      "event": {
+        "timestamp": 661855,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 1,
+        "move": "F'",
+        "localTimestamp": 661855,
+        "cubeTimestamp": 916397
+      }
+    },
+    {
+      "t": 56073,
+      "event": {
+        "timestamp": 661855,
+        "type": "FACELETS",
+        "facelets": "RRLDUUDFLBLFRRRLDURLUUFURLDDBFFDBDRFULBFLBLUFUBBFBDRDB"
+      }
+    },
+    {
+      "t": 56125,
+      "event": {
+        "timestamp": 661908,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 661908,
+        "cubeTimestamp": 916450
+      }
+    },
+    {
+      "t": 56125,
+      "event": {
+        "timestamp": 661908,
+        "type": "FACELETS",
+        "facelets": "RRUDUUDFDLRBDRLURFRLFUFBRLFDBRFDFDRUULBFLBLUFLBBUBDLDB"
+      }
+    },
+    {
+      "t": 56283,
+      "event": {
+        "timestamp": 662065,
+        "type": "MOVE",
+        "face": 2,
+        "direction": 0,
+        "move": "F",
+        "localTimestamp": 662065,
+        "cubeTimestamp": 916598
+      }
+    },
+    {
+      "t": 56283,
+      "event": {
+        "timestamp": 662065,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDRBFRLDRFRURLFLFBFUDLFDFDRUULDFLBLURLBBUBDLDB"
+      }
+    },
+    {
+      "t": 57122,
+      "event": {
+        "timestamp": 662905,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 662905,
+        "cubeTimestamp": 917408
+      }
+    },
+    {
+      "t": 57122,
+      "event": {
+        "timestamp": 662905,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDRBFRLFBFRURLFLLURDFURDDUFLULDFLBLDBLBBUBDDRF"
+      }
+    },
+    {
+      "t": 57175,
+      "event": {
+        "timestamp": 662957,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 0,
+        "move": "D",
+        "localTimestamp": 662957,
+        "cubeTimestamp": 917555
+      }
+    },
+    {
+      "t": 57175,
+      "event": {
+        "timestamp": 662957,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDRBFRLLURRURLFLLDBURDFDFLDUULDFLBDRFLBBUBDFBF"
+      }
+    },
+    {
+      "t": 58383,
+      "event": {
+        "timestamp": 664165,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 664165,
+        "cubeTimestamp": 918642
+      }
+    },
+    {
+      "t": 58383,
+      "event": {
+        "timestamp": 664165,
+        "type": "FACELETS",
+        "facelets": "DFUDUUFBBDRRFRRLUURURLFLLDBURDFDFRLBLLDDLBURFBDFBBBLUF"
+      }
+    },
+    {
+      "t": 58435,
+      "event": {
+        "timestamp": 664218,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 664218,
+        "cubeTimestamp": 918716
+      }
+    },
+    {
+      "t": 58435,
+      "event": {
+        "timestamp": 664218,
+        "type": "FACELETS",
+        "facelets": "UDLDUUFBBDRDFRFLUURURLFLLDBURDFDFURRRLDLLBBRFFBFDBUBBL"
+      }
+    },
+    {
+      "t": 58488,
+      "event": {
+        "timestamp": 664270,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 664270,
+        "cubeTimestamp": 918833
+      }
+    },
+    {
+      "t": 58488,
+      "event": {
+        "timestamp": 664270,
+        "type": "FACELETS",
+        "facelets": "UDRDULFBBLFDURRUFDRUDLFFLDRURBFDDURFRLDLLBBRFBBFUBULBL"
+      }
+    },
+    {
+      "t": 58803,
+      "event": {
+        "timestamp": 664586,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 664586,
+        "cubeTimestamp": 919119
+      }
+    },
+    {
+      "t": 58803,
+      "event": {
+        "timestamp": 664586,
+        "type": "FACELETS",
+        "facelets": "UDDDUFFBRUULFRFDRDRUBLFDLDFURLFDUURBRLDLLBBRFBBFLBURBL"
+      }
+    },
+    {
+      "t": 59013,
+      "event": {
+        "timestamp": 664795,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 664795,
+        "cubeTimestamp": 919327
+      }
+    },
+    {
+      "t": 59013,
+      "event": {
+        "timestamp": 664795,
+        "type": "FACELETS",
+        "facelets": "LFDDUFFBRUUBFRRDRURUBLFDLDFURLFDURLBDLDDLBURFRLBBBBLUF"
+      }
+    },
+    {
+      "t": 59065,
+      "event": {
+        "timestamp": 664847,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 0,
+        "move": "L",
+        "localTimestamp": 664847,
+        "cubeTimestamp": 919349
+      }
+    },
+    {
+      "t": 59065,
+      "event": {
+        "timestamp": 664847,
+        "type": "FACELETS",
+        "facelets": "FFDBUFBBRUUBFRRDRULUBDFDFDFRRLLDULLBUDDRLLFBDRLRBBFLUU"
+      }
+    },
+    {
+      "t": 59223,
+      "event": {
+        "timestamp": 665005,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 1,
+        "move": "B'",
+        "localTimestamp": 665005,
+        "cubeTimestamp": 919465
+      }
+    },
+    {
+      "t": 59223,
+      "event": {
+        "timestamp": 665005,
+        "type": "FACELETS",
+        "facelets": "FRUBUFBBRUUFFRFDRDLUBDFDFDFRRLLDUURBLDDLLLBBDRFULBURBL"
+      }
+    },
+    {
+      "t": 59275,
+      "event": {
+        "timestamp": 665058,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 665058,
+        "cubeTimestamp": 919556
+      }
+    },
+    {
+      "t": 59275,
+      "event": {
+        "timestamp": 665058,
+        "type": "FACELETS",
+        "facelets": "FRBBUDBBFDFURRUDFFLULDFUFDBRRRLDLURRLDDLLLBBDRFUFBUUBL"
+      }
+    },
+    {
+      "t": 59591,
+      "event": {
+        "timestamp": 665373,
+        "type": "MOVE",
+        "face": 1,
+        "direction": 0,
+        "move": "R",
+        "localTimestamp": 665373,
+        "cubeTimestamp": 919949
+      }
+    },
+    {
+      "t": 59591,
+      "event": {
+        "timestamp": 665373,
+        "type": "FACELETS",
+        "facelets": "FRLBUUBBBDRDFRFFUULURDFLFDRRRULDFURRLDDLLLBBDFFUDBUBBL"
+      }
+    },
+    {
+      "t": 59805,
+      "event": {
+        "timestamp": 665587,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 665587,
+        "cubeTimestamp": 920098
+      }
+    },
+    {
+      "t": 59805,
+      "event": {
+        "timestamp": 665587,
+        "type": "FACELETS",
+        "facelets": "DFUBUUBBBDRRFRRFUULURDFLFDRRRULDFLLBLDDRLLFBDBDFBBFLUU"
+      }
+    },
+    {
+      "t": 59906,
+      "event": {
+        "timestamp": 665689,
+        "type": "MOVE",
+        "face": 4,
+        "direction": 1,
+        "move": "L'",
+        "localTimestamp": 665689,
+        "cubeTimestamp": 920172
+      }
+    },
+    {
+      "t": 59907,
+      "event": {
+        "timestamp": 665689,
+        "type": "FACELETS",
+        "facelets": "LFUDUUFBBDRRFRRFUURURLFLLDRURUFDFFLBDLDDLBLRFBDBBBBLUD"
+      }
+    },
+    {
+      "t": 60011,
+      "event": {
+        "timestamp": 665794,
+        "type": "MOVE",
+        "face": 5,
+        "direction": 0,
+        "move": "B",
+        "localTimestamp": 665794,
+        "cubeTimestamp": 920335
+      }
+    },
+    {
+      "t": 60011,
+      "event": {
+        "timestamp": 665794,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDRBFRLFUFRURLFLLDRURUFDFDDLULDFLBLRFLBBUBDDBB"
+      }
+    },
+    {
+      "t": 60588,
+      "event": {
+        "timestamp": 666371,
+        "type": "MOVE",
+        "face": 3,
+        "direction": 1,
+        "move": "D'",
+        "localTimestamp": 666371,
+        "cubeTimestamp": 920909
+      }
+    },
+    {
+      "t": 60588,
+      "event": {
+        "timestamp": 666371,
+        "type": "FACELETS",
+        "facelets": "RRUDUUFBBDRBFRLDBBRURLFLFUFUFLRDDUFDULDFLBLDRLBBUBDLRF"
+      }
+    }
+  ]
+}

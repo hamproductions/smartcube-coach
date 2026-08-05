@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CUBE_COACH - Diagnostics &amp; Calibration</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Geist & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#201f22",
+                        "on-primary": "#003915",
+                        "inverse-on-surface": "#313032",
+                        "primary-fixed-dim": "#4ae176",
+                        "on-primary-fixed": "#002109",
+                        "on-tertiary": "#472a00",
+                        "surface": "#131315",
+                        "on-surface-variant": "#bccbb9",
+                        "on-secondary-fixed-variant": "#004395",
+                        "inverse-surface": "#e5e1e4",
+                        "primary": "#4be277",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "error": "#ffb4ab",
+                        "secondary": "#adc6ff",
+                        "on-error": "#690005",
+                        "inverse-primary": "#006e2f",
+                        "surface-dim": "#131315",
+                        "error-container": "#93000a",
+                        "on-primary-fixed-variant": "#005321",
+                        "background": "#131315",
+                        "surface-bright": "#39393b",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-container-highest": "#353437",
+                        "primary-container": "#22c55e",
+                        "tertiary-fixed": "#ffddb8",
+                        "outline": "#869585",
+                        "on-primary-container": "#004b1e",
+                        "surface-container-high": "#2a2a2c",
+                        "tertiary-container": "#ef9900",
+                        "secondary-fixed": "#d8e2ff",
+                        "secondary-container": "#0566d9",
+                        "on-secondary-container": "#e6ecff",
+                        "surface-container-lowest": "#0e0e10",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-variant": "#353437",
+                        "on-secondary-fixed": "#001a42",
+                        "on-surface": "#e5e1e4",
+                        "on-tertiary-fixed": "#2a1700",
+                        "primary-fixed": "#6bff8f",
+                        "on-secondary": "#002e6a",
+                        "surface-container-low": "#1c1b1d",
+                        "on-tertiary-container": "#5c3800",
+                        "outline-variant": "#3d4a3d",
+                        "on-error-container": "#ffdad6",
+                        "on-background": "#e5e1e4",
+                        "surface-tint": "#4ae176",
+                        "tertiary": "#ffba61"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "touch-target-min": "48px",
+                        "margin-mobile": "16px",
+                        "base": "4px",
+                        "margin-desktop": "32px"
+                    },
+                    "fontFamily": {
+                        "timer-display-mobile": ["JetBrains Mono"],
+                        "table-data": ["JetBrains Mono"],
+                        "headline-lg": ["Geist"],
+                        "scramble-lg": ["JetBrains Mono"],
+                        "timer-display": ["JetBrains Mono"],
+                        "label-caps": ["Geist"],
+                        "body-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "timer-display-mobile": ["72px", { "lineHeight": "72px", "letterSpacing": "-0.05em", "fontWeight": "700" }],
+                        "table-data": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "scramble-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "0.1em", "fontWeight": "500" }],
+                        "timer-display": ["120px", { "lineHeight": "120px", "letterSpacing": "-0.05em", "fontWeight": "700" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for terminal look */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3d4a3d;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #869585;
+        }
+        
+        .sticker {
+            width: 100%;
+            aspect-ratio: 1/1;
+            border-radius: 2px;
+            border: 1px solid rgba(0,0,0,0.5);
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.1);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex items-center justify-center p-4 lg:p-margin-desktop overflow-hidden">
+<!-- Mock App Background Overlay (simulating being on top of main app) -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"></div>
+<!-- Modal Container -->
+<main class="relative z-50 w-full max-w-7xl bg-surface-container border border-outline-variant rounded-xl flex flex-col shadow-2xl h-[90vh] lg:h-[85vh]">
+<!-- Header -->
+<header class="flex items-center justify-between p-6 border-b border-outline-variant bg-surface-container">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary text-3xl">build</span>
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Diagnostics &amp; Calibration</h1>
+<p class="font-body-md text-body-md text-on-surface-variant uppercase tracking-wider text-xs">Section 1.8.A — Hardware Config</p>
+</div>
+</div>
+<!-- Health Metrics -->
+<div class="flex items-center gap-6 bg-surface-container-highest px-6 py-2 rounded-full border border-outline-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">bluetooth_connected</span>
+<span class="font-table-data text-table-data text-on-surface">CUBE_COACH_V2</span>
+</div>
+<div class="w-px h-4 bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">battery_full</span>
+<span class="font-table-data text-table-data text-on-surface">94%</span>
+</div>
+<div class="w-px h-4 bg-outline-variant"></div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm">speed</span>
+<span class="font-table-data text-table-data text-primary">12ms <span class="text-on-surface-variant text-xs">LATENCY</span></span>
+</div>
+</div>
+<button class="w-touch-target-min h-touch-target-min flex items-center justify-center rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">close</span>
+</button>
+</header>
+<!-- Content Body -->
+<div class="flex-1 overflow-y-auto p-6">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter h-full">
+<!-- Left Column: Unfolded Net (Calibration) -->
+<section class="lg:col-span-7 bg-surface-container-low border border-outline-variant rounded-lg p-6 flex flex-col">
+<div class="flex justify-between items-center mb-8 border-b border-outline-variant pb-4">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant">Sticker Mapping Array (Unfolded)</h2>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">palette</span>
+</div>
+<div class="flex-1 flex items-center justify-center">
+<!-- 4x3 Grid for Unfolded Cube -->
+<div class="grid grid-cols-4 grid-rows-3 gap-1 w-full max-w-[600px] aspect-[4/3] p-4 bg-surface-container-highest rounded border border-outline-variant">
+<!-- Row 1 -->
+<div class="col-start-2 bg-surface flex flex-col p-1 border border-outline-variant">
+<span class="font-table-data text-table-data text-on-surface-variant text-center mb-1 text-xs">U (UP)</span>
+<div class="grid grid-cols-3 gap-0.5 flex-1 w-full p-0.5">
+<div class="sticker bg-white"></div><div class="sticker bg-white"></div><div class="sticker bg-white"></div>
+<div class="sticker bg-white"></div><div class="sticker bg-white flex items-center justify-center"><span class="w-1.5 h-1.5 rounded-full bg-black/20"></span></div><div class="sticker bg-white"></div>
+<div class="sticker bg-white"></div><div class="sticker bg-white"></div><div class="sticker bg-white"></div>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="col-start-1 bg-surface flex flex-col p-1 border border-outline-variant">
+<span class="font-table-data text-table-data text-on-surface-variant text-center mb-1 text-xs">L (LEFT)</span>
+<div class="grid grid-cols-3 gap-0.5 flex-1 w-full p-0.5">
+<div class="sticker bg-[#ff8a00]"></div><div class="sticker bg-[#ff8a00]"></div><div class="sticker bg-[#ff8a00]"></div>
+<div class="sticker bg-[#ff8a00]"></div><div class="sticker bg-[#ff8a00] flex items-center justify-center"><span class="w-1.5 h-1.5 rounded-full bg-black/20"></span></div><div class="sticker bg-[#ff8a00]"></div>
+<div class="sticker bg-[#ff8a00]"></div><div class="sticker bg-[#ff8a00]"></div><div class="sticker bg-[#ff8a00]"></div>
+</div>
+</div>
+<div class="col-start-2 bg-surface flex flex-col p-1 border border-primary/50 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-8 h-8 bg-primary/20 transform rotate-45 translate-x-4 -translate-y-4"></div>
+<span class="font-table-data text-table-data text-primary text-center mb-1 text-xs font-bold">F (FRONT) - ACTIVE</span>
+<div class="grid grid-cols-3 gap-0.5 flex-1 w-full p-0.5">
+<div class="sticker bg-[#00a82d]"></div><div class="sticker bg-[#00a82d]"></div><div class="sticker bg-[#00a82d]"></div>
+<div class="sticker bg-[#00a82d]"></div><div class="sticker bg-[#00a82d] border-2 border-white flex items-center justify-center"><span class="material-symbols-outlined text-white text-[10px]">touch_app</span></div><div class="sticker bg-[#00a82d]"></div>
+<div class="sticker bg-[#00a82d]"></div><div class="sticker bg-[#00a82d]"></div><div class="sticker bg-[#00a82d]"></div>
+</div>
+</div>
+<div class="col-start-3 bg-surface flex flex-col p-1 border border-outline-variant">
+<span class="font-table-data text-table-data text-on-surface-variant text-center mb-1 text-xs">R (RIGHT)</span>
+<div class="grid grid-cols-3 gap-0.5 flex-1 w-full p-0.5">
+<div class="sticker bg-[#d90000]"></div><div class="sticker bg-[#d90000]"></div><div class="sticker bg-[#d90000]"></div>
+<div class="sticker bg-[#d90000]"></div><div class="sticker bg-[#d90000] flex items-center justify-center"><span class="w-1.5 h-1.5 rounded-full bg-black/20"></span></div><div class="sticker bg-[#d90000]"></div>
+<div class="sticker bg-[#d90000]"></div><div class="sticker bg-[#d90000]"></div><div class="sticker bg-[#d90000]"></div>
+</div>
+</div>
+<div class="col-start-4 bg-surface flex flex-col p-1 border border-outline-variant">
+<span class="font-table-data text-table-data text-on-surface-variant text-center mb-1 text-xs">B (BACK)</span>
+<div class="grid grid-cols-3 gap-0.5 flex-1 w-full p-0.5">
+<div class="sticker bg-[#0051ba]"></div><div class="sticker bg-[#0051ba]"></div><div class="sticker bg-[#0051ba]"></div>
+<div class="sticker bg-[#0051ba]"></div><div class="sticker bg-[#0051ba] flex items-center justify-center"><span class="w-1.5 h-1.5 rounded-full bg-black/20"></span></div><div class="sticker bg-[#0051ba]"></div>
+<div class="sticker bg-[#0051ba]"></div><div class="sticker bg-[#0051ba]"></div><div class="sticker bg-[#0051ba]"></div>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="col-start-2 bg-surface flex flex-col p-1 border border-outline-variant">
+<span class="font-table-data text-table-data text-on-surface-variant text-center mb-1 text-xs">D (DOWN)</span>
+<div class="grid grid-cols-3 gap-0.5 flex-1 w-full p-0.5">
+<div class="sticker bg-[#ffd500]"></div><div class="sticker bg-[#ffd500]"></div><div class="sticker bg-[#ffd500]"></div>
+<div class="sticker bg-[#ffd500]"></div><div class="sticker bg-[#ffd500] flex items-center justify-center"><span class="w-1.5 h-1.5 rounded-full bg-black/20"></span></div><div class="sticker bg-[#ffd500]"></div>
+<div class="sticker bg-[#ffd500]"></div><div class="sticker bg-[#ffd500]"></div><div class="sticker bg-[#ffd500]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex items-center gap-4 bg-surface-container px-4 py-3 border border-outline-variant rounded">
+<span class="material-symbols-outlined text-tertiary">info</span>
+<p class="font-body-md text-body-md text-on-surface-variant text-sm">Tap a sticker on the grid above to reassign its color value. Current focus: Center Face F.</p>
+</div>
+</section>
+<!-- Right Column: Live Data Stream -->
+<section class="lg:col-span-5 flex flex-col gap-gutter h-full">
+<!-- IMU Status Cards -->
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low border border-outline-variant p-4 rounded-lg">
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-2">Gyroscope (dps)</span>
+<div class="flex justify-between items-end">
+<span class="font-table-data text-table-data text-on-surface">X: 0.02</span>
+<span class="font-table-data text-table-data text-on-surface">Y: -0.01</span>
+<span class="font-table-data text-table-data text-on-surface">Z: 0.05</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest mt-2 rounded overflow-hidden">
+<div class="h-full bg-secondary w-1/4"></div>
+</div>
+</div>
+<div class="bg-surface-container-low border border-outline-variant p-4 rounded-lg">
+<span class="font-label-caps text-label-caps text-on-surface-variant block mb-2">Accelerometer (g)</span>
+<div class="flex justify-between items-end">
+<span class="font-table-data text-table-data text-on-surface">X: 0.00</span>
+<span class="font-table-data text-table-data text-on-surface">Y: 1.00</span>
+<span class="font-table-data text-table-data text-on-surface">Z: 0.00</span>
+</div>
+<div class="w-full h-1 bg-surface-container-highest mt-2 rounded overflow-hidden">
+<div class="h-full bg-tertiary w-3/4"></div>
+</div>
+</div>
+</div>
+<!-- Terminal Log -->
+<div class="flex-1 bg-surface-container-lowest border border-outline-variant rounded-lg flex flex-col overflow-hidden relative">
+<div class="bg-surface-container py-2 px-4 border-b border-outline-variant flex justify-between items-center">
+<span class="font-label-caps text-label-caps text-on-surface">Live Sensor Stream (Rx)</span>
+<div class="flex gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-table-data text-[10px] text-primary">SYNCING</span>
+</div>
+</div>
+<div class="p-4 font-table-data text-table-data text-on-surface-variant text-xs overflow-y-auto flex-1 font-mono tracking-tight" id="terminal-output">
+<div class="text-secondary opacity-50">[SYSTEM] Initializing Bluetooth LE handshake...</div>
+<div class="text-secondary opacity-50">[SYSTEM] Connected to CUBE_COACH_V2 (MAC: 00:1B:44:11:3A:B7)</div>
+<div class="text-secondary opacity-50">[SYSTEM] Requesting initial state vector...</div>
+<br/>
+<div><span class="text-primary">[DATA]</span> T:142345 ms | Q: [0.999, 0.001, 0.002, 0.000] | F: U, R, F, D, L, B</div>
+<div><span class="text-primary">[DATA]</span> T:142360 ms | Q: [0.998, 0.001, 0.003, 0.000]</div>
+<div><span class="text-primary">[DATA]</span> T:142375 ms | Q: [0.997, 0.002, 0.003, 0.001]</div>
+<div><span class="text-primary">[DATA]</span> T:142390 ms | Q: [0.995, 0.004, 0.004, 0.002]</div>
+<div class="text-tertiary">[EVENT] Face Turn Detected: R (Angle: 15deg)</div>
+<div><span class="text-primary">[DATA]</span> T:142405 ms | Q: [0.990, 0.010, 0.005, 0.003]</div>
+<div><span class="text-primary">[DATA]</span> T:142420 ms | Q: [0.980, 0.025, 0.008, 0.005]</div>
+<div class="text-tertiary">[EVENT] Face Turn Detected: R (Angle: 45deg)</div>
+<div><span class="text-primary">[DATA]</span> T:142435 ms | Q: [0.960, 0.050, 0.010, 0.008]</div>
+<div><span class="text-primary">[DATA]</span> T:142450 ms | Q: [0.923, 0.382, 0.000, 0.000]</div>
+<div class="text-primary font-bold">[EVENT] Face Turn Complete: R</div>
+<br/>
+<div><span class="text-primary">[DATA]</span> T:142465 ms | Q: [0.923, 0.382, 0.000, 0.000] | State: IDLE</div>
+<div><span class="text-primary">[DATA]</span> T:142480 ms | Q: [0.923, 0.382, 0.000, 0.000]</div>
+<div><span class="text-primary">[DATA]</span> T:142495 ms | Q: [0.923, 0.382, 0.000, 0.000]</div>
+<!-- Fading effect at bottom -->
+<div class="absolute bottom-0 left-0 w-full h-12 bg-gradient-to-t from-surface-container-lowest to-transparent pointer-events-none"></div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer Actions -->
+<footer class="p-6 border-t border-outline-variant bg-surface-container flex justify-end gap-4">
+<button class="h-touch-target-min px-6 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface hover:bg-surface-container-high transition-colors font-label-caps text-label-caps">
+                RESET DEFAULTS
+            </button>
+<button class="h-touch-target-min px-8 flex items-center justify-center rounded-lg bg-primary text-on-primary font-label-caps text-label-caps hover:bg-primary-fixed transition-colors shadow-[0_0_15px_rgba(75,226,119,0.2)]">
+                SAVE CALIBRATION
+            </button>
+</footer>
+</main>
+</body></html>

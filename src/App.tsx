@@ -1,75 +1,80 @@
-import { useState } from 'react'
-import { HistoryProgress } from './components/HistoryProgress'
-import { LiveSolve } from './components/LiveSolve'
-import { PwaStatus } from './components/PwaStatus'
-import { ReconstructEditor } from './components/ReconstructEditor'
-import { RecoStudy } from './components/RecoStudy'
-import { TodayDashboard } from './components/TodayDashboard'
+import { useEffect, useState } from 'react'
+import { repairSolveTimestamps } from './storage/repairTimestamps'
+import { reanalyseStoredSolves } from './storage/reanalyseSolves'
+import { announceSolveUpdated } from './device/recordCapture'
+import { HistoryRoute } from './components/history/HistoryRoute'
+import { SettingsHub } from './components/settings/SettingsHub'
+import { StudyLibrary } from './components/study/StudyLibrary'
+import { SolveRoute } from './components/solve/SolveRoute'
+import { LibraryPage } from './components/library/LibraryPage'
 import { TrainerHub } from './components/TrainerHub'
-import './styles.css'
+import { createNotimerChecklistStore } from './storage/notimerStore'
+import { ErrorBoundary } from './components/ui/ErrorBoundary'
+import { IC } from './components/ui/Icon'
+import { AppShell } from './components/shell/AppShell'
+import { CubeConnectionIndicator, CubeConnectionProvider } from './device/CubeConnection'
+// panda.css owns the cascade order and pulls in the legacy sheet as a layer.
+import './panda.css'
 
-const navItems = [
-  ['01', 'Today'],
-  ['02', 'Live Solve'],
-  ['03', 'Solves'],
-  ['04', 'Train'],
-  ['05', 'Library'],
-  ['06', 'Progress']
+// 'Library' exists because LibraryPage was imported and never rendered, which left
+// Reconstruct, Study, Pace, Checklist and the cube-colour settings unreachable in the
+// shipped app — built, tested, and invisible to the user.
+const navItems: Array<{ label: string; icon: string | readonly string[] }> = [
+  { label: 'Playground', icon: IC.live },
+  { label: 'Training', icon: IC.train },
+  { label: 'Statistics', icon: IC.solves },
+  { label: 'Library', icon: IC.solves },
+  { label: 'Study', icon: IC.solves },
+  { label: 'Settings', icon: IC.solves },
 ]
 
-function App() {
-  const [activeNav, setActiveNav] = useState('Today')
+const notimerStore = createNotimerChecklistStore()
+
+function Shell() {
+  const [activeNav, setActiveNav] = useState('Playground')
+
+  // Solves recorded before the wall-clock fix are dated to 1970; rebase them once on load so
+  // the history stops showing an epoch date.
+  useEffect(() => { void repairSolveTimestamps().catch(() => undefined) }, [])
+
+  // Stages were analysed once, when the solve was recorded, so every solve older than the
+  // current analyser is missing what it has learned since — the shorter insert's moves, the
+  // better pair, the F2L case. Re-run the analysis on those; recorded timings are kept.
+  useEffect(() => {
+    void reanalyseStoredSolves()
+      .then((updated) => { for (const solve of updated) announceSolveUpdated(solve) })
+      .catch(() => undefined)
+  }, [])
+  const [drillFocus, setDrillFocus] = useState<string>()
 
   return (
-    <div className="app-shell">
-      <aside className="sidebar">
-        <a className="brand" href="#top" aria-label="Smart Cube Coach home" onClick={() => setActiveNav('Today')}>
-          <span className="brand-mark">SC</span>
-          <span>SMART CUBE COACH</span>
-        </a>
-        <nav aria-label="Primary navigation">
-          {navItems.map(([index, label]) => (
-            <button
-              className={activeNav === label ? 'nav-item active' : 'nav-item'}
-              key={label}
-              onClick={() => setActiveNav(label)}
-            >
-              <span>{index}</span>
-              {label}
-            </button>
-          ))}
-        </nav>
-        <div className="sidebar-foot">
-          <PwaStatus />
-        </div>
-      </aside>
+    <AppShell
+      navItems={navItems}
+      activeNav={activeNav}
+      onNavigate={(label) => setActiveNav(label as typeof activeNav)}
+      // The status slot was never passed, so PwaStatus and the connection indicator were
+      // imported but never rendered — a user could never apply a service-worker update.
+      // Only cube state belongs in the header. Storage quota and the persistent-storage
+      // request are Settings concerns, not something to carry on every screen.
+      status={<CubeConnectionIndicator />}
+    >
+      <ErrorBoundary surface={activeNav} key={activeNav}>
+        {activeNav === 'Playground' && <SolveRoute onOpenStatistics={() => setActiveNav('Statistics')} />}
+        {activeNav === 'Statistics' && <HistoryRoute onDrill={() => { setDrillFocus('pair-tracking'); setActiveNav('Training') }} />}
+        {activeNav === 'Training' && <TrainerHub focusPanel={drillFocus} />}
+        {activeNav === 'Library' && <LibraryPage notimerStore={notimerStore} />}
+        {activeNav === 'Study' && <StudyLibrary />}
+        {activeNav === 'Settings' && <SettingsHub />}
+      </ErrorBoundary>
+    </AppShell>
+  )
+}
 
-      <main id="top">
-        <header className="topbar">
-          <div>
-            <span className="eyebrow">{activeNav.toUpperCase()} / LOCAL-FIRST COACH</span>
-            <h1>{activeNav === 'Today' ? 'Your actual data.' : activeNav}</h1>
-          </div>
-          <div className="device-cluster">
-            <div className="device-copy">
-              <span className="connection-pulse" />
-              <div>
-                <strong>Local storage</strong>
-                <small>No account · no seeded solves</small>
-              </div>
-            </div>
-            <button className="button primary" onClick={() => setActiveNav('Live Solve')}>Start solve</button>
-          </div>
-        </header>
-
-        {activeNav === 'Today' && <TodayDashboard onNavigate={setActiveNav} />}
-        {activeNav === 'Live Solve' && <LiveSolve />}
-        {activeNav === 'Solves' && <HistoryProgress />}
-        {activeNav === 'Train' && <TrainerHub />}
-        {activeNav === 'Library' && <><ReconstructEditor /><RecoStudy /></>}
-        {activeNav === 'Progress' && <HistoryProgress />}
-      </main>
-    </div>
+function App() {
+  return (
+    <CubeConnectionProvider>
+      <Shell />
+    </CubeConnectionProvider>
   )
 }
 

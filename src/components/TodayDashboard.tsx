@@ -1,8 +1,12 @@
+import { css } from 'styled-system/css'
+import { Button } from './ui/Button'
+import { Actions, Eyebrow, MetricStrip, Panel, PanelNote, PanelTitle, Stack, TwoUp } from './ui/Surface'
 import { useEffect, useState } from 'react'
 import type { FindingRecord, PrescriptionRecord, SolveRecord, StageRecord, TrainerAttempt } from '../domain/models'
 import { averageOf } from '../domain/statistics'
 import { repositories } from '../storage/database'
 import { CubePlayback } from './CubePlayback'
+import { ScramblePreview } from './ui/ScramblePreview'
 
 type TodayDashboardProps = {
   onNavigate: (destination: string) => void
@@ -58,34 +62,34 @@ export function TodayDashboard({ onNavigate }: TodayDashboardProps) {
   }, [])
 
   if (loading) {
-    return <section className="panel empty-dashboard"><span className="eyebrow">LOCAL DATABASE</span><h2>Reading your captures…</h2></section>
+    return <Panel><Eyebrow>Your data</Eyebrow><PanelTitle>Loading your solves…</PanelTitle></Panel>
   }
 
   if (loadError) {
-    return <section className="panel empty-dashboard"><span className="eyebrow orange">LOCAL DATABASE ERROR</span><h2>Storage could not be opened.</h2><p>{loadError}</p></section>
+    return <Panel><Eyebrow tone="warn">Storage problem</Eyebrow><PanelTitle>We could not open your saved data.</PanelTitle><PanelNote>{loadError}</PanelNote></Panel>
   }
 
   const latest = data.solves[0]
   if (!latest) {
     return (
-      <section className="surface-stack">
-        <article className="panel empty-dashboard">
-          <span className="eyebrow green">FIRST RUN / NO FABRICATED TELEMETRY</span>
-          <h2>No solves yet.</h2>
-          <p>This dashboard stays empty until you capture a real cube solve or deliberately run the simulator test harness. No AO12, findings, prescriptions, or confidence scores are seeded.</p>
-          <div className="constraint-actions">
-            <button className="button primary" onClick={() => onNavigate('Live Solve')}>Capture a solve</button>
-            <button className="button secondary" onClick={() => onNavigate('Train')}>Open trainers</button>
-            <button className="button ghost" onClick={() => onNavigate('Library')}>Open reconstruction tools</button>
-          </div>
-        </article>
-        <section className="metric-strip" aria-label="Local data summary">
-          <div><span>Captured solves</span><strong>0</strong><small>Waiting for immutable events</small></div>
-          <div><span>Trainer attempts</span><strong>{data.attempts.length}</strong><small>Persisted locally</small></div>
-          <div><span>Study records</span><strong>{data.studies}</strong><small>Private notes and bookmarks</small></div>
-          <div><span>Coaching findings</span><strong>0</strong><small>Requires evidence from repeated solves</small></div>
-        </section>
-      </section>
+      <Stack>
+        <Panel>
+          <Eyebrow tone="good">Getting started</Eyebrow>
+          <PanelTitle>No solves yet.</PanelTitle>
+          <PanelNote>This dashboard stays empty until you capture a real cube solve or deliberately run the simulator test harness. No AO12, findings, prescriptions, or confidence scores are seeded.</PanelNote>
+          <Actions>
+            <Button onClick={() => onNavigate('Live Solve')}>Capture a solve</Button>
+            <Button variant="outline" onClick={() => onNavigate('Train')}>Open trainers</Button>
+            <Button variant="ghost" onClick={() => onNavigate('Library')}>Open reconstruction tools</Button>
+          </Actions>
+        </Panel>
+        <MetricStrip label="Local data summary" metrics={[
+          { label: 'Captured solves', value: 0, note: 'Waiting for immutable events' },
+          { label: 'Trainer attempts', value: data.attempts.length, note: 'Persisted locally' },
+          { label: 'Study records', value: data.studies, note: 'Private notes and bookmarks' },
+          { label: 'Coaching findings', value: 0, note: 'Requires evidence from repeated solves' }
+        ]} />
+      </Stack>
     )
   }
 
@@ -94,30 +98,43 @@ export function TodayDashboard({ onNavigate }: TodayDashboardProps) {
   const prescription = data.prescriptions[0]
 
   return (
-    <section className="surface-stack">
-      <section className="metric-strip" aria-label="Current performance summary">
-        <div><span>Latest solve</span><strong>{seconds(latest.endedAt - latest.startedAt)}</strong><small>{new Date(latest.endedAt).toLocaleString()}</small></div>
-        <div><span>Ao12</span><strong>{seconds(averageOf(data.solves, 12))}</strong><small>{data.solves.length} captured solves</small></div>
-        <div><span>Move count</span><strong>{latest.moves.length}</strong><small>{latest.rawEventIds.length} linked raw events</small></div>
-        <div><span>Evidence status</span><strong>{primaryFinding ? 'READY' : 'COLLECTING'}</strong><small>{primaryFinding ? `${Math.round(primaryFinding.confidence * 100)}% confidence` : 'Five compatible samples required'}</small></div>
-      </section>
+    <Stack>
+      <MetricStrip label="Current performance summary" metrics={[
+        { label: 'Latest solve', value: seconds(latest.endedAt - latest.startedAt), note: new Date(latest.endedAt).toLocaleString() },
+        { label: 'Ao12', value: seconds(averageOf(data.solves, 12)), note: `${data.solves.length} captured solves` },
+        { label: 'Move count', value: latest.moves.length, note: 'every turn saved' },
+        { label: 'Coaching', value: primaryFinding ? 'Ready' : 'Not yet', note: primaryFinding ? `${Math.round(primaryFinding.confidence * 100)}% confidence` : 'Needs five solves' }
+      ]} />
 
-      <section className="dashboard-grid">
-        <article className="panel constraint-card">
-          <span className="eyebrow orange">TOP EVIDENCE-BACKED FINDING</span>
-          {primaryFinding ? <><h2>{primaryFinding.evidence[0]?.stage ?? primaryFinding.metric}</h2><p>{Math.round(primaryFinding.observed)} ms observed · {Math.round(primaryFinding.recurrence * 100)}% recurrence · {primaryFinding.solveIds.length} solves.</p></> : <><h2>Still collecting.</h2><p>No coaching claim is generated until repeated compatible metric samples cross the evidence gate.</p></>}
-          <button className="button secondary" onClick={() => onNavigate('Progress')}>Inspect evidence</button>
-        </article>
-        <article className="panel prescription-card">
-          <span className="eyebrow green">CURRENT PRESCRIPTION</span>
-          {prescription ? <><h2>{prescription.metric.replaceAll('_', ' ')}</h2>{prescription.blocks.map((block) => <p key={block.id}>{block.title} · {block.dose}</p>)}</> : <><h2>None assigned.</h2><p>A drill is prescribed only after a recurring finding is backed by persisted solve evidence.</p></>}
-          <button className="button secondary" onClick={() => onNavigate('Train')}>Open training</button>
-        </article>
-      </section>
+      <TwoUp>
+        <Panel>
+          <Eyebrow tone="warn">Biggest problem</Eyebrow>
+          {primaryFinding
+            ? <><PanelTitle>{primaryFinding.evidence[0]?.stage ?? primaryFinding.metric}</PanelTitle><PanelNote>{Math.round(primaryFinding.observed)} ms observed · {Math.round(primaryFinding.recurrence * 100)}% recurrence · {primaryFinding.solveIds.length} solves.</PanelNote></>
+            : <><PanelTitle>Not enough solves yet.</PanelTitle><PanelNote>We will not tell you what to fix until the same problem shows up across several solves.</PanelNote></>}
+          <Actions><Button variant="outline" onClick={() => onNavigate('History')}>See the details</Button></Actions>
+        </Panel>
+        <Panel>
+          <Eyebrow tone="good">What to practise</Eyebrow>
+          {prescription
+            ? <><PanelTitle>{prescription.metric.replaceAll('_', ' ')}</PanelTitle>{prescription.blocks.map((block) => <PanelNote key={block.id}>{block.title} · {block.dose}</PanelNote>)}</>
+            : <><PanelTitle>Nothing to practise yet.</PanelTitle><PanelNote>Practice is only suggested once a problem proves it keeps happening.</PanelNote></>}
+          <Actions><Button variant="outline" onClick={() => onNavigate('Train')}>Open training</Button></Actions>
+        </Panel>
+      </TwoUp>
 
-      <article className="panel playback-panel">
+      <Panel>
+        {/* Two columns, not a wrapping flex row: the preview belongs beside the
+            scramble, pinned right. Wrapping dropped it underneath and left the whole
+            block reading as an unaligned spread. */}
+        <div className={css({ display: 'grid', gap: '8', alignItems: 'start', gridTemplateColumns: '1fr', md: { gridTemplateColumns: 'minmax(0, 1fr) auto' } })}>
+          <p className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'inkMuted', lineHeight: '1.9', letterSpacing: '0.04em' })}>{latest.scramble}</p>
+          <div className={css({ justifySelf: { base: 'start', md: 'end' } })}>
+            <ScramblePreview scramble={latest.scramble} />
+          </div>
+        </div>
         <CubePlayback title="Latest captured solve" scramble={latest.scramble} moves={latest.moves} stages={latestStages.map((stage) => ({ label: stage.name, alg: latest.moves.slice(stage.startEvent, stage.endEvent + 1).join(' '), moves: latest.moves.slice(stage.startEvent, stage.endEvent + 1) }))} />
-      </article>
-    </section>
+      </Panel>
+    </Stack>
   )
 }
