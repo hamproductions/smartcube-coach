@@ -11,7 +11,10 @@ import type { TimestampedMove } from './reconstruction'
 // captures, so a future change that decouples the two clocks fails loudly instead of
 // silently reshaping stages.
 
-const FIXTURES = '/Users/vittayapalotai.tanyawat/code/smartcube-coach/src/device/fixtures/user-sessions'
+// Relative to the repo root, like every other fixture path here. This was an absolute path
+// into one machine's home directory, so the suite passed there and died everywhere else —
+// the CI build failed on `ENOENT … scandir` naming a directory no runner could have.
+const FIXTURES = `${process.cwd()}/src/device/fixtures/user-sessions`
 
 function movesFromFixture(file: string): TimestampedMove[] {
   const session = parseDeviceSession(readFileSync(`${FIXTURES}/${file}`, 'utf8'))
