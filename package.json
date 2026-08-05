@@ -9,7 +9,7 @@
     "dev:web": "vite --host 0.0.0.0",
     "build": "panda codegen && tsc -b && vite build",
     "start": "NODE_ENV=production bun server/index.ts",
-    "test": "vitest run",
+    "test": "vitest run --pool=threads --maxWorkers=2",
     "test:watch": "vitest",
     "typecheck": "panda codegen && tsc -b --pretty false",
     "prepare": "panda codegen"

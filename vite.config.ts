@@ -17,6 +17,11 @@ export default defineConfig({
   },
   test: {
     environment: 'jsdom',
-    setupFiles: './src/test/setup.ts'
+    setupFiles: './src/test/setup.ts',
+    // A shared CI runner is several times slower than this machine, and the trainer waits on a
+    // 164-case F2L catalogue build before its first control enables. The default per-test
+    // budget failed there while passing locally, which is the least useful kind of red.
+    testTimeout: 60_000,
+    hookTimeout: 60_000
   }
 })

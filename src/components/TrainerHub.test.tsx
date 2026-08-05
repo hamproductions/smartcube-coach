@@ -73,7 +73,7 @@ describe('TrainerHub grading', () => {
     const user = userEvent.setup()
     render(<CubeConnectionProvider><TrainerHub /></CubeConnectionProvider>)
 
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Start session' })).toBeEnabled(), { timeout: 10_000 })
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Start session' })).toBeEnabled(), { timeout: 45_000 })
     await user.click(screen.getByRole('button', { name: 'Start session' }))
     expect(screen.getByRole('heading', { name: 'Recognize the case' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Turn any move to advance playback.' })).toBeInTheDocument()
@@ -109,7 +109,7 @@ describe('TrainerHub grading', () => {
       return { name: 'Test cube', disconnect: async () => undefined }
     }} /></CubeConnectionProvider>)
 
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Start session' })).toBeEnabled(), { timeout: 10_000 })
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Start session' })).toBeEnabled(), { timeout: 45_000 })
     await user.click(screen.getByRole('button', { name: 'Start session' }))
     await user.click(screen.getByRole('button', { name: 'Connect controller' }))
     const target = Number(screen.getByText(/Target \d+ \/ \d+/).textContent?.match(/\/ (\d+)/)?.[1] ?? 0)
@@ -568,7 +568,7 @@ describe('recognition feedback', () => {
   it('confirms the captured recognition split instead of only disabling the button', async () => {
     const user = userEvent.setup()
     render(<CubeConnectionProvider><TrainerHub /></CubeConnectionProvider>)
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Start session' })).toBeEnabled(), { timeout: 10_000 })
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Start session' })).toBeEnabled(), { timeout: 45_000 })
     await user.click(screen.getByRole('button', { name: 'Start session' }))
     expect(screen.getByText('Press Recognized the moment you know the case')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Recognized' }))
