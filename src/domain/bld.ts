@@ -86,21 +86,48 @@ function cornerStickerPermutation(cube: CubeModel) {
   return permutation
 }
 
-function cyclesFromPermutation(permutation: number[], bufferIndex: number) {
-  const visited = new Set<number>()
+type Trace = { targets: number[]; cycles: number[][]; misoriented: number }
+
+export function traceMemo(permutation: number[], perPiece: number, bufferSticker: number): Trace {
+  const at = new Array<number>(permutation.length)
+  permutation.forEach((location, home) => { at[location] = home })
+  const pieceOf = (sticker: number) => Math.floor(sticker / perPiece)
+  const pieces = permutation.length / perPiece
+  const bufferPiece = pieceOf(bufferSticker)
+  const inPlace = (piece: number) => pieceOf(at[piece * perPiece]) === piece
+  const solved = (piece: number) => at[piece * perPiece] === piece * perPiece
+  const done = new Set<number>([bufferPiece])
+  for (let piece = 0; piece < pieces; piece += 1) if (inPlace(piece)) done.add(piece)
+  const misoriented = [...Array(pieces).keys()].filter((piece) => piece !== bufferPiece && inPlace(piece) && !solved(piece)).length
+  const targets: number[] = []
   const cycles: number[][] = []
-  for (const start of [bufferIndex, ...permutation.keys()]) {
-    if (visited.has(start)) continue
-    const cycle: number[] = []
-    let current = start
-    while (!visited.has(current)) {
-      visited.add(current)
-      cycle.push(current)
-      current = permutation[current]
+  let cycle = [bufferSticker]
+  let anchor = bufferPiece
+  let current = bufferSticker
+  for (let guard = 0; guard < permutation.length * 2; guard += 1) {
+    const target = at[current]
+    if (pieceOf(target) !== anchor) {
+      targets.push(target)
+      cycle.push(target)
+      done.add(pieceOf(target))
+      current = target
+      continue
     }
-    if (cycle.length > 1) cycles.push([...cycle, start])
+    if (anchor !== bufferPiece) {
+      targets.push(target)
+      cycle.push(target)
+    }
+    if (cycle.length > 1) cycles.push(cycle)
+    const next = [...Array(pieces).keys()].find((piece) => !done.has(piece))
+    if (next === undefined) break
+    const start = next * perPiece
+    targets.push(start)
+    done.add(next)
+    anchor = next
+    current = start
+    cycle = [start]
   }
-  return cycles.length ? cycles : [[bufferIndex, bufferIndex]]
+  return { targets, cycles, misoriented }
 }
 
 function hasOddPermutation(values: number[]) {
@@ -109,8 +136,8 @@ function hasOddPermutation(values: number[]) {
   return inversions % 2 === 1
 }
 
-function memoFromCycles(cycles: string[][]) {
-  return cycles.flatMap((cycle) => cycle.slice(1, -1)).reduce<string[]>((pairs, letter, index) => {
+function memoFromTargets(letters: string[]) {
+  return letters.reduce<string[]>((pairs, letter, index) => {
     if (index % 2 === 0) pairs.push(letter)
     else pairs[pairs.length - 1] += letter
     return pairs
@@ -125,21 +152,23 @@ export function generateBldDrill(seed: string, buffer = 'A', letterScheme = defa
   const cube = cubeFromMoves(scrambleMoves)
   const permutationIndexes = stickerPermutation(cube)
   const cornerPermutationIndexes = cornerStickerPermutation(cube)
-  const cycles = cyclesFromPermutation(permutationIndexes, scheme.indexOf(normalizedBuffer)).map((cycle) => cycle.map((index) => scheme[index]))
-  const cornerCycles = cyclesFromPermutation(cornerPermutationIndexes, scheme.indexOf(normalizedBuffer)).map((cycle) => cycle.map((index) => scheme[index]))
+  const bufferIndex = scheme.indexOf(normalizedBuffer)
+  const edges = traceMemo(permutationIndexes, 2, bufferIndex)
+  const corners = traceMemo(cornerPermutationIndexes, 3, bufferIndex)
+  const letters = (indexes: number[]) => indexes.map((index) => scheme[index])
   return {
     seed,
     buffer: normalizedBuffer,
     letterScheme: scheme,
     scramble: scrambleMoves.join(' '),
     permutation: permutationIndexes.map((index) => scheme[index]),
-    cycles,
-    memo: memoFromCycles(cycles),
+    cycles: edges.cycles.map(letters),
+    memo: memoFromTargets(letters(edges.targets)),
     cornerPermutation: cornerPermutationIndexes.map((index) => scheme[index]),
-    cornerCycles,
-    cornerMemo: memoFromCycles(cornerCycles),
-    flippedEdges: cube.ea.filter((edge) => (edge & 1) === 1).length,
-    twistedCorners: cube.ca.filter((corner) => (corner >> 3) !== 0).length,
+    cornerCycles: corners.cycles.map(letters),
+    cornerMemo: memoFromTargets(letters(corners.targets)),
+    flippedEdges: edges.misoriented,
+    twistedCorners: corners.misoriented,
     parity: hasOddPermutation(cube.ea.map((edge) => edge >> 1))
   }
 }
