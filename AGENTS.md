@@ -112,25 +112,8 @@ This was stated by the owner more than once before it was recorded here. It was 
 
 Every adopted capability must identify its source file, symbol or page, behavior, license status, integration destination, and caveats. README-only summaries are insufficient.
 
-## Design rebuild: surface by surface, off the legacy sheet
+## Interface structure
 
-The whole app's design is being rebuilt on Panda CSS + Park UI, not patched. `src/styles.css` is the pre-Panda sheet and is being deleted a surface at a time; it is loaded through a `legacy` cascade layer (see `src/panda.css`) that Panda's `utilities` layer outranks, so a rebuilt surface always wins without the unmigrated ones losing their layout.
+The legacy `src/styles.css` sheet is gone; every surface is styled with Panda tokens (`docs/design-system.md`). Navigation is Solve, Train, Stats, Study, Settings on hash routes (`src/app/route.ts`). Train is a hub grouped by solve stage; each trainer is one view file in `src/components/train/views/` that follows its written flow in `docs/redesign/trainer-flows.md`. A new trainer gets a flow written there first, a view file, an entry in `src/components/train/trainers.ts`, and a browser check at 1440x900 and 390x844.
 
-Rules while the rebuild is in progress:
-
-- A surface is rebuilt, not adjusted. Read the reference set for that screen first, then compose it from Park UI components (`src/components/parkui/`, copied from the owner's own template) and Panda tokens. Do not port legacy class names across.
-- When a surface lands, delete the legacy rules it made dead in the same change. Leaving them is how `styles.css` grew instead of shrank.
-- Never add a rule to `src/styles.css`. If a rebuilt surface seems to need one, it needs a Panda recipe or a Park UI component instead.
-- Take the component from Park UI before writing a `styled()` primitive. Buttons, dialogs, tabs, selects, fields and menus all already exist there.
-
-Rebuilt so far: the app shell (`src/components/shell/AppShell.tsx`), the storage/PWA status widget (`src/components/PwaStatus.tsx`), and Today (`src/components/TodayDashboard.tsx`). Shared primitives live in `src/components/ui/Surface.tsx` — compose from those before writing new ones.
-
-Still on the legacy sheet: Live Solve, History, Train, Library.
-
-### The legacy sheet's size, honestly
-
-`src/styles.css` is far larger than it was at HEAD. Most of that growth was written earlier in the same session that later settled on Panda + Park UI, i.e. before the rule above existed. It is not defensible under the current standard, but reverting it wholesale would break Live Solve, History, Library and the body of Train, which still render from those classes.
-
-So the sheet shrinks only as surfaces are rebuilt, and it must never grow again. Anyone tempted to add a rule for an unmigrated surface should rebuild that surface instead. Deleting rules whose surface is gone is always in scope and should happen in the same change as the rebuild.
-
-Progress is measured by line count, and the number only goes down: 3547 at the start of the rebuild, 3209 now.
+Every 3D cube is `Cube3D` over the three.js renderer in `src/components/cube/CubeRenderer.ts`; do not add twisty-player cubes. A scramble shown while the tracked cube is not solved is routed from the app's own tracked pattern (`newSharedScramble`); FACELETS still never seed that pattern.
