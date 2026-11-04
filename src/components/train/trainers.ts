@@ -9,8 +9,8 @@ export type TrainerInfo = {
 }
 
 export const TRAINERS: TrainerInfo[] = [
-  { id: 'cross-goal', stage: 'Cross', name: 'Cross to pairs', purpose: 'Solve a scramble up to the cross, or the cross plus up to four pairs, against the clock.', cube: 'required' },
-  { id: 'cross-plan', stage: 'Cross', name: 'Plan the cross', purpose: 'Read a scramble in inspection and plan the whole cross before turning.', cube: 'optional' },
+  { id: 'cross-goal', stage: 'Cross', name: 'Cross to pairs', purpose: 'Solve a scramble up to the cross, or the cross plus up to four pairs, against the clock.', cube: 'optional' },
+  { id: 'cross-plan', stage: 'Cross', name: 'Plan the cross', purpose: 'Read a scramble in inspection and plan the whole cross before turning.', cube: 'none' },
   { id: 'f2l-cube', stage: 'F2L', name: 'F2L on the cube', purpose: 'Set up an F2L case on your cube and solve the pair; the cube checks it.', cube: 'required' },
   { id: 'free-pair', stage: 'F2L', name: 'Free pair', purpose: 'Pick the finish that solves one pair and leaves another free.', cube: 'none' },
   { id: 'cases', stage: 'Last layer', name: 'Algorithm cases', purpose: 'Learn and drill OLL, PLL, COLL and more, with recognition and execution timed apart.', cube: 'optional' },
