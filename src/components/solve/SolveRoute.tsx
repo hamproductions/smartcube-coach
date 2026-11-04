@@ -356,7 +356,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
           cube.setStatus('Web Bluetooth unavailable in this browser')
           return
         }
-        void cube.connect(bluetoothSource())
+        void cube.connect(bluetoothSource()).catch(() => undefined)
       }}
       onSelectSolve={(id) => { setSelectedId(id); setDetailId(id) }}
       // The 3D cube mirrors YOUR cube, which the app tracks from solved by applying the

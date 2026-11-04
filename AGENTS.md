@@ -37,6 +37,8 @@ The smart-cube path is the main feature. Everything else — trainers, timer, st
 
 If a capability cannot be exercised from a recorded session, that is a design defect in the capability, not a reason to request hardware.
 
+A connection failure must reach the screen with the library's own message: `CubeConnection.connect` writes it to the status and the header shows it. Diagnose a real device failure from that text, never from a guessed cause. GAN cubes need no typed MAC, because the library reads it from the advertisement as acubemy does.
+
 **Read the reference implementations' source, every line, before writing device code.** `node_modules/smartcube-web-bluetooth/src/` is vendored locally with full TypeScript sources and tests — it is the authority for protocol decoding, state representation and timestamps. `hakatashi/smart-cube-timer` is the authority for auto-starting the timer, scramble verification and stage segmentation. Behaviour copied from them is recorded in `docs/research/reference-findings-2026-08-03.md`. Inventing a device behaviour that a reference already solves has produced three rounds of failure in this project.
 
 ## Machine hygiene

@@ -89,6 +89,9 @@ export function CubeConnectionProvider({ children }: { children: ReactNode }) {
       setBatteryLevel(undefined)
       setStatus(`${next.name} · ${next.protocol}`)
       return next
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : 'Could not connect to a cube')
+      throw error
     } finally {
       setConnecting(false)
     }
@@ -132,9 +135,11 @@ export function CubeConnectionIndicator() {
     ? cubeLink.batteryLevel !== undefined
       ? `Battery ${cubeLink.batteryLevel}%`
       : cubeLink.status
-    : supportsWebBluetooth()
-      ? 'Not connected'
-      : 'Web Bluetooth unavailable'
+    : !supportsWebBluetooth()
+      ? 'Web Bluetooth unavailable'
+      : cubeLink.status !== 'No cube connected'
+        ? cubeLink.status
+        : 'Not connected'
 
   return (
     <div className="cube-status">
