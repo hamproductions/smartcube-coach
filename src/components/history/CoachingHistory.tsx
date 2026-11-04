@@ -78,7 +78,7 @@ export function CoachingHistory({ solves, stages, onOpenSolve }: CoachingHistory
             id="history"
             title="Solve history"
             description="Select a solve to open its breakdown."
-            action={<span className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>{ordered.length} solves</span>}
+            action={<span className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>{ordered.length} solve{ordered.length === 1 ? '' : 's'}</span>}
           >
             <div className={cx(card, css({ overflowX: 'auto' }))}>
               <table className={css({ w: 'full', borderCollapse: 'collapse', fontSize: 'sm' })}>

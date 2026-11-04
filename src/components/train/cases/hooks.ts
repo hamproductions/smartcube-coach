@@ -174,6 +174,7 @@ export function useKeys(handler: (key: string) => boolean | void, active = true)
       if (typingTarget(event.target)) return
       if (document.querySelector('[role=dialog]')) return
       const key = event.key === ' ' ? 'Space' : event.key
+      if ((key === 'Space' || key === 'Enter') && event.target instanceof Element && event.target.closest('button, a, select, [role=button]')) return
       if (latest.current(key) === true) event.preventDefault()
     }
     window.addEventListener('keydown', onKey)

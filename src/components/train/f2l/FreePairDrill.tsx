@@ -9,11 +9,11 @@ import { faceMoves } from './frame'
 import { CubeStage, Key, Segmented, SessionStrip, focusRing, labelClass, numberClass, seconds, useKeys } from './parts'
 import { SLOT_LABEL } from './queue'
 import { readChoice, writeChoice } from './remember'
+import { CHOICE_KEYS } from '../lookahead/positions'
 
 const MODES: FreePairMode[] = ['normal', '2gen']
 const MODE_LABEL: Record<FreePairMode, string> = { normal: 'Normal', '2gen': '2gen' }
 const MODE_KEY = 'free-pair:mode'
-const CHOICE_KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
 
 const promptFor = (round: number, mode: FreePairMode) => generateFreePairPrompt(`free-pair-${String(round).padStart(3, '0')}`, mode)
 
@@ -162,7 +162,7 @@ export function FreePairDrill({ startRound }: { startRound?: number }) {
 
             {answered ? null : (
               <div className={css({ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '3', color: 'inkVariant', fontSize: 'sm' })}>
-                <span>Pick with <Key>1</Key> to <Key>{String(prompt.options.length)}</Key></span>
+                <span>Pick with <Key>1</Key> to <Key>{CHOICE_KEYS[Math.min(prompt.options.length, CHOICE_KEYS.length) - 1]}</Key></span>
                 <Button variant="ghost" onClick={nextPosition}>Skip</Button>
               </div>
             )}
