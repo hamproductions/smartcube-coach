@@ -24,6 +24,9 @@
 - Trainer rounds replayed in the browser: pair/piece tracking, edge orientation, hidden colours, free pair, plan the cross, memo all start, judge an answer, show the correct one, and update the session strip.
 - Cube trainers played end to end with a scripted cube on the real provider and tracker path (moves remapped for the yellow-top hold): F2L on the cube (setup, recognise, solve, split timing), Cross to pairs (scramble, inspection, timed cross, shortest cross, history), Algorithm cases (state-verified setup, recognition and execution, per-case stats), Time attack (two cases against targets, results, run the misses).
 
+- Training revision (`da70bee`..`3335a5f`), following Cubedex (cloned reference; F2LTrainer was read too and its visible recognition clock is the pattern removed): setups routed from the cube's current state and re-routed after wrong turns; clocks hold at 0.00 until the first turn everywhere (cases, time attack, F2L on the cube, cross to pairs, plan the cross, typed cross plan waits for Start inspection); with a cube connected every trainer uses it (plan the cross turned on the cube, look-ahead turned on the cube, free pair answered by turning, checklist and memo scrambles tracked). Trainer pages have a stage-grouped rail; Train hub leads with the top coaching item; results steps link to trainers. Coaching cards say step, cost, action, trainer and worst solve. All verified with a scripted cube on the real provider and tracker path; sweep of 18 routes at 1440 and 400 clean.
+- Hidden colours and the turn pacer are unchanged: hidden colours is sticker knowledge with no cube state to check; the pacer already reads the cube.
+
 ## Next
 - Owner decides when to push; the live site changes only after a push.
 
