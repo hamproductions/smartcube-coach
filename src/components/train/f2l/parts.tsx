@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import { Cube3D } from '../../solve/Cube3D'
 
 export const focusRing = { _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' } } as const
@@ -8,7 +9,7 @@ export const numberClass = css({ fontFamily: 'mono', fontVariantNumeric: 'tabula
 
 export const labelClass = css({ fontSize: 'xs', color: 'inkVariant' })
 
-export const seconds = (ms: number | undefined) => ms === undefined ? '-' : (ms / 1000).toFixed(2)
+export const seconds = (ms: number | undefined) => ms === undefined ? DASH : (ms / 1000).toFixed(2)
 
 export function CubeStage({ setupAlg, caption }: { setupAlg: string; caption?: ReactNode }) {
   return (

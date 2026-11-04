@@ -22,6 +22,7 @@
 - 3D cube: 27 animated turns at ~9 tps, 224 frames, p99 16.8 ms, zero frames over 33 ms.
 - Sweep of all 18 routes (5 sections + 13 trainers) at 1440 and 400: no console errors, no horizontal overflow, no target under 44 px, nav marks the current section; every page has an h1.
 - Trainer rounds replayed in the browser: pair/piece tracking, edge orientation, hidden colours, free pair, plan the cross, memo all start, judge an answer, show the correct one, and update the session strip.
+- Cube trainers played end to end with a scripted cube on the real provider and tracker path (moves remapped for the yellow-top hold): F2L on the cube (setup, recognise, solve, split timing), Cross to pairs (scramble, inspection, timed cross, shortest cross, history), Algorithm cases (state-verified setup, recognition and execution, per-case stats), Time attack (two cases against targets, results, run the misses).
 
 ## Next
 - Owner decides when to push; the live site changes only after a push.
@@ -30,7 +31,7 @@
 - Council 1: 12 findings fixed (`2b1430c`). Council 2: 11 fixed (`2c03b9a`). Council 3: 3 fixed (`77611ed`); its unfinished keyboard and console checks were completed directly: every trainer's keys work, no console errors, every route has 44px targets at 1440 and 390.
 
 ## Unverified
-- Real GAN cube behaviour after the routed-scramble fix (needs the owner's cube).
+- Real GAN cube hardware: all flows pass on the scripted cube; physical cube confirmation needs the owner's cube.
 
 ## Permissions
 - Push only when the owner says so in the current turn.

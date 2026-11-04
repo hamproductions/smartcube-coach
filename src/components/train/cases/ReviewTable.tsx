@@ -58,7 +58,7 @@ export function ReviewTable({ records, attempts }: { records: AlgorithmRecord[];
                   <td className={cell}>{seconds(stat.recentMs) || DASH}</td>
                   <td className={cell}>{seconds(stat.bestMs) || DASH}</td>
                   <td className={cell}>{seconds(stat.recognitionMs) || DASH}</td>
-                  <td className={cell}>{seconds(stat.executionMs) || '-'}</td>
+                  <td className={cell}>{seconds(stat.executionMs) || DASH}</td>
                 </tr>
               ))}
             </tbody>

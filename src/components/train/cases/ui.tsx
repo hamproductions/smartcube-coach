@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 
 export const focusRing = css({ _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' } })
 
@@ -80,7 +81,7 @@ export function Stat({ label, value, tone }: { label: string; value: string; ton
   return (
     <div className={css({ display: 'flex', flexDirection: 'column', gap: '0.5', minW: '0' })}>
       <span className={labelText}>{label}</span>
-      <span className={cx(mono, css({ fontSize: 'lg', fontWeight: 'semibold', color: tone === 'good' ? 'green' : tone === 'bad' ? 'error' : 'ink' }))}>{value || '-'}</span>
+      <span className={cx(mono, css({ fontSize: 'lg', fontWeight: 'semibold', color: tone === 'good' ? 'green' : tone === 'bad' ? 'error' : 'ink' }))}>{value || DASH}</span>
     </div>
   )
 }

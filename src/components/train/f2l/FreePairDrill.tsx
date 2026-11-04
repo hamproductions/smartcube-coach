@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react'
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import { generateFreePairPrompt, gradeFreePair, type FreePairMode, type FreePairPrompt } from '../../../domain/freePair'
 import type { TrainerAttempt } from '../../../domain/models'
 import { repositories } from '../../../storage/database'
@@ -180,8 +181,8 @@ export function FreePairDrill({ startRound }: { startRound?: number }) {
       <SessionStrip
         stats={[
           { label: 'Attempts', value: results.length },
-          { label: 'Accuracy', value: results.length ? `${Math.round((correct / results.length) * 100)}%` : '-' },
-          { label: 'Mean answer', value: results.length ? `${seconds(results.reduce((sum, result) => sum + result.ms, 0) / results.length)} s` : '-' }
+          { label: 'Accuracy', value: results.length ? `${Math.round((correct / results.length) * 100)}%` : DASH },
+          { label: 'Mean answer', value: results.length ? `${seconds(results.reduce((sum, result) => sum + result.ms, 0) / results.length)} s` : DASH }
         ]}
         recent={results.slice(-8).map((result) => ({ success: result.success, label: `${result.success ? 'Free' : 'Not free'} in ${seconds(result.ms)} seconds`, text: seconds(result.ms) }))}
       />

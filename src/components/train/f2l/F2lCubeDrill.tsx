@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import { useCubeConnection } from '../../../device/CubeConnection'
 import type { CubeInputSource } from '../../../device/inputSource'
 import { bluetoothSource } from '../../../device/sources'
@@ -159,7 +160,7 @@ export function F2lCubeDrill({ source }: { source?: CubeInputSource }) {
   const solved = drill.session.filter((result) => result.outcome === 'success')
   const mean = (values: Array<number | undefined>) => {
     const known = values.filter((value): value is number => value !== undefined)
-    return known.length ? `${seconds(known.reduce((sum, value) => sum + value, 0) / known.length)} s` : '-'
+    return known.length ? `${seconds(known.reduce((sum, value) => sum + value, 0) / known.length)} s` : DASH
   }
 
   const changeOrder = (value: F2lOrder) => {
