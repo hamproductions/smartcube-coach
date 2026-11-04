@@ -102,7 +102,10 @@ const matchesPill = (record: AlgorithmRecord, pill: CasePillSet): boolean => {
   return record.set === pill && !record.id.startsWith('cubedex-')
 }
 
-export function TrainerHub({ controllerConnect, source, focusPanel }: { controllerConnect?: RemoteControllerConnect; source?: CubeInputSource; focusPanel?: string }) {
+export type TrainerId = 'cases' | 'f2l-cube' | 'time-attack' | 'edge-orientation' | 'hidden-colours' | 'piece-tracking' | 'pair-tracking' | 'free-pair' | 'cross-plan' | 'blindfold'
+
+export function TrainerHub({ controllerConnect, source, focusPanel, trainer }: { controllerConnect?: RemoteControllerConnect; source?: CubeInputSource; focusPanel?: string; trainer?: TrainerId }) {
+  const show = (id: TrainerId) => !trainer || trainer === id
   const cubeLink = useCubeConnection()
   const [algorithms, setAlgorithms] = useState<AlgorithmRecord[]>([])
   const [attempts, setAttempts] = useState<TrainerAttempt[]>([])
@@ -1327,7 +1330,8 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
     // route that overflows must own its own scrolling. Without this the Practice page
     // simply cut off below the fold.
     <section className={`surface-stack ${css({ flex: '1', minH: '0', overflowY: 'auto' })}`}>
-      <article className="panel trainer-panel">
+      {(show('cases') || show('f2l-cube') || show('time-attack')) && <article className="panel trainer-panel">
+        {show('cases') && <>
         <div className="surface-heading">
           <div><h2>Practice</h2></div>
           <button className="button primary" disabled={!available.length} onClick={begin}>{current ? 'Next case' : 'Start session'}</button>
@@ -1541,7 +1545,8 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
           />
         )}
         </>}
-        <details className="f2l-drill-panel">
+        </>}
+        {show('f2l-cube') && <details className="f2l-drill-panel" open={trainer === 'f2l-cube' || undefined}>
           <summary>Real-cube F2L drill (state-verified)</summary>
           <p>Solves this F2L pair on your connected smart cube. Completion is detected from the cube&apos;s actual state (checkF2LState), never from move identity.</p>
           <div className="pill-row" role="tablist" aria-label="Practice options">
@@ -1596,7 +1601,8 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
               />
             </div>
           )}
-        </details>
+        </details>}
+        {show('cases') && <>
         <details className="trainer-manage">
           <summary>Manage {set} cases</summary>
         <div className="trainer-tabs">
@@ -1625,7 +1631,8 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
         </details>
         <button className="button primary" disabled={!selectedCaseIds.size} onClick={practiceSelected}>{selectedCaseIds.size ? `Practice selected (${selectedCaseIds.size})` : 'Practice selected'}</button>
         {!selectedCaseIds.size && <p className="empty-state">Select one or more cases above to practice only those.</p>}
-        <details className="time-attack-panel">
+        </>}
+        {show('time-attack') && <details className="time-attack-panel" open={trainer === 'time-attack' || undefined}>
           <summary>Time attack</summary>
           {!timeAttackQueue && (
             <TimeAttackGauntlet
@@ -1655,49 +1662,49 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
               <button className="button secondary" onClick={resetTimeAttack}>New time attack</button>
             </div>
           )}
-        </details>
-        {mode === 'Review' && <section className="case-review">
+        </details>}
+        {show('cases') && mode === 'Review' && <section className="case-review">
           <h3>Case statistics</h3>
           {reviewStats.some((stat) => stat.attempts) ? <div className="case-library">{visibleCases.map((record, index) => {
             const stat = reviewStats[index]
             return <div key={record.id}><strong>{record.name}</strong><span>{stat.attempts} attempts · {Math.round(stat.successRate * 100)}% success · {stat.bestMs === undefined ? 'No timed result' : `best ${(stat.bestMs / 1000).toFixed(2)}s`} · {stat.recentAverageMs === undefined ? 'No recent average' : `recent ${(stat.recentAverageMs / 1000).toFixed(2)}s`}</span></div>
           })}</div> : <p className="empty-state">No attempts yet.</p>}
         </section>}
-      </article>
+      </article>}
 
-      <article className="panel trainer-panel">
+      {show('edge-orientation') && <article className="panel trainer-panel">
         <div className="surface-heading"><div><span className="eyebrow green">EDGE ORIENTATION</span><h2>Is this edge flipped?</h2></div></div>
         <p>Is the {orientationPrompt.target} edge oriented or flipped after: {orientationPrompt.moves.join(' ')}?</p>
         <label>Edge orientation<input aria-label="Edge orientation" value={orientationAnswer} onChange={(event) => setOrientationAnswer(event.target.value)} placeholder="oriented or flipped" /></label>
         <button className="button secondary" disabled={!orientationAnswer.trim()} onClick={() => void finishEdgeOrientation()}>Check edge orientation</button>
         {orientationResult && <p>{orientationResult}</p>}
-      </article>
+      </article>}
 
-      <article className="panel trainer-panel">
+      {show('hidden-colours') && <article className="panel trainer-panel">
         <div className="surface-heading"><div><span className="eyebrow green">HIDDEN COLOURS</span><h2>Work out the colour you cannot see.</h2></div></div>
         <p>Visible colors: {colorPrompt.visible.join(' · ')}</p>
         <label>Missing color<input aria-label="Missing color" value={colorAnswer} onChange={(event) => setColorAnswer(event.target.value)} placeholder="Type the missing color" /></label>
         <button className="button secondary" disabled={!colorAnswer.trim()} onClick={() => void finishColorInference()}>Check missing color</button>
         {colorResult && <p>{colorResult}</p>}
-      </article>
+      </article>}
 
-      <article className="panel trainer-panel">
+      {show('piece-tracking') && <article className="panel trainer-panel">
         <div className="surface-heading"><div><span className="eyebrow green">PIECE TRACKING</span><h2>Follow one edge through the turns.</h2></div></div>
         <p>Track the {trackingPrompt.target} edge through: {trackingPrompt.moves.join(' ')}</p>
         <label>Tracked edge location<input aria-label="Tracked edge location" value={trackingAnswer} onChange={(event) => setTrackingAnswer(event.target.value)} placeholder="UR, UF, UL…" /></label>
         <button className="button secondary" disabled={!trackingAnswer.trim()} onClick={() => void finishEdgeTracking()}>Check tracked edge</button>
         {trackingResult && <p>{trackingResult}</p>}
-      </article>
+      </article>}
 
-      <article className="panel trainer-panel" id="pair-tracking">
+      {show('pair-tracking') && <article className="panel trainer-panel" id="pair-tracking">
         <div className="surface-heading"><div><span className="eyebrow green">PAIR TRACKING</span><h2>Follow an F2L pair through the turns.</h2></div></div>
         <p>Track {pairPrompt.target} through: {pairPrompt.moves.join(' ')}</p>
         <label>Tracked pair locations<input aria-label="Tracked pair locations" value={pairAnswer} onChange={(event) => setPairAnswer(event.target.value)} placeholder="URF FR" /></label>
         <button className="button secondary" disabled={!pairAnswer.trim()} onClick={() => void finishPairTracking()}>Check tracked pair</button>
         {pairResult && <p>{pairResult}</p>}
-      </article>
+      </article>}
 
-      <article className="panel trainer-panel">
+      {show('free-pair') && <article className="panel trainer-panel">
         <div className="surface-heading"><div><span className="eyebrow green">FREE PAIR</span><h2>Solve front right and leave another pair free.</h2></div></div>
         <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
           <Button size="sm" variant={freePairMode === '2gen' ? 'solid' : 'outline'} aria-pressed={freePairMode === '2gen'} onClick={switchFreePairMode}>2gen mode</Button>
@@ -1719,17 +1726,17 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
           </>
         ) : <p>No position found for this seed. Pick a new position.</p>}
         {freePairResult && <p>{freePairResult}</p>}
-      </article>
+      </article>}
 
-      <article className="panel trainer-panel">
+      {show('cross-plan') && <article className="panel trainer-panel">
         <div className="surface-heading"><div><span className="eyebrow green">INSPECTION</span><h2>Plan the cross before you start.</h2></div></div>
         <p>Scramble: {crossPrompt.scramble}</p>
         <label>Cross plan<input aria-label="Cross plan" value={crossPlan} onChange={(event) => setCrossPlan(event.target.value)} placeholder="Enter any cross-solving sequence" /></label>
         <button className="button secondary" disabled={!crossPlan.trim()} onClick={() => void finishCrossInspection()}>Check cross plan</button>
         {crossResult && <p>{crossResult}</p>}
-      </article>
+      </article>}
 
-      <article className="panel bld-panel">
+      {show('blindfold') && <article className="panel bld-panel">
         <div className="surface-heading"><div><span className="eyebrow green">BLINDFOLD</span><h2>Memorise and recall.</h2></div></div>
         <label>Seed<input value={seed} onChange={(event) => { setSeed(event.target.value); setBldStartedAt(performance.now()) }} /></label>
         <label>BLD buffer<input aria-label="BLD buffer" value={bldBufferDraft} onChange={(event) => setBldBufferDraft(event.target.value)} /></label>
@@ -1754,7 +1761,7 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
         <label>Twisted corners<input aria-label="Twisted corners" value={bldTwistAnswer} onChange={(event) => setBldTwistAnswer(event.target.value)} inputMode="numeric" placeholder="Count" /></label>
         <button className="button secondary" disabled={!bldTwistAnswer.trim()} onClick={() => void finishBldOrientation('twist')}>Check twisted corners</button>
         {bldOrientationResult && <p>{bldOrientationResult}</p>}
-      </article>
+      </article>}
     </section>
   )
 }

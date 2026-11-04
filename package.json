@@ -22,7 +22,8 @@
     "linkedom": "^0.18.13",
     "react": "latest",
     "react-dom": "latest",
-    "smartcube-web-bluetooth": "github:poliva/smartcube-web-bluetooth#44f1f09"
+    "smartcube-web-bluetooth": "github:poliva/smartcube-web-bluetooth#44f1f09",
+    "three": "0.169.0"
   },
   "devDependencies": {
     "@pandacss/dev": "^1.12.0",
@@ -34,6 +35,7 @@
     "@types/node": "^26.1.2",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@types/three": "0.169.0",
     "@types/web-bluetooth": "^0.0.21",
     "@vitejs/plugin-react": "latest",
     "fake-indexeddb": "^6.2.5",
