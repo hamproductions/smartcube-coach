@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { ensureSharedCapture, ensureSharedTrackers, injectCubeEvent, setSharedScramble, suspendSolveCapture } from './CubeConnection'
 
 const turn = (move: string) => {
@@ -11,18 +11,16 @@ describe('turns made inside a trainer', () => {
   it('never move the solve capture, and the capture follows again once the trainer closes', async () => {
     ensureSharedTrackers('')
     await setSharedScramble('R U')
-    suspendSolveCapture(true)
+    await suspendSolveCapture(true)
     turn('R')
     turn('U')
     await settle()
     expect(ensureSharedCapture().snapshot.status).toBe('scrambling')
     expect(ensureSharedCapture().snapshot.scrambleMoves).toEqual([])
 
-    suspendSolveCapture(false)
-    await settle()
+    await suspendSolveCapture(false)
     await setSharedScramble('F')
     turn('F')
-    await settle()
-    expect(ensureSharedCapture().snapshot.status).toBe('ready')
+    await vi.waitFor(() => expect(ensureSharedCapture().snapshot.status).toBe('ready'), { timeout: 5_000 })
   })
 })

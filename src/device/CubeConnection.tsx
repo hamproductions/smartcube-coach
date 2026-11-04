@@ -199,9 +199,9 @@ let movedWhileSuspended = false
 
 export function suspendSolveCapture(suspended: boolean) {
   captureSuspended = suspended
-  if (suspended || !movedWhileSuspended) return
+  if (suspended || !movedWhileSuspended) return Promise.resolve()
   movedWhileSuspended = false
-  void newSharedScramble().catch(() => undefined)
+  return newSharedScramble().then(() => undefined, () => undefined)
 }
 
 /** Creates the shared trackers once, so tracking exists before any page mounts. */

@@ -7,8 +7,8 @@ import type { TrainerInfo } from './trainers'
 
 export function TrainerPage({ trainer, children }: { trainer: TrainerInfo; children: ReactNode }) {
   useEffect(() => {
-    suspendSolveCapture(true)
-    return () => suspendSolveCapture(false)
+    void suspendSolveCapture(true)
+    return () => { void suspendSolveCapture(false) }
   }, [])
 
   useEffect(() => {
