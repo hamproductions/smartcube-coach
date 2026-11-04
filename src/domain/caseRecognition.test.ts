@@ -33,8 +33,9 @@ describe('last-layer case recognition inside a solve', () => {
     for (const stage of stages.filter((entry) => !['OLL', 'PLL'].includes(entry.name))) {
       if (stage.name.startsWith('F2L')) {
         // Only the 41 catalogued cases can be named: a pair whose pieces are trapped in
-        // another slot is not one of them, and inventing a name for it would be a lie.
-        if (stage.caseId !== undefined) expect(stage.caseId, stage.name).toMatch(/^f2l-(fr|fl|bl|br)-\d+$/)
+        // another slot is not one of them, and inventing a name for it would be a lie. A pair
+        // that completed on the same turn as the stage before it has no moves and is marked as such.
+        if (stage.caseId !== undefined && stage.caseId !== 'f2l-free') expect(stage.caseId, stage.name).toMatch(/^f2l-(fr|fl|bl|br)-\d+$/)
         continue
       }
       expect(stage.caseId, stage.name).toBeUndefined()

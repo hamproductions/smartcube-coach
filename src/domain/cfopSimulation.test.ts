@@ -113,7 +113,10 @@ describe('phantom stage suppression', () => {
     for (const seed of ['rot-a', 'rot-b', 'rot-c', 'rot-d']) {
       const solve = await simulateCfopSolve(seed)
       const stages = await segmentCfop(solve.scramble, solve.events.map((event) => ({ move: event.move, timestamp: event.timestamp })), seed)
-      for (const stage of stages) expect(stage.moveCount).toBeGreaterThan(0)
+      for (const stage of stages) {
+        if (/-(skip|free)$/.test(stage.caseId ?? '')) expect(stage.moveCount).toBe(0)
+        else expect(stage.moveCount).toBeGreaterThan(0)
+      }
     }
   }, 60_000)
 })

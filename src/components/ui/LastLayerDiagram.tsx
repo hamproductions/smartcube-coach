@@ -56,7 +56,7 @@ export function schemeFor(top: StickerColor, front: StickerColor): ColorScheme |
   return { U: top, F: front, R: right, D: down, B: back, L: left }
 }
 
-const HEX: Record<StickerColor, string> = {
+export const HEX: Record<StickerColor, string> = {
   white: '#f7f9fc', yellow: '#ffd500', red: '#b90000',
   orange: '#ff5900', green: '#009b48', blue: '#0051ba'
 }

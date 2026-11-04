@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync, readdirSync } from 'node:fs'
-import { bucketMovesByStageMidpoints } from './reconstruction'
+import { bucketMovesByStageMidpoints, computeStageCutIndices } from './reconstruction'
 import { parseDeviceSession } from '../device/deviceRecorder'
 import type { TimestampedMove } from './reconstruction'
 
@@ -54,5 +54,15 @@ describe('stage bucketing by timestamp midpoint', () => {
     ]
     // Boundary sits at 500; the move at 100 is before it, the move at 900 after.
     expect(bucketMovesByStageMidpoints(events, [1])).toEqual([0, 0, 1])
+  })
+})
+
+describe('computeStageCutIndices', () => {
+  it('closes a skipped stage on the same move as the stage before it', () => {
+    expect(computeStageCutIndices([1, 3, 3, 6, 6, 8, 8], 7)).toEqual([0, 1, 1, 3, 3, 3, 5])
+  })
+
+  it('leaves later stages open when the solve never reaches them', () => {
+    expect(computeStageCutIndices([1, 2, 2], 7)).toEqual([0, 1])
   })
 })

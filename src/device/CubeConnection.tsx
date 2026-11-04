@@ -200,12 +200,48 @@ export function ensureSharedTrackers(targetScramble = '') {
         await capture.handleMove(raw.move, raw.cubeTimestamp ?? null, raw.localTimestamp ?? Date.now())
       }
       onSharedResolvedMove?.(resolved)
+      for (const listener of [...resolvedMoveListeners]) listener(resolved)
     })
+    sharedMoveTracker.current.onReset = () => { for (const listener of [...trackerResetListeners]) listener() }
     void sharedMoveTracker.current.reset()
   }
 }
 
+const resolvedMoveListeners = new Set<(resolved: ResolvedCubeMove) => void>()
+const trackerResetListeners = new Set<() => void>()
+
+/** Every move the shared tracker resolves, whichever page is open. Unlike the hook, any number of listeners can hold this at once. */
+export function subscribeResolvedMoves(listener: (resolved: ResolvedCubeMove) => void) {
+  resolvedMoveListeners.add(listener)
+  return () => { resolvedMoveListeners.delete(listener) }
+}
+
+/** Fires when the app declares the cube solved again, so anything mirroring the cube can re-seed. */
+export function subscribeTrackerReset(listener: () => void) {
+  trackerResetListeners.add(listener)
+  return () => { trackerResetListeners.delete(listener) }
+}
+
+/** The cube as the app currently believes it to be. */
+export function trackedPattern() {
+  return sharedMoveTracker.current?.pattern ?? null
+}
+
 let trackerBusUnsubscribe: (() => void) | null = null
+
+/**
+ * The one door an event takes into the shared tracker — Bluetooth, replay and the keyboard
+ * cube all come through here.
+ *
+ * Pairing is decided BEFORE the event is buffered. Setting it after a move resolved left the
+ * first turn of every scramble going through slice pairing, where it could be merged with the
+ * next turn and lost — so move one of a scramble read as "off the scramble".
+ */
+export function injectCubeEvent(event: CubeEvent) {
+  const tracker = sharedMoveTracker.current
+  if (tracker) tracker.slicePairing = ensureSharedCapture().snapshot.status !== 'scrambling'
+  void tracker?.handleEvent(event)
+}
 
 /**
  * Subscribes the shared trackers to the connection bus, exactly once at a time.
@@ -216,14 +252,7 @@ let trackerBusUnsubscribe: (() => void) | null = null
  */
 function registerTrackerBus(subscribe: (listener: (event: CubeEvent) => void | Promise<void>) => () => void) {
   trackerBusUnsubscribe?.()
-  trackerBusUnsubscribe = subscribe((event) => {
-    // Decide pairing BEFORE the event is buffered. Setting it after a move resolved left the
-    // first turn of every scramble going through slice pairing, where it could be merged
-    // with the next turn and lost — so move one of a scramble read as "off the scramble".
-    const tracker = sharedMoveTracker.current
-    if (tracker) tracker.slicePairing = ensureSharedCapture().snapshot.status !== 'scrambling'
-    void tracker?.handleEvent(event)
-  })
+  trackerBusUnsubscribe = subscribe(injectCubeEvent)
   return () => {
     trackerBusUnsubscribe?.()
     trackerBusUnsubscribe = null

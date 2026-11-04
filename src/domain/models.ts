@@ -4,7 +4,7 @@
  * reach solves that were recorded before them. Bump it when `segmentCfop` records something
  * new. This is the record's version, not the backup envelope's `analysisVersion`.
  */
-export const ANALYSIS_VERSION = '5'
+export const ANALYSIS_VERSION = '6'
 
 export type RawCubeEvent = {
   id: string
@@ -28,6 +28,8 @@ export type SolveRecord = {
   penalty: 'none' | '+2' | 'dnf'
   deviceId?: string
   analysisVersion: string
+  /** Set when the last attempt to re-analyse this solve failed, so a solve that could not be upgraded is not mistaken for one that has not been tried yet. */
+  analysisError?: string
   rawEventIds: string[]
   moves: string[]
   /**

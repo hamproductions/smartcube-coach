@@ -85,4 +85,30 @@ describe('reanalyseStoredSolves', () => {
     expect((await repositories.stages.forSolve('solve-1')).length).toBe(1)
     expect((await repositories.solves.get('solve-1'))?.analysisVersion).toBe('1')
   })
+
+  it('marks a solve it could not analyse, keeping its stages and its old version', async () => {
+    await repositories.solves.put(solve({ moves: ['U'] }))
+    await repositories.stages.put({
+      id: 'solve-1:cross', solveId: 'solve-1', method: 'CFOP', name: 'Cross',
+      startEvent: 0, firstMoveEvent: 0, endEvent: 0, moveCount: 1, confidence: 1
+    } as StageRecord)
+
+    const result = await reanalyseStoredSolves()
+
+    expect(result).toHaveLength(1)
+    const stored = await repositories.solves.get('solve-1')
+    expect(stored?.analysisError).toMatch(/no cfop stages/i)
+    expect(stored?.analysisVersion).toBe('1')
+    expect((await repositories.stages.forSolve('solve-1')).length).toBe(1)
+  }, 60_000)
+
+  it('clears the mark once the solve analyses', async () => {
+    await repositories.solves.put(solve({ analysisError: 'earlier failure' }))
+
+    await reanalyseStoredSolves()
+
+    const stored = await repositories.solves.get('solve-1')
+    expect(stored?.analysisError).toBeUndefined()
+    expect(stored?.analysisVersion).toBe(ANALYSIS_VERSION)
+  }, 60_000)
 })

@@ -1,5 +1,11 @@
 import { readFileSync } from 'node:fs'
+import { Alg } from 'cubing/alg'
+import type { KPattern } from 'cubing/kpuzzle'
+import { puzzles } from 'cubing/puzzles'
 import { describe, expect, it } from 'vitest'
+import { ollCases, pllCases } from './algorithmCatalogue'
+import { recognizeOll, recognizePll } from './caseRecognition'
+import { caseStateOf } from './lastLayer'
 import { segmentCfop } from './reconstruction'
 
 /**
@@ -32,6 +38,53 @@ describe('last layer recognition on a real solve', () => {
 
     for (const stage of stages.filter((entry) => entry.name === 'OLL')) {
       if (stage.moveCount >= 5) expect(stage.caseName, `${stage.name} with ${stage.moveCount} moves`).not.toBe('OLL skip')
+    }
+  }, 120_000)
+})
+
+/**
+ * On the D layer the corner ring and the edge ring run opposite ways round, so a recogniser that
+ * rotates both arrays together stops being AUF-invariant there: one turn of the layer renamed an
+ * Aa perm as an Ab perm on a real capture. Every case must read the same wherever the last layer
+ * is and however it is aligned.
+ */
+describe('last layer recognition does not depend on the layer or its alignment', () => {
+  const turns = ['', 'D', 'D2', "D'"]
+
+  // The same position with the last layer on D and the centres still solved: conjugated by x2,
+  // not rotated, because a rotation would move the centres and be undone on the way in.
+  const onBottom = async (top: KPattern) => {
+    const puzzle = await puzzles['3x3x3'].kpuzzle()
+    const flip = puzzle.algToTransformation(new Alg('x2'))
+    const conjugated = flip.invert().applyTransformation(top.experimentalToTransformation()!).applyTransformation(flip)
+    return puzzle.defaultPattern().applyTransformation(conjugated)
+  }
+
+  it('names every PLL the same on the D layer, before and after any AUF', async () => {
+    for (const entry of pllCases) {
+      const top = await caseStateOf(entry.algorithm)
+      const expected = await recognizePll(top, 'U')
+      expect(expected?.name, `${entry.name} on the top layer`).toBe(entry.name)
+      const flipped = await onBottom(top)
+      for (const before of turns) {
+        for (const after of turns) {
+          const state = flipped.applyAlg(new Alg([before, after].filter(Boolean).join(' ')))
+          expect((await recognizePll(state, 'D'))?.name, `${entry.name} with ${before || 'no'} AUF before and ${after || 'no'} after`).toBe(entry.name)
+        }
+      }
+    }
+  }, 120_000)
+
+  it('names every OLL the same on the D layer, whichever way the layer is turned', async () => {
+    for (const entry of ollCases) {
+      const top = await caseStateOf(entry.algorithm)
+      const expected = await recognizeOll(top, 'U')
+      expect(expected?.name, `${entry.name} on the top layer`).toBe(entry.name)
+      const flipped = await onBottom(top)
+      for (const turn of turns) {
+        const state = flipped.applyAlg(new Alg(turn))
+        expect((await recognizeOll(state, 'D'))?.name, `${entry.name} turned ${turn || 'not at all'}`).toBe(entry.name)
+      }
     }
   }, 120_000)
 })

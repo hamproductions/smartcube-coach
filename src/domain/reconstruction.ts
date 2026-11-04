@@ -263,15 +263,16 @@ function lockCrossFace(seriesByFace: Map<string, ReturnType<typeof solveProgress
   return crossOnly.length ? crossOnly.reduce((best, candidate) => (candidate.index < best.index ? candidate : best)).name : undefined
 }
 
-// Stage boundaries are cut at the first move whose application satisfies
-// the next stage's predicate (mirrors the original single-advance-per-move
-// scan exactly: at most one stage can close per move, matching this
-// project's own cross/F2L/OLL/PLL predicate shape).
-function computeStageCutIndices(reached: number[], stageCount: number): number[] {
+// A stage closes at the first move whose application satisfies its predicate. One move can
+// close several: an OLL skip is satisfied by the very move that finishes F2L, and a PLL skip
+// by the move that finishes OLL. Limiting a move to one closure pushed the skipped stage onto
+// the NEXT move, which then wore the skipped stage's name and swallowed a move that belongs
+// to the stage after it.
+export function computeStageCutIndices(reached: number[], stageCount: number): number[] {
   const cuts: number[] = []
   let nextStage = 0
   for (let index = 0; index < reached.length && nextStage < stageCount; index += 1) {
-    if (reached[index] > nextStage) {
+    while (nextStage < stageCount && reached[index] > nextStage) {
       cuts.push(index)
       nextStage += 1
     }
@@ -380,7 +381,7 @@ export async function segmentCfop(
     pattern = pattern.applyAlg(event.move)
     const progress = progressByIndex[eventIndex]
 
-    if (nextStage < predicates.length - 1 && cutForStage(nextStage) === eventIndex) {
+    while (nextStage < predicates.length - 1 && cutForStage(nextStage) === eventIndex) {
       const segment = events.slice(startEvent, eventIndex + 1)
       const priorTimestamp = startEvent > 0 ? events[startEvent - 1].timestamp : events[0]?.timestamp ?? event.timestamp
       const firstTimestamp = firstNonTrivialMove(segment, lockedCrossFace)?.timestamp ?? segment[0]?.timestamp ?? event.timestamp
@@ -400,6 +401,31 @@ export async function segmentCfop(
       const newSlot = stage.name.startsWith('F2L') ? progress.slots.find((slot) => !completedSlots.includes(slot)) : undefined
       if (newSlot) completedSlots.push(newSlot)
       if (segment.length - rotations === 0) {
+        if (segment.length === 0) {
+          const isPair = stage.name.startsWith('F2L')
+          stages.push({
+            id: `${solveId}:${stage.name.toLowerCase().replaceAll(' ', '-')}`,
+            solveId,
+            method: 'CFOP',
+            name: stage.name,
+            startEvent,
+            firstMoveEvent: startEvent,
+            endEvent: eventIndex,
+            recognitionMs: 0,
+            executionMs: 0,
+            moveCount: 0,
+            rotationCount: 0,
+            pauseCount: 0,
+            longestPauseMs: 0,
+            rotationMs: 0,
+            tps: undefined,
+            caseId: isPair ? 'f2l-free' : `${stage.name.toLowerCase()}-skip`,
+            caseName: isPair ? 'Free pair' : `${stage.name} skip`,
+            slot: newSlot,
+            confidence: 1,
+            notation: ''
+          })
+        }
         nextStage += 1
         stageEntryPattern = pattern
         stageFrame = progress.frame
@@ -628,7 +654,7 @@ const STAGE_DISTRIBUTION: Record<string, { mean: number; deviation: number }> = 
 
 function stagePlausibility(stage: StageRecord): number {
   const distribution = STAGE_DISTRIBUTION[stage.name]
-  if (!distribution) return 1
+  if (!distribution || stage.moveCount === 0) return 1
 
   // Two-sided, unlike the move-count ceiling this replaces: that scored a one-move OLL
   // as a perfect fit because it only ever penalised stages for being too long, which is

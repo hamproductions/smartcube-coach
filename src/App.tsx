@@ -8,6 +8,7 @@ import { StudyLibrary } from './components/study/StudyLibrary'
 import { SolveRoute } from './components/solve/SolveRoute'
 import { LibraryPage } from './components/library/LibraryPage'
 import { TrainerHub } from './components/TrainerHub'
+import { CrossF2lPractice } from './components/practice/CrossF2lPractice'
 import { createNotimerChecklistStore } from './storage/notimerStore'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
 import { IC } from './components/ui/Icon'
@@ -21,6 +22,7 @@ import './panda.css'
 // shipped app — built, tested, and invisible to the user.
 const navItems: Array<{ label: string; icon: string | readonly string[] }> = [
   { label: 'Playground', icon: IC.live },
+  { label: 'Practice', icon: IC.play },
   { label: 'Training', icon: IC.train },
   { label: 'Statistics', icon: IC.solves },
   { label: 'Library', icon: IC.solves },
@@ -61,6 +63,7 @@ function Shell() {
       <ErrorBoundary surface={activeNav} key={activeNav}>
         {activeNav === 'Playground' && <SolveRoute onOpenStatistics={() => setActiveNav('Statistics')} />}
         {activeNav === 'Statistics' && <HistoryRoute onDrill={() => { setDrillFocus('pair-tracking'); setActiveNav('Training') }} />}
+        {activeNav === 'Practice' && <CrossF2lPractice />}
         {activeNav === 'Training' && <TrainerHub focusPanel={drillFocus} />}
         {activeNav === 'Library' && <LibraryPage notimerStore={notimerStore} />}
         {activeNav === 'Study' && <StudyLibrary />}

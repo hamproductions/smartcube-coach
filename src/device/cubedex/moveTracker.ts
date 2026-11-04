@@ -49,6 +49,9 @@ export class CubedexMoveTracker {
    */
   slicePairing = true
 
+  /** Called after the tracked cube is put back to solved, by whoever asked. */
+  onReset?: () => void
+
   private readonly onResolvedMove: (resolved: ResolvedCubeMove) => void | Promise<void>
 
   constructor(onResolvedMove: (resolved: ResolvedCubeMove) => void | Promise<void>) {
@@ -72,6 +75,7 @@ export class CubedexMoveTracker {
     this.sliceOrientation = { ...IDENTITY }
     this.previousFacelets = ''
     this.isBugged = false
+    this.onReset?.()
   }
 
   private async processResolvedMove(event: CubeMoveEvent, rawMoves: CubeMoveEvent[], visualMove?: string) {

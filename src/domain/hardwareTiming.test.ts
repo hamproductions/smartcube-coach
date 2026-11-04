@@ -23,6 +23,10 @@ describe('stage metrics under a real cube timing profile', () => {
 
     expect(stages.length).toBeGreaterThan(0)
     for (const stage of stages) {
+      if (/-(skip|free)$/.test(stage.caseId ?? '')) {
+        expect(stage.moveCount).toBe(0)
+        continue
+      }
       expect(stage.moveCount).toBeGreaterThan(0)
       // undefined when untimed, a real number otherwise — never a fabricated 0.
       expect(stage.tps === undefined || Number.isFinite(stage.tps)).toBe(true)

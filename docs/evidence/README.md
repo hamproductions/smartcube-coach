@@ -45,6 +45,15 @@ All screenshots from the mocked `Vector` deployment were deleted because they we
 
 ## Hardware boundary
 
+Cross → F2L practice, 2026-11-03, dev server, keyboard cube (software input through the shared tracker's real entry point):
+
+- `practice-2026-11-03-01-start.png` — first load of the Practice route.
+- `practice-2026-11-03-02-scrambled.png` — three scramble turns counted, 3D cube following.
+- `practice-2026-11-03-03-ready.png` — armed, inspection clock running.
+- `practice-2026-11-03-04-done.png` — goal met in two turns on the red face; next scramble already begun.
+- `practice-2026-11-03-05-cross-white.png` — fixed white-cross, full F2L attempt: 0.84 s, 2 turns, 1.15 s looked, best cross 1 turn.
+- `practice-2026-11-03-06-mobile.png` — 390 px width, no horizontal overflow.
+
 No physical smart cube was available. The following are unverified:
 
 - Bluetooth permission and GATT pairing

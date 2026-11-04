@@ -39,6 +39,12 @@ function withRecordedTiming(fresh: StageRecord, previous: StageRecord | undefine
   return merged
 }
 
+async function markFailed(solve: SolveRecord, reason: string): Promise<SolveRecord> {
+  const failed: SolveRecord = { ...solve, analysisError: reason }
+  await repositories.solves.put(failed).catch(() => undefined)
+  return failed
+}
+
 export async function reanalyseStoredSolves(version = ANALYSIS_VERSION): Promise<SolveRecord[]> {
   const solves = await repositories.solves.all()
   const stale = solves.filter((solve) => solve.analysisVersion !== version && solve.moves.length > 0)
@@ -54,17 +60,22 @@ export async function reanalyseStoredSolves(version = ANALYSIS_VERSION): Promise
       const fresh = await analyseSolve(solve.scramble, events, solve.id)
       // A solve whose stages cannot be recomputed keeps the ones it has; an empty result would
       // otherwise delete a breakdown the user can currently read.
-      if (fresh.length === 0) continue
+      if (fresh.length === 0) {
+        reanalysed.push(await markFailed(solve, 'No CFOP stages could be recognised in this solve.'))
+        continue
+      }
       const byName = new Map(previous.map((stage) => [stage.name, stage]))
       await Promise.all(fresh.map((stage) => repositories.stages.put(withRecordedTiming(stage, byName.get(stage.name)))))
       for (const stage of previous) {
         if (!fresh.some((entry) => entry.id === stage.id)) await repositories.stages.remove(stage.id)
       }
-      const updated: SolveRecord = { ...solve, analysisVersion: version }
+      const { analysisError: _cleared, ...rest } = solve
+      const updated: SolveRecord = { ...rest, analysisVersion: version }
       await repositories.solves.put(updated)
       reanalysed.push(updated)
-    } catch {
+    } catch (error) {
       // One unanalysable solve must not stop the rest, and must not lose what it already has.
+      reanalysed.push(await markFailed(solve, error instanceof Error ? error.message : 'Re-analysis failed.'))
     }
   }
 

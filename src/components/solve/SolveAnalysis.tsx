@@ -154,6 +154,11 @@ export function SolveAnalysis({ solve, stages, penalty, onPenalty }: SolveAnalys
   return (
     <div className={css({ flex: '1', minH: '0', overflowY: 'auto', p: '8' })}>
       <div className={css({ maxW: '1280px', mx: 'auto', display: 'grid', gap: 'gutter', gridTemplateColumns: '1fr', lg: { gridTemplateColumns: 'repeat(12, minmax(0, 1fr))' } })}>
+        {solve.analysisError && (
+          <p role="alert" className={css({ lg: { gridColumn: 'span 12' }, color: 'amber', fontSize: 'sm', fontFamily: 'mono' })}>
+            This solve could not be re-analysed, so its breakdown is from an older analyser: {solve.analysisError}
+          </p>
+        )}
         <Card className={css({ lg: { gridColumn: 'span 4' }, p: '6', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' })}>
           <LabelCaps className={css({ mb: '2' })}>Final time</LabelCaps>
           <span className={css({ fontFamily: 'mono', fontSize: '8xl', fontWeight: 'bold', lineHeight: '1', letterSpacing: '-0.05em', color: 'green' })}>
@@ -404,10 +409,16 @@ export function SolveAnalysis({ solve, stages, penalty, onPenalty }: SolveAnalys
 
               <div className={css({ p: '4', borderTopWidth: '1px', borderColor: 'floating' })}>
                 <LabelCaps className={css({ display: 'block', mb: '2' })}>Reconstruction</LabelCaps>
+                {stages.some((stage) => stage.frame) && (
+                  <p className={css({ mb: '3', fontSize: 'xs', color: 'inkMuted' })}>
+                    Turns are in the cube's own frame, as it reported them. Case names, slots and the algorithms offered are read with the cross down; where a stage needed a rotation to get there, it is shown beside the stage.
+                  </p>
+                )}
                 {stages.map((stage) => (
                   <div key={stage.id} className={css({ mb: '3' })}>
                     <span className={css({ fontSize: 'xs', color: 'inkVariant', textTransform: 'uppercase' })}>{stage.name}</span>
                     {stage.caseName && <span className={css({ ml: '2', fontSize: 'xs', color: 'inkVariant' })}>{stage.caseName}</span>}
+                    {stage.frame && <span className={css({ ml: '2', fontFamily: 'mono', fontSize: 'xs', color: 'inkMuted' })}>cross-down via {stage.frame}</span>}
                     <div className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'ink', letterSpacing: '0.06em' })}>
                       {readableReconstruction(solve.moves.slice(stage.startEvent, stage.endEvent + 1))}
                     </div>

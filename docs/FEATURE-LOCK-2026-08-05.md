@@ -42,6 +42,18 @@ it: `git checkout feature-lock-2026-08-05`.
 | Algorithm lookup works without ever opening Training | `coachCatalogue.ts` | `coachCatalogue.test.ts` |
 | A stage setup is the POSITION, computed from cube state — never a replay of the history | `reconstruction.ts#setupAlgFor` | `setupAlgFromState.test.ts` |
 | Rows with nothing to say do not open an empty panel | `SolveAnalysis.tsx` | Browser |
+| OLL and PLL read the same on either layer and at any AUF (the D layer's corner and edge rings run opposite ways, so it is conjugated to the top before reading) | `caseRecognition.ts#lastLayerOnTop` | `lastLayerRecognition.test.ts` — every OLL and PLL, every AUF |
+| A stage that completes on the same turn as the one before it closes on that turn with 0 moves (`OLL skip`, `PLL skip`, `Free pair`) and never takes the next stage's first turn | `reconstruction.ts#computeStageCutIndices` | `stageBucketing.test.ts`, `cfopSimulation.test.ts`; real capture 08-56-22: OLL skip 0 moves, PLL starts at move 51 |
+
+### Cross → F2L practice (added 2026-11-03)
+
+| Behaviour | Lives in | Pinned by |
+|---|---|---|
+| Any turns scramble the cube; no given scramble, no reset between attempts | `crossF2lPractice.ts#practiceReducer`, `components/practice/CrossF2lPractice.tsx` | `crossF2lPractice.test.ts`; browser |
+| Arming needs a turn made and a goal not already true | `canArm` | `crossF2lPractice.test.ts`; browser notice |
+| Clock starts on the first turn after arming and stops on the turn that makes the goal true, on any face or a chosen one | `goalReached`, `crossProgress` | `crossF2lPractice.test.ts` (opposite-face rule, pair counts, slice turns) |
+| Shortest cross is found over all six faces | `bestCross`, `faceToDown` | `crossF2lPractice.test.ts` (all six faces) |
+| The practice reads the shared tracker and never resyncs it from `FACELETS` | `CubeConnection.tsx#subscribeResolvedMoves`, `injectCubeEvent` | Browser |
 
 ### Playback
 
@@ -59,16 +71,18 @@ it: `git checkout feature-lock-2026-08-05`.
 |---|---|---|
 | Solves older than the analyser are re-analysed on load, keeping their recorded timings | `src/storage/reanalyseSolves.ts` | `reanalyseSolves.test.ts` |
 | A solve with no captured moves is skipped, not emptied | `reanalyseSolves.ts` | `reanalyseSolves.test.ts` |
-| **Any change to what `segmentCfop` produces bumps `ANALYSIS_VERSION` in the same edit** | `src/domain/models.ts` | Currently `'5'` |
+| **Any change to what `segmentCfop` produces bumps `ANALYSIS_VERSION` in the same edit** | `src/domain/models.ts` | Currently `'6'` |
 
 ## Known broken, and NOT locked
 
 These are defects at lock time. Fixing them is allowed; making them worse is not.
 
-1. **Last-layer stage boundaries.** A PLL stage can hold 22 moves and an OLL stage 12, because
-   the cut lands after the last layer is already finished. On the reco fixture both layers read
-   `0123:0123` at the PLL boundary, so "PLL skip" is the honest answer for a wrong boundary. This
-   is the largest open defect on the coaching surface.
+1. **Last-layer stage boundaries — fixed 2026-11-03.** Two causes, both closed: one move could
+   close only one stage, so a skipped OLL/PLL pulled the next stage's first turn into itself; and
+   the D layer's corner and edge rings run opposite ways, so recognition there was not
+   AUF-invariant and misnamed cases (an Aa read as Ab after one turn; OLL 5 read as OLL 10). The
+   reco 13444 fixture now reads OLL 33 and H Perm, matching the reconstructor's own labels
+   (`OLL(CP)`, `EPLL`); it previously read OLL 34 and PLL skip.
 2. **Two coordinate systems on one row.** Recorded stage moves print in the cube's reported
    frame; case names, slots and suggested algorithms are cross-down. A rename helper was written
    and reverted — renaming is only valid while the frame is constant, and a rotation inside a
@@ -83,7 +97,7 @@ These are defects at lock time. Fixing them is allowed; making them worse is not
 ## Gates at lock time
 
 ```
-bunx vitest run --pool=threads --maxWorkers=2     # 111 files, 789 tests passing
+bunx vitest run --pool=threads --maxWorkers=2     # 112 files, 808 tests passing (2026-11-03)
 bun run build                                      # clean; emits dist/assets/analysis.worker-*.js
 ```
 
