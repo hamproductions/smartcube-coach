@@ -12,6 +12,30 @@ export type ConnectedCube = {
   disconnect(): Promise<void>
 }
 
+const REMEMBERED_MAC = 'smartcube-coach:cube-mac:'
+
+function rememberedMac(deviceName: string) {
+  try {
+    return deviceName ? localStorage.getItem(REMEMBERED_MAC + deviceName) : null
+  } catch {
+    return null
+  }
+}
+
+function rememberMac(deviceName: string, mac: string) {
+  try {
+    if (deviceName && mac) localStorage.setItem(REMEMBERED_MAC + deviceName, mac)
+  } catch {
+    return
+  }
+}
+
+function askForMac(deviceName: string) {
+  if (typeof window === 'undefined' || typeof window.prompt !== 'function') return null
+  const typed = window.prompt(`${deviceName || 'This cube'} did not broadcast its Bluetooth address, which its encryption needs. Enter it once (acubemy and the vendor app show it); it is remembered for this cube.`, '')
+  return typed?.trim() ? normalizeCubeMac(typed) : null
+}
+
 export function supportsWebBluetooth() {
   return typeof navigator !== 'undefined' && 'bluetooth' in navigator
 }
@@ -31,18 +55,21 @@ export async function connectWebCube(
       onStatus,
       deviceSelection: options.anyDevice ? 'any' : 'filtered',
       enableAddressSearch: !manualMac,
-      macAddressProvider: async (device) => {
+      macAddressProvider: async (device, isFallbackCall) => {
         selectedDeviceName = device.name ?? ''
         if (manualMac) {
           onStatus(`Using entered MAC ${manualMac} for ${selectedDeviceName || 'the selected device'}`)
           return manualMac
         }
-        return null
+        const remembered = rememberedMac(selectedDeviceName)
+        if (remembered) return remembered
+        return isFallbackCall ? askForMac(selectedDeviceName) : null
       }
     })
   } catch (error) {
     throw describeConnectionFailure(error, selectedDeviceName)
   }
+  rememberMac(connection.deviceName || selectedDeviceName, connection.deviceMAC)
   const subscription = connection.events$.subscribe((event) => void onEvent(event))
 
   if (options.requestInitialState !== false) {
