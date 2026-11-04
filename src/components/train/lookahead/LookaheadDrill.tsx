@@ -4,12 +4,14 @@ import type { TrainerAttempt } from '../../../domain/models'
 import { repositories } from '../../../storage/database'
 import { Cube3D } from '../../solve/Cube3D'
 import { Button } from '../../ui/Button'
+import { subscribeResolvedMoves, useOptionalCubeConnection } from '../../../device/CubeConnection'
+import { useRoutedScramble } from '../useRoutedScramble'
 import type { AnswerInput, AttemptTiming } from './attempt'
 import { PaceControl } from './PaceControl'
 import { LEAD_MS, PACE_MS, readPace, readRound, writePace, writeRound, type Pace } from './remember'
 import { SessionStrip, type SessionResult } from './SessionStrip'
 
-export type Phase = 'ready' | 'lead' | 'playing' | 'answer' | 'verdict'
+export type Phase = 'ready' | 'lead' | 'playing' | 'cube-start' | 'cube-turning' | 'answer' | 'verdict'
 
 export type LookaheadRound = {
   seed: string
@@ -68,11 +70,28 @@ export function LookaheadDrill<R extends LookaheadRound>({ trainerId, createRoun
   const [stageRef, stageWidth] = useWidth()
   const cubeSize = Math.round(Math.min(stageWidth || 280, stageWidth && stageWidth < 480 ? 220 : 320))
   const total = round.moves.length
+  const onCube = Boolean(useOptionalCubeConnection()?.handle) && paced
+  const { scramble: cubeRoute, generate: routeTo, follow: followRoute } = useRoutedScramble()
+  const phaseRef = useRef(phase)
+  phaseRef.current = phase
+
+  const beginTurning = useCallback(async () => {
+    setPhase('cube-turning')
+    phaseRef.current = 'cube-turning'
+    startedAt.current = performance.now()
+    await routeTo(round.moves.join(' '))
+  }, [routeTo, round])
 
   const start = useCallback(() => {
     setVerdict(undefined)
     setReplayed(null)
     setSaveError('')
+    if (onCube) {
+      setPhase('cube-start')
+      phaseRef.current = 'cube-start'
+      void routeTo('').then((result) => { if (result?.complete && phaseRef.current === 'cube-start') void beginTurning() })
+      return
+    }
     if (paced) {
       setPlayed(0)
       setPhase('lead')
@@ -81,7 +100,20 @@ export function LookaheadDrill<R extends LookaheadRound>({ trainerId, createRoun
     startedAt.current = performance.now()
     answerOpenedAt.current = startedAt.current
     setPhase('answer')
-  }, [paced])
+  }, [paced, onCube, routeTo, beginTurning])
+
+  useEffect(() => subscribeResolvedMoves((resolved) => {
+    const current = phaseRef.current
+    if (current !== 'cube-start' && current !== 'cube-turning') return
+    const followed = followRoute(resolved.pattern)
+    if (!followed?.complete) return
+    if (current === 'cube-start') void beginTurning()
+    else {
+      answerOpenedAt.current = performance.now()
+      phaseRef.current = 'answer'
+      setPhase('answer')
+    }
+  }), [followRoute, beginTurning])
 
   const next = useCallback(() => {
     setRoundNumber((value) => value + 1)
@@ -161,7 +193,7 @@ export function LookaheadDrill<R extends LookaheadRound>({ trainerId, createRoun
 
   const shown = phase === 'playing' ? played : phase === 'answer' ? total : phase === 'verdict' ? (replayed ?? total) : 0
   const setupAlg = round.moves.slice(0, shown).join(' ')
-  const hidden = phase === 'answer'
+  const hidden = phase === 'answer' || phase === 'cube-turning'
   const highlight = phase === 'playing' ? played - 1 : phase === 'verdict' && replayed !== null && replayed < total ? replayed - 1 : -1
 
   const status = {
@@ -169,6 +201,8 @@ export function LookaheadDrill<R extends LookaheadRound>({ trainerId, createRoun
     lead: 'Get ready',
     playing: `Move ${played} of ${total}`,
     answer: `${total} moves played`,
+    'cube-start': 'Get your cube to the start',
+    'cube-turning': `Turn ${Math.min((cubeRoute?.done ?? 0) + 1, total)} of ${total}`,
     verdict: replayed !== null && replayed < total ? `Replay ${replayed} of ${total}` : 'Final position'
   }[phase]
 
@@ -180,7 +214,7 @@ export function LookaheadDrill<R extends LookaheadRound>({ trainerId, createRoun
       </div>
 
       <div className={css({ display: 'grid', gap: { base: '5', lg: '10' }, gridTemplateColumns: { base: '1fr', lg: 'minmax(0, 360px) minmax(0, 1fr)' }, alignItems: 'start' })}>
-        <section aria-label="Cube" ref={stageRef} className={css(css.raw({ display: 'grid', gap: '3', justifyItems: { base: 'center', lg: 'start' }, minW: '0' }), hidden && !renderStage ? css.raw({ display: { base: 'none', lg: 'grid' } }) : undefined)}>
+        <section aria-label="Cube" ref={stageRef} className={css(css.raw({ display: 'grid', gap: '3', justifyItems: { base: 'center', lg: 'start' }, minW: '0' }), phase === 'answer' && !renderStage ? css.raw({ display: { base: 'none', lg: 'grid' } }) : undefined)}>
           <div className={css({ display: 'grid', gap: '0.5', justifySelf: 'stretch' })}>
             <span className={css({ fontSize: 'xs', color: 'inkVariant' })}>{paced ? 'Track' : 'Corner'}</span>
             <strong data-testid="lookahead-target" className={css({ fontFamily: 'mono', fontSize: 'xl', fontWeight: 'semibold', color: 'green' })}>{round.target}</strong>
@@ -197,7 +231,21 @@ export function LookaheadDrill<R extends LookaheadRound>({ trainerId, createRoun
             </div>
           )}
 
-          {paced && phase !== 'ready' ? (
+          {phase === 'cube-start' || phase === 'cube-turning' ? (
+            <div className={css({ display: 'grid', gap: '1.5', justifySelf: 'stretch' })}>
+              <span aria-live="polite" className={css({ fontSize: 'xs', color: 'inkVariant', fontVariantNumeric: 'tabular-nums' })}>{status}</span>
+              {phase === 'cube-start' ? (
+                <p className={css({ fontFamily: 'mono', fontSize: 'lg', display: 'flex', flexWrap: 'wrap', columnGap: '2' })}>
+                  {cubeRoute ? cubeRoute.moves.map((move, index) => <span key={`${move}-${index}`} className={css({ opacity: index < cubeRoute.done ? '0.3' : '1' })}>{move}</span>) : <span className={css({ color: 'inkVariant', fontSize: 'sm' })}>Working out the turns from your cube...</span>}
+                </p>
+              ) : (
+                <p data-testid="lookahead-next-turn" className={css({ fontFamily: 'mono', fontSize: '5xl', fontWeight: 'semibold', lineHeight: '1' })}>{cubeRoute?.moves[cubeRoute.done] ?? ''}</p>
+              )}
+              {cubeRoute?.offTrack ? <p role="status" className={css({ fontSize: 'sm', color: 'amber' })}>That was not the move shown. Undo it.</p> : null}
+            </div>
+          ) : null}
+
+          {paced && phase !== 'ready' && phase !== 'cube-start' && phase !== 'cube-turning' ? (
             <div className={css({ display: 'grid', gap: '1.5', justifySelf: 'stretch' })}>
               <span aria-live="polite" className={css({ fontSize: 'xs', color: 'inkVariant', fontVariantNumeric: 'tabular-nums' })}>{status}</span>
               <ol aria-label="Moves" className={css({ display: 'flex', flexWrap: 'wrap', gap: '1', listStyle: 'none', p: '0', m: '0', minH: '8' })}>
@@ -220,10 +268,13 @@ export function LookaheadDrill<R extends LookaheadRound>({ trainerId, createRoun
         <section aria-label="Answer" className={css(css.raw({ display: 'grid', gap: '5', alignContent: 'start', minW: '0' }), phase === 'verdict' ? css.raw({ order: { base: '-1', lg: '0' } }) : undefined)}>
           {phase === 'ready' ? (
             <div className={css({ display: 'grid', gap: '4', justifyItems: 'start' })}>
-              <p className={css({ fontSize: 'md', color: 'ink' })}>Find it on the cube. The moves play once, then the cube hides.</p>
+              <p className={css({ fontSize: 'md', color: 'ink' })}>{onCube ? 'Hold your cube white top, green front. Find the piece, then turn the moves yourself one at a time while you follow it. The screen cube hides.' : 'Find it on the cube. The moves play once, then the cube hides.'}</p>
               <Button variant="solid" onClick={start}>Start <kbd className={kbdClass}>Space</kbd></Button>
             </div>
           ) : null}
+
+          {phase === 'cube-start' ? <p className={css({ fontSize: { base: 'lg', md: 'xl' }, fontWeight: 'semibold', color: 'inkVariant' })}>Solve your cube with these turns. Nothing is timed yet.</p> : null}
+          {phase === 'cube-turning' ? <p className={css({ fontSize: { base: 'lg', md: 'xl' }, fontWeight: 'semibold', color: 'inkVariant' })}>Turn the move shown and keep your eyes on the {round.target}.</p> : null}
 
           {phase === 'lead' || phase === 'playing' ? <p className={css({ fontSize: { base: 'lg', md: 'xl' }, fontWeight: 'semibold', color: 'inkVariant' })}>Watch the {round.target}.</p> : null}
 
@@ -247,7 +298,7 @@ export function LookaheadDrill<R extends LookaheadRound>({ trainerId, createRoun
             </div>
           ) : null}
 
-          {phase !== 'ready' ? (
+          {phase !== 'ready' && phase !== 'cube-start' && phase !== 'cube-turning' ? (
             <div className={phase === 'verdict' ? css({ display: { base: 'none', lg: 'block' } }) : undefined}>
               {renderAnswer({ round, active: phase === 'answer', verdict: phase === 'verdict' ? verdict : undefined, onAnswer: answer })}
             </div>

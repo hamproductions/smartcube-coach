@@ -32,9 +32,11 @@ export function useRoutedScramble() {
       if (now.isIdentical(start)) break
       start = now
     }
-    if (id !== request.current) return
+    if (id !== request.current) return undefined
     plan.current = { moves, prefixes, done: 0 }
-    setScramble({ moves, done: 0, offTrack: false, complete: moves.length === 0 })
+    const routed = { moves, done: 0, offTrack: false, complete: moves.length === 0 }
+    setScramble(routed)
+    return routed
   }, [])
 
   const follow = useCallback((pattern: KPattern) => {
