@@ -16,6 +16,25 @@ export function gyroRotationDegrees(reference: Quaternion, current: Quaternion) 
   return Math.round(2 * Math.acos(dot) * 180 / Math.PI)
 }
 
+const axisAngle = (axis: 'x' | 'y', degrees: number): Quaternion => {
+  const half = degrees * Math.PI / 360
+  return { x: axis === 'x' ? Math.sin(half) : 0, y: axis === 'y' ? Math.sin(half) : 0, z: 0, w: Math.cos(half) }
+}
+
+export const GYRO_HOME_ORIENTATION = multiply(axisAngle('x', 15), axisAngle('y', -5))
+
+export function gyroSensorQuaternion(quaternion: Quaternion) {
+  return normalizeQuaternion({ x: quaternion.x, y: quaternion.z, z: -quaternion.y, w: quaternion.w })
+}
+
+export function gyroDisplayQuaternion(basis: Quaternion, sensor: Quaternion) {
+  return multiply(GYRO_HOME_ORIENTATION, multiply(basis, sensor))
+}
+
+export function conjugateQuaternion(quaternion: Quaternion): Quaternion {
+  return { x: -quaternion.x, y: -quaternion.y, z: -quaternion.z, w: quaternion.w }
+}
+
 function multiply(left: Quaternion, right: Quaternion): Quaternion {
   return {
     x: left.w * right.x + left.x * right.w + left.y * right.z - left.z * right.y,

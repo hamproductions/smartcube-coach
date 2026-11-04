@@ -276,7 +276,7 @@ export function CrossF2lPractice() {
 
       <aside aria-label="Cube and history" className={css({ display: 'grid', gap: '6', alignContent: 'start' })}>
         <div className={css({ display: 'grid', placeItems: 'center' })}>
-          <Cube3D size={280} viewRotation={viewRotation} setupAlg={displayAlg} />
+          <Cube3D gyro size={280} viewRotation={viewRotation} setupAlg={displayAlg} />
         </div>
 
         {!connected && (

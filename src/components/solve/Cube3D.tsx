@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react'
 import { css } from 'styled-system/css'
 import { holdPermutation } from '../../domain/cubeHold'
 import { remapMoveForPlayer } from '../../domain/cubedex/smartcubeParity'
+import { conjugateQuaternion, gyroDisplayQuaternion, gyroSensorQuaternion, type Quaternion } from '../../domain/gyro'
+import { useOptionalCubeConnection } from '../../device/CubeConnection'
 
 // Just the cube. The cockpit's centre slot is a borderless area with the cube in it —
 // per the design system, "a borderless area with a subtle radial gradient behind the
@@ -16,9 +18,58 @@ declare global {
   }
 }
 
-export function Cube3D({ setupAlg = '', viewRotation = '', size = 256 }: { setupAlg?: string; viewRotation?: string; size?: number }) {
+type ThreeQuaternion = Quaternion & { clone(): ThreeQuaternion; set(x: number, y: number, z: number, w: number): ThreeQuaternion; slerp(target: ThreeQuaternion, t: number): ThreeQuaternion }
+type GyroPlayer = HTMLElement & {
+  experimentalCurrentVantages?: () => Promise<Iterable<{ render?: () => void }>>
+  experimentalCurrentThreeJSPuzzleObject?: () => Promise<{ quaternion: ThreeQuaternion }>
+}
+
+export function Cube3D({ setupAlg = '', viewRotation = '', size = 256, gyro = false }: { setupAlg?: string; viewRotation?: string; size?: number; gyro?: boolean }) {
   const player = useRef<HTMLElement | null>(null)
   const applied = useRef('')
+  const connection = useOptionalCubeConnection()
+  const subscribe = gyro ? connection?.subscribe : undefined
+  const handle = connection?.handle
+  const basis = useRef<Quaternion | null>(null)
+  const target = useRef<Quaternion | null>(null)
+
+  useEffect(() => {
+    if (!subscribe) return
+    basis.current = null
+    target.current = null
+    let frame = 0
+    let scene: { puzzle: { quaternion: ThreeQuaternion }; vantage?: { render?: () => void } } | null = null
+    let loading = false
+    const animate = () => {
+      frame = requestAnimationFrame(animate)
+      const element = player.current as GyroPlayer | null
+      if (!target.current || !element) return
+      if (!scene) {
+        if (loading || !element.experimentalCurrentThreeJSPuzzleObject || !element.experimentalCurrentVantages) return
+        loading = true
+        void Promise.all([element.experimentalCurrentThreeJSPuzzleObject(), element.experimentalCurrentVantages()])
+          .then(([puzzle, vantages]) => { scene = { puzzle, vantage: [...vantages][0] } })
+          .catch(() => undefined)
+          .finally(() => { loading = false })
+        return
+      }
+      const { x, y, z, w } = target.current
+      scene.puzzle.quaternion.slerp(scene.puzzle.quaternion.clone().set(x, y, z, w), 0.25)
+      scene.vantage?.render?.()
+    }
+    frame = requestAnimationFrame(animate)
+    const unsubscribe = subscribe((event) => {
+      if (event.type !== 'GYRO') return
+      const sensor = gyroSensorQuaternion(event.quaternion)
+      if (!sensor) return
+      basis.current ??= conjugateQuaternion(sensor)
+      target.current = gyroDisplayQuaternion(basis.current, sensor)
+    })
+    return () => {
+      cancelAnimationFrame(frame)
+      unsubscribe()
+    }
+  }, [subscribe, handle])
 
   // Append only what is new. Re-seeding from solved on every move meant a 40-move solve
   // re-parsed 40 growing algs; appending keeps it to one move of work per turn.
@@ -103,6 +154,8 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size = 256 }: { setup
         background: 'radial-gradient(circle at 50% 45%, rgba(255,255,255,0.05), transparent 62%)'
       })}
       style={{ width: size, height: size }}
+      title={gyro ? 'Click to reset gyro: hold white up, green front' : undefined}
+      onClick={gyro ? () => { basis.current = null } : undefined}
     >
       {/* No experimental-setup-alg here: React would rewrite the attribute on every turn
           and the player would re-parse and re-render the whole sequence from solved, which

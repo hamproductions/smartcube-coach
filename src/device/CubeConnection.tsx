@@ -113,6 +113,10 @@ export function CubeConnectionProvider({ children }: { children: ReactNode }) {
   return <CubeConnectionContext.Provider value={value}>{children}</CubeConnectionContext.Provider>
 }
 
+export function useOptionalCubeConnection() {
+  return useContext(CubeConnectionContext)
+}
+
 export function useCubeConnection() {
   const value = useContext(CubeConnectionContext)
   if (!value) throw new Error('useCubeConnection must be used inside CubeConnectionProvider')

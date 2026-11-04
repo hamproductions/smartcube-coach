@@ -363,7 +363,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
       // moves you turn — the same state the tracker uses. It previously rendered the
       // target scramble, so it could never follow your turns and "Cube is solved" changed
       // nothing on screen. The scramble to perform is the text above; this is your cube.
-      cube={<Cube3D viewRotation={viewRotationForHold(hold.top, hold.front)} setupAlg={[...capture.scrambleMoves, ...capture.solveMoves].join(' ')} />}
+      cube={<Cube3D gyro viewRotation={viewRotationForHold(hold.top, hold.front)} setupAlg={[...capture.scrambleMoves, ...capture.solveMoves].join(' ')} />}
     />
     {/* The breakdown is a modal on this page: the numbers you want after a solve should be
         one click from the solve, not behind another route. */}
