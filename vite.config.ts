@@ -5,6 +5,12 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   base: process.env.VITE_BASE_PATH ?? '/',
   plugins: [react()],
+  build: {
+    // cubing.js starts its search worker from a plain module URL, so Vite bundles it as an
+    // ordinary chunk and wraps its dynamic imports in the preload helper, which touches
+    // `document` and kills the worker. Without preload lists the helper never reaches it.
+    modulePreload: false
+  },
   resolve: {
     alias: {
       'styled-system': join(import.meta.dirname, './styled-system/')
