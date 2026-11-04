@@ -1,5 +1,5 @@
-import { TrainerHub } from '../../TrainerHub'
+import { MemoTrainer } from '../bld/MemoTrainer'
 
 export function BlindfoldTrainer() {
-  return <TrainerHub trainer="blindfold" />
+  return <MemoTrainer />
 }
