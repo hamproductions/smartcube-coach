@@ -194,6 +194,15 @@ export type CubedexTrackerState = SolveTrackerSnapshot & { lastMove: ResolvedCub
 // these refs were per-component, navigating away mid-scramble destroyed the tracker: the
 // header kept reporting a live cube while the app had forgotten where that cube was.
 let onSharedResolvedMove: ((resolved: ResolvedCubeMove) => void) | null = null
+let captureSuspended = false
+let movedWhileSuspended = false
+
+export function suspendSolveCapture(suspended: boolean) {
+  captureSuspended = suspended
+  if (suspended || !movedWhileSuspended) return
+  movedWhileSuspended = false
+  void newSharedScramble().catch(() => undefined)
+}
 
 /** Creates the shared trackers once, so tracking exists before any page mounts. */
 export function ensureSharedTrackers(targetScramble = '') {
@@ -208,13 +217,13 @@ export function ensureSharedTrackers(targetScramble = '') {
       // tracker used to have a hands-free accept gesture; wiring it here let the timer start
       // by itself, and it has since been removed from the tracker entirely. The capture
       // session leaves 'scrambling' only when the cube's own state matches the scramble.
-      const capture = ensureSharedCapture()
-      for (const raw of resolved.rawMoves) {
-        // The cube's own timestamp is the accurate one — it is not subject to Bluetooth
-        // delivery jitter — so it times the solve. It is monotonic rather than wall clock,
-        // which recordCapture's toWallClock rebases (and clamps if the two ends ever come
-        // from different clocks).
-        await capture.handleMove(raw.move, raw.cubeTimestamp ?? null, raw.localTimestamp ?? Date.now())
+      if (captureSuspended) {
+        movedWhileSuspended = true
+      } else {
+        const capture = ensureSharedCapture()
+        for (const raw of resolved.rawMoves) {
+          await capture.handleMove(raw.move, raw.cubeTimestamp ?? null, raw.localTimestamp ?? Date.now())
+        }
       }
       onSharedResolvedMove?.(resolved)
       for (const listener of [...resolvedMoveListeners]) listener(resolved)

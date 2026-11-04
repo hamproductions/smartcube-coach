@@ -125,9 +125,7 @@ export class CubeRenderer {
     fill.position.set(-6, 2, 4)
     this.scene.add(key, fill, new THREE.AmbientLight(0xffffff, 0.25))
 
-    const spherical = new THREE.Spherical(9.2, THREE.MathUtils.degToRad(58), THREE.MathUtils.degToRad(32))
-    this.camera.position.setFromSpherical(spherical)
-    this.camera.lookAt(0, 0, 0)
+    this.frameCamera()
 
     this.materials = Object.fromEntries(
       (Object.keys(colours) as Array<keyof CubeColours>).map((face) => [face, new THREE.MeshStandardMaterial({ color: colours[face], roughness: 0.32, metalness: 0 })])
@@ -186,6 +184,16 @@ export class CubeRenderer {
   resize(width: number, height: number) {
     this.renderer.setSize(width, height, false)
     this.camera.aspect = width / Math.max(height, 1)
+    this.frameCamera()
+    this.dirty = true
+  }
+
+  private frameCamera() {
+    const vertical = THREE.MathUtils.degToRad(this.camera.fov)
+    const horizontal = 2 * Math.atan(Math.tan(vertical / 2) * this.camera.aspect)
+    const distance = (Math.sqrt(3) * 1.5 * 1.08) / Math.sin(Math.min(vertical, horizontal) / 2)
+    this.camera.position.setFromSpherical(new THREE.Spherical(distance, THREE.MathUtils.degToRad(58), THREE.MathUtils.degToRad(32)))
+    this.camera.lookAt(0, 0, 0)
     this.camera.updateProjectionMatrix()
     this.dirty = true
   }

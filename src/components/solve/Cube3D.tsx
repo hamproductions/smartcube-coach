@@ -41,7 +41,7 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, h
     const rotation = viewRotation.trim()
     const perm = holdPermutation(rotation)
     const moves = tokens(setupAlg)
-    const plainFaceTurns = moves.every((move) => /^[URFDLB]['2]?$/.test(move))
+    const plainFaceTurns = moves.every((move) => /^[URFDLB](2'?|')?$/.test(move))
     wanted.current = plainFaceTurns
       ? [rotation, ...moves.map((move) => remapMoveForPlayer(move, perm))].filter(Boolean).join(' ')
       : [setupAlg.trim(), rotation].filter(Boolean).join(' ')

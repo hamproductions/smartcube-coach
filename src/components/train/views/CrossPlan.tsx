@@ -44,7 +44,7 @@ export function CrossPlanTrainer() {
     try {
       const scramble = await generateScramble()
       setRound({ scramble, startedAt: performance.now() })
-      requestAnimationFrame(() => input.current?.focus())
+      requestAnimationFrame(() => { if (window.matchMedia('(min-width: 768px)').matches) input.current?.focus({ preventScroll: true }) })
     } catch {
       setError('Could not make a scramble. Reload the page and try again.')
     }
@@ -166,7 +166,7 @@ export function CrossPlanTrainer() {
             </label>
             <div role="group" aria-label="Move pad" className={css({ display: 'grid', gridTemplateColumns: 'repeat(6, minmax(0, 1fr))', gap: '1.5' })}>
               {PAD_SUFFIXES.flatMap((suffix) => PAD_FACES.map((face) => `${face}${suffix}`)).map((move) => (
-                <button key={move} type="button" className={padButton} onClick={() => setPlan((current) => `${current.trim()} ${move}`.trim())}>{move}</button>
+                <button key={move} type="button" className={padButton} onMouseDown={(event) => event.preventDefault()} onClick={() => { setPlan((current) => `${current.trim()} ${move}`.trim()); input.current?.focus({ preventScroll: true }) }}>{move}</button>
               ))}
             </div>
             <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap' })}>

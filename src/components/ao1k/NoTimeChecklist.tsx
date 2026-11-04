@@ -19,7 +19,7 @@ export type NoTimeChecklistProps = {
 const plain = (html: string) => html.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').trim()
 
 const small = css({
-  px: '2', minH: '9', borderRadius: 'control', fontSize: 'xs', color: 'inkVariant', cursor: 'pointer', bg: 'transparent',
+  px: '2', minH: '44px', borderRadius: 'control', fontSize: 'xs', color: 'inkVariant', cursor: 'pointer', bg: 'transparent',
   _hover: { color: 'ink', bg: 'floating' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' }
 })
 

@@ -22,7 +22,7 @@ const TREND_WINDOW = 50
 const PAGE_SIZE = 50
 
 export const INSIGHT_TRAINER: Record<string, string | undefined> = {
-  'recognition-share': 'pacer',
+  'recognition-share': 'pair-tracking',
   'lookahead-collapse': 'pair-tracking',
   'pause-trigger': 'pair-tracking',
   'execution-health': 'pair-tracking',
@@ -30,8 +30,12 @@ export const INSIGHT_TRAINER: Record<string, string | undefined> = {
   'slot-not-separable': undefined
 }
 
-export function trainerForInsight(insightId: string) {
-  return trainerById(INSIGHT_TRAINER[insightId])
+export function trainerForInsight(insight: { id: string; stage?: string }) {
+  if (insight.id === 'move-efficiency' && insight.stage) {
+    if (/^cross/i.test(insight.stage)) return trainerById('cross-plan')
+    if (/^(oll|pll)/i.test(insight.stage)) return trainerById('cases')
+  }
+  return trainerById(INSIGHT_TRAINER[insight.id])
 }
 
 const seconds = (ms?: number) => ms === undefined ? DASH : (ms / 1000).toFixed(2)
@@ -216,7 +220,7 @@ function Coaching({ insights }: { insights: Insight[] }) {
       ) : (
         <ol className={css({ display: 'flex', flexDirection: 'column', gap: '3', listStyle: 'none', m: '0', p: '0' })}>
           {insights.map((insight) => {
-            const trainer = trainerForInsight(insight.id)
+            const trainer = trainerForInsight(insight)
             const plan = insight.finding ? buildPrescription(insight.finding) : undefined
             return (
               <li key={insight.id} className={cx(card, css({ p: { base: '4', md: '5' }, display: 'flex', flexDirection: 'column', gap: '3' }))}>

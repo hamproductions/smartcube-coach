@@ -33,7 +33,7 @@ const keyboardMoves: Record<string, string> = { u: 'U', r: 'R', f: 'F', d: 'D', 
 
 const label = css({ fontSize: 'xs', color: 'inkVariant' })
 const chip = css({
-  display: 'inline-flex', alignItems: 'center', gap: '2', px: '3', minH: '10', borderRadius: 'control',
+  display: 'inline-flex', alignItems: 'center', gap: '2', px: '3', minH: '44px', borderRadius: 'control',
   borderWidth: '1px', borderColor: 'floating', bg: 'transparent', color: 'inkVariant', cursor: 'pointer',
   fontSize: 'sm', whiteSpace: 'nowrap', flexShrink: '0', _hover: { color: 'ink', borderColor: 'outline' },
   _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' },
@@ -233,7 +233,7 @@ export function CrossF2lPractice() {
               aria-label="Cross colour"
               value={goal.face}
               onChange={(event) => chooseGoal({ ...goal, face: event.target.value as Face | 'any' })}
-              className={css({ minH: '10', px: '3', borderRadius: 'control', bg: 'container', color: 'ink', borderWidth: '1px', borderColor: 'floating', fontSize: 'sm', _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}
+              className={css({ minH: '44px', px: '3', borderRadius: 'control', bg: 'container', color: 'ink', borderWidth: '1px', borderColor: 'floating', fontSize: 'sm', _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}
             >
               <option value="any">Any colour</option>
               {faces.map((face: Face) => <option key={face} value={face}>{colourName(scheme[face])}</option>)}
@@ -244,7 +244,7 @@ export function CrossF2lPractice() {
         <div className={css({ display: 'flex', flexDirection: 'column', gap: '3', p: { base: '4', md: '6' }, borderRadius: 'card', bg: 'container', borderWidth: '1px', borderColor: 'floating' })}>
           <div className={css({ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '3' })}>
             <span className={label}>Scramble</span>
-            <button type="button" onClick={() => { dispatch({ type: 'unready' }); void generate() }} className={css({ fontSize: 'sm', color: 'green', cursor: 'pointer', _hover: { textDecoration: 'underline' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}>New scramble</button>
+            <button type="button" onClick={() => { dispatch({ type: 'unready' }); void generate() }} className={css({ display: 'inline-flex', alignItems: 'center', minH: '44px', fontSize: 'sm', color: 'green', cursor: 'pointer', _hover: { textDecoration: 'underline' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}>New scramble</button>
           </div>
           <p aria-label="Scramble moves" className={css({ fontFamily: 'mono', fontSize: { base: '20px', md: '26px' }, lineHeight: '1.5', display: 'flex', flexWrap: 'wrap', columnGap: '2', minH: '10' })}>
             {!scramble && <span className={css({ color: 'inkVariant', fontSize: 'md' })}>Working out a scramble from where your cube is…</span>}
@@ -278,6 +278,7 @@ export function CrossF2lPractice() {
           <section aria-label="Last attempt" className={css({ display: 'flex', flexDirection: 'column', gap: '4', pt: '5', borderTopWidth: '1px', borderColor: 'floating' })}>
             <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{goalLabel(lastResult.pairs)} on {colourName(scheme[lastResult.face])}</h2>
             <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '8' })}>
+              <Metric title="Time" value={seconds(lastResult.durationMs)} />
               <Metric title="Turns" value={String(lastResult.turns)} />
               <Metric title="TPS" value={lastResult.durationMs > 0 ? (lastResult.turns / (lastResult.durationMs / 1000)).toFixed(2) : DASH} />
               <Metric title="Inspection" value={lastResult.recognitionMs === null ? DASH : `${seconds(lastResult.recognitionMs)}s`} />
@@ -311,7 +312,7 @@ export function CrossF2lPractice() {
         <section aria-label="Session" className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' })}>
             <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{goalLabel(goal.pairs)} · {scoped.length} attempt{scoped.length === 1 ? '' : 's'}</h2>
-            {attempts.length > 0 && <button type="button" className={css({ fontSize: 'xs', color: 'inkVariant', cursor: 'pointer', _hover: { color: 'ink' } })} onClick={() => { setAttempts([]); void clearAttempts().catch(() => undefined) }}>Clear history</button>}
+            {attempts.length > 0 && <button type="button" className={css({ display: 'inline-flex', alignItems: 'center', minH: '44px', fontSize: 'xs', color: 'inkVariant', cursor: 'pointer', _hover: { color: 'ink' } })} onClick={() => { setAttempts([]); void clearAttempts().catch(() => undefined) }}>Clear history</button>}
           </div>
           <div className={css({ display: 'flex', gap: '6' })}>
             <Metric title="Best" value={stats.best === undefined ? DASH : seconds(stats.best)} />
@@ -345,7 +346,7 @@ export function CrossF2lPractice() {
           </table>
           <p className={css({ fontSize: 'xs', color: 'inkVariant' })}>
             If the 3D cube stops matching yours, solve it and{' '}
-            <button type="button" className={css({ textDecoration: 'underline', color: 'ink', cursor: 'pointer' })} onClick={() => { void resetTrackedCubeToSolved() }}>reset tracking</button>.
+            <button type="button" className={css({ display: 'inline-flex', alignItems: 'center', minH: '44px', textDecoration: 'underline', color: 'ink', cursor: 'pointer' })} onClick={() => { void resetTrackedCubeToSolved() }}>reset tracking</button>.
           </p>
         </section>
       </aside>

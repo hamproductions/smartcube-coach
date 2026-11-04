@@ -87,7 +87,7 @@ export function SolveCockpit({
                   onClick={() => onSelectSolve(solve.id)}
                   aria-current={solve.selected ? 'true' : undefined}
                   className={css({
-                    w: 'full', display: 'grid', gridTemplateColumns: '1fr 1fr', px: '3', py: '1.5', minH: '9',
+                    w: 'full', display: 'grid', gridTemplateColumns: '1fr 1fr', px: '3', py: '1.5', minH: '44px',
                     alignItems: 'center', borderRadius: 'control', cursor: 'pointer', textAlign: 'left',
                     bg: solve.selected ? 'floating' : 'transparent', _hover: { bg: 'floating' },
                     _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '-2px' }
@@ -240,7 +240,7 @@ export function SolveCockpit({
           <div className={css({ display: 'flex', flexDirection: 'column', gap: '2' })}>
             <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between' })}>
               <span className={css({ fontSize: 'xs', color: 'inkVariant' })}>Trend</span>
-              <select aria-label="Trend window" value={trendWindow} onChange={(event) => setTrendWindow(Number(event.target.value))} className={css({ bg: 'container', borderWidth: '1px', borderColor: 'floating', borderRadius: 'control', color: 'inkVariant', fontSize: 'xs', fontFamily: 'mono', px: '1.5', py: '0.5' })}>
+              <select aria-label="Trend window" value={trendWindow} onChange={(event) => setTrendWindow(Number(event.target.value))} className={css({ minH: '44px', bg: 'container', borderWidth: '1px', borderColor: 'floating', borderRadius: 'control', color: 'inkVariant', fontSize: 'xs', fontFamily: 'mono', px: '2' })}>
                 <option value={5}>last 5</option>
                 <option value={12}>last 12</option>
                 <option value={50}>last 50</option>

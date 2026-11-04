@@ -8,6 +8,7 @@ export type Insight = {
   evidence: string
   savingMs?: number
   detail?: string
+  stage?: string
   /** Set when this insight maps onto an existing prescription plan. */
   finding?: Finding
 }
@@ -249,6 +250,7 @@ function moveEfficiency(stages: StageRecord[]): Insight | undefined {
 
   return {
     id: 'move-efficiency',
+    stage: worst.name,
     headline: `You turn ${perSolve.toFixed(1)} more moves per solve than needed`,
     evidence: `${wasted} extra turns across ${scored.length} scored stage${scored.length === 1 ? '' : 's'}; worst is ${worst.name} at ${worst.moveCount} moves against an optimal ${worst.optimalMoveCount} (+${worstWaste}).`,
     detail: 'Extra turns cost time even at a high turn rate. The optimal count is the shortest solution for that exact state, so the gap is recoverable with better planning rather than faster hands.'

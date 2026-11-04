@@ -8,7 +8,7 @@ import { css } from 'styled-system/css'
 const TABS = [
   { id: 'saved', label: 'Saved solves' },
   { id: 'read', label: 'Read a solve' },
-  { id: 'reconstruct', label: 'Fix a reconstruction' }
+  { id: 'reconstruct', label: 'Fix moves' }
 ]
 
 export function StudyPage({ tab }: { tab?: string }) {

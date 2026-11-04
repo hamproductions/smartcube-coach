@@ -26,7 +26,7 @@ export function recentChange(values: Array<number | undefined>) {
   if (measured.length === 0) return undefined
   const recent = measured.slice(-5)
   const before = measured.slice(-10, -5)
-  return { recent: mean(recent), delta: before.length === 5 && recent.length === 5 ? mean(recent) - mean(before) : undefined }
+  return { recent: mean(recent), count: recent.length, delta: before.length === 5 && recent.length === 5 ? mean(recent) - mean(before) : undefined }
 }
 
 export function StageTrendChart({ title, series, points }: { title: string; series: StageSeries[]; points: StagePoint[] }) {
@@ -68,7 +68,7 @@ export function StageTrendChart({ title, series, points }: { title: string; seri
     const change = changes[index]
     if (!change) return `${entry.label}: no timings`
     const trend = change.delta === undefined ? '' : change.delta < 0 ? `, ${secs(-change.delta)}s faster than the 5 before` : `, ${secs(change.delta)}s slower than the 5 before`
-    return `${entry.label} averages ${secs(change.recent)}s over the last 5${trend}`
+    return `${entry.label} averages ${secs(change.recent)}s over the last ${change.count}${trend}`
   }).join('. ')
 
   return (
@@ -80,7 +80,7 @@ export function StageTrendChart({ title, series, points }: { title: string; seri
             <li key={entry.label} className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
               <span className={css({ display: 'flex', alignItems: 'center', gap: '1.5', fontSize: 'xs', color: 'inkVariant' })}>
                 <span aria-hidden className={css({ w: '2.5', h: '2.5', borderRadius: 'pill', flexShrink: '0' })} style={{ background: entry.colour }} />
-                {entry.label}, last 5
+                {entry.label}{changes[index] ? `, last ${changes[index]!.count}` : ''}
               </span>
               <span className={css({ fontFamily: 'mono', fontVariantNumeric: 'tabular-nums', fontSize: 'lg' })}>
                 {change ? `${secs(change.recent)}s` : DASH}
