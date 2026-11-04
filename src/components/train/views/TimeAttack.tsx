@@ -8,7 +8,7 @@ import { useCubeConnection } from '../../../device/CubeConnection'
 import { CASE_SETS, matchesSet, type CaseSet } from '../cases/catalogue'
 import { CaseGrid } from '../cases/CaseGrid'
 import { CaseStage } from '../cases/CaseStage'
-import { caseDisplay } from '../cases/caseState'
+import { SetupPrompt } from '../cases/CaseSession'
 import { timeAttackAttempt } from '../cases/attempts'
 import { seconds, useCaseLibrary, useHoldRotation, useKeys, useNow, usePuzzle, useRemembered } from '../cases/hooks'
 import { SessionStrip } from '../cases/SessionStrip'
@@ -51,7 +51,7 @@ export function TimeAttackTrainer() {
     const { id, index, queue: active } = run.current
     const record = state.record
     const targetMs = saved.targets[record.id] ?? record.targetMs
-    const result = { input: state.input, startedAt: state.startedAt, endedAt: state.endedAt ?? performance.now(), success: Boolean(state.success), moves: state.moves }
+    const result = { input: state.input, startedAt: state.input === 'smart-cube' ? state.recognizedAt ?? state.startedAt : state.startedAt, endedAt: state.endedAt ?? performance.now(), success: Boolean(state.success), moves: state.moves }
     const attempt = timeAttackAttempt(record, id, targetMs, result)
     setResults((list) => [...list, { id: attempt.id, record, totalMs: attempt.totalMs, targetMs, success: result.success }])
     library.saveAttempt(attempt).catch(() => setError('A result could not be saved. Local storage is unavailable, so this run is not stored.'))
@@ -220,7 +220,8 @@ function RunScreen({ state, puzzle, position, total, targetMs, results, rotation
   onStop: () => void
 }) {
   const now = useNow(state.phase === 'execute')
-  const elapsed = state.phase === 'execute' ? now - state.startedAt : 0
+  const firstTurn = state.input === 'smart-cube' ? state.recognizedAt : state.startedAt
+  const elapsed = state.phase === 'execute' && firstTurn !== undefined ? now - firstTurn : 0
   const over = elapsed > targetMs
   return (
     <div className={css({ display: 'flex', flexDirection: 'column', gap: '4', flex: '1' })}>
@@ -239,17 +240,12 @@ function RunScreen({ state, puzzle, position, total, targetMs, results, rotation
           <p className={cx(mono, css({ color: 'inkVariant', letterSpacing: '0.04em' }))}>{state.record.algorithm}</p>
           {state.phase === 'setup' ? (
             <>
-              <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>Turn this onto a solved cube. The clock starts when it matches.</p>
-              <p className={cx(mono, css({ fontSize: 'xl', letterSpacing: '0.06em' }))}>{caseDisplay(puzzle, state.record).setup.join(' ')}</p>
-              <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
-                <Action primary hotkey="Space" onClick={onSkipSetup}>It is set up</Action>
-                <Action hotkey="R" onClick={onRestartSetup}>Restart setup</Action>
-              </div>
+              <SetupPrompt state={state} puzzle={puzzle} onSkipSetup={onSkipSetup} onRestartSetup={onRestartSetup} />
             </>
           ) : (
             <>
               <p aria-label="Timer" className={cx(mono, css({ fontSize: { base: '6xl', md: '8xl' }, fontWeight: 'bold', lineHeight: '1', letterSpacing: '-0.04em', color: over ? 'error' : 'green' }))}>{seconds(elapsed)}</p>
-              <p className={cx(mono, css({ fontSize: 'sm', color: 'inkVariant' }))}>Target {seconds(targetMs)}</p>
+              <p className={cx(mono, css({ fontSize: 'sm', color: 'inkVariant' }))}>Target {seconds(targetMs)}{state.input === 'smart-cube' && firstTurn === undefined ? '. The clock starts on your first turn.' : ''}</p>
               <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
                 <Action primary hotkey="Space" className={css({ flex: { base: '1', lg: 'none' } })} onClick={onDone}>Done</Action>
                 <Action hotkey="2" onClick={onGiveUp}>Give up</Action>

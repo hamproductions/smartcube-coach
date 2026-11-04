@@ -7,6 +7,7 @@ import { advanceQueueIndex, createHintManager, isUMove, type DrillQueueState, ty
 import { buildF2lCases } from '../../../domain/f2lCases'
 import type { AlgorithmRecord, TrainerAttempt } from '../../../domain/models'
 import { followScrambleWithPrefixes } from '../../../domain/scramble'
+import { getScrambleToSolution } from '../../../domain/cubedex/scramble'
 import { defaultAlgorithms, f2lCatalogueRecords, orderByCatalogue, updateMastery } from '../../../domain/training'
 import { setCriticalActivity } from '../../../pwa/register'
 import { repositories } from '../../../storage/database'
@@ -149,7 +150,22 @@ export function useF2lDrill({ selection, order, failedFirst, hold }: { selection
     else {
       m.phase = 'ready'
       m.prefixes = []
+      routeFromHere(record)
     }
+  }
+
+  const routeFromHere = (record: AlgorithmRecord) => {
+    const from = machine.current.pattern
+    if (!from) return
+    void getScrambleToSolution(new Alg(record.setup.replace(/[()]/g, ' ')).invert().toString(), from)
+      .then((route) => {
+        const m = machine.current
+        if (m.record !== record || m.phase !== 'ready' || m.pattern !== from) return
+        m.setup = faceMoves(route.toString())
+        arm(from)
+        refresh()
+      })
+      .catch(() => undefined)
   }
 
   const advance = () => {
@@ -192,7 +208,10 @@ export function useF2lDrill({ selection, order, failedFirst, hold }: { selection
     if (m.phase === 'ready') {
       const casePattern = m.prefixes[m.prefixes.length - 1]
       if (casePattern && m.prefixes.length > 1 && pattern.isIdentical(casePattern)) beginRecognition()
-      else if (f2lSolved(pattern)) arm(pattern)
+      else if (f2lSolved(pattern)) {
+        if (m.record) m.setup = faceMoves(m.record.setup)
+        arm(pattern)
+      } else if (m.record) routeFromHere(m.record)
       return
     }
     if (m.phase === 'setup') {

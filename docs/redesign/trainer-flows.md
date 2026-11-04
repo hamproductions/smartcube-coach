@@ -2,6 +2,12 @@
 
 Every trainer is one screen with one job. The person using it is holding a cube in both hands, so the screen is read at a glance, the next action is always one key or one tap, and nothing that matters mid-attempt sits behind a disclosure.
 
+## Rules every trainer follows
+
+1. **Nothing starts on its own.** After a scramble or setup is in place the clock reads 0.00 and waits. It starts on the first turn of the cube (or Space without a cube). Recognition time is still measured from the moment the position is ready, and reported in the verdict, never as a running clock.
+2. **A connected smart cube is always used.** Setups are routed from wherever the cube is now, never "turn this onto a solved cube". Answers that can be checked by state are turned on the cube. Tapping and typing are the fallback when no cube is connected.
+3. **Training is one place.** Every trainer page shows the trainer list grouped by stage beside it, so moving between trainers never goes back through the hub. Solve results and coaching link straight into the trainer for that step.
+
 ## Shared shape
 
 Every trainer follows the same loop so learning one teaches all of them:
@@ -45,13 +51,12 @@ Train opens on a hub grouped by solve stage, because a cuber decides what to wor
 - Next: the next scramble appears immediately.
 
 ### Plan the cross (`cross-plan`)
-- Prompt: the scrambled cube on screen with the scramble text. A 15 second inspection clock runs.
-- Answer: type the plan, or tap it on the move pad, in the hold shown on the cube. Turning a cross on the smart cube against the clock is Cross to pairs with the Cross goal, so it is not duplicated here.
-- Verdict: cross solved or not, your move count against the optimal count, and the optimal cross played on the cube.
+- With a smart cube: turn the scramble (routed from where the cube is). Inspection is yours: look, plan, then turn the whole cross on the cube without stopping. The clock starts on the first turn and stops when the cross is solved. Verdict: your cross turns against the shortest, the pause count while turning (a planned cross has none), inspection time used, and the shortest cross played on the cube.
+- Without a cube: the scrambled cube on screen; type the plan or tap it on the move pad. Verdict: solved or not, your move count against the optimal, the optimal cross played.
 
 ### F2L on the cube (`f2l-cube`)
 - Setup: case selection from the F2L set, ordering (smart, random, slow first, failed first).
-- Prompt: the case's setup moves to turn into a solved cube, tracked live; then the case on screen.
+- Prompt: the setup moves to reach the case from wherever the cube is now, tracked live; then the case on screen.
 - Answer: solve the pair on the cube; completion is detected from cube state.
 - Verdict: recognition and execution time, with the reference algorithm. Hints come in steps if requested.
 
@@ -64,7 +69,7 @@ Train opens on a hub grouped by solve stage, because a cuber decides what to wor
 ### Algorithm cases (`cases`)
 - Setup: set (OLL, PLL, COLL, …), subset, learning state. Case grid to pick a custom selection.
 - Prompt: the case on the cube or diagram.
-- Answer: on the smart cube the case is verified by state; without a cube, Space when recognised, Space again when executed.
+- Answer: on the smart cube the setup is routed from the cube's current state and the case is verified by state; without a cube, Space when recognised, Space again when executed.
 - Verdict: recognition and execution time, success, and the case's running average. Learn mode shows the algorithm up front; Review lists per-case stats.
 
 ### Time attack (`time-attack`)

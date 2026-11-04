@@ -197,7 +197,7 @@ export function F2lCubeDrill({ source }: { source?: CubeInputSource }) {
         <Button variant="solid" disabled={drill.loading || !drill.pool.length} onClick={drill.start} className={css({ justifySelf: 'start', minH: '16', px: '10', fontSize: 'lg' })}>
           Start drill <Key>Space</Key>
         </Button>
-        <p className={css({ fontSize: 'sm', color: 'inkVariant', maxW: '60ch' })}>Hold the cube {holdText.toLowerCase()}, with the first two layers solved. Each case gives you setup moves to turn, then you solve the pair and the cube checks it.</p>
+        <p className={css({ fontSize: 'sm', color: 'inkVariant', maxW: '60ch' })}>Hold the cube {holdText.toLowerCase()}. Each case gives you the turns to reach it from wherever your cube is, then you solve the pair and the cube checks it. The clock starts on your first turn.</p>
         {drill.error ? <p role="alert" className={css({ fontSize: 'sm', color: 'error' })}>{drill.error}</p> : null}
         {!drill.loading && drill.records.length && !drill.pool.length ? <p className={css({ fontSize: 'sm', color: 'amber' })}>No cases selected.</p> : null}
       </div>
@@ -235,7 +235,7 @@ export function F2lCubeDrill({ source }: { source?: CubeInputSource }) {
         {drill.offTrack ? (
           <p role="status" className={css({ fontSize: 'md', color: 'amber' })}>Off the setup. Undo with <span className={cx(numberClass, css({ fontWeight: 'semibold' }))}>{drill.offTrack}</span></p>
         ) : (
-          <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>Turn these from a solved first two layers. The timer starts on the last move.</p>
+          <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>Turned from where your cube is. When it matches, the clock waits for your first turn.</p>
         )}
         <SecondaryRow>
           <Button variant="ghost" onClick={drill.next}>Skip case</Button>
@@ -247,12 +247,16 @@ export function F2lCubeDrill({ source }: { source?: CubeInputSource }) {
     focus = (
       <div className={panelClass}>
         <div className={css({ display: 'grid', gap: '1' })}>
-          <span className={css({ fontSize: 'xs', color: drill.phase === 'recognition' ? 'amber' : 'green' })}>{drill.phase === 'recognition' ? 'Recognise' : 'Execute'}</span>
+          <span className={css({ fontSize: 'xs', color: drill.phase === 'recognition' ? 'inkVariant' : 'green' })}>{drill.phase === 'recognition' ? 'Ready' : 'Solving'}</span>
           <h2 className={headingClass}>Solve the pair</h2>
           <span className={css({ fontSize: 'sm', color: 'inkVariant' })}>{drill.record ? displayCaseName(drill.record) : ''}</span>
         </div>
-        <LiveClock since={drill.recognitionStartedAt} className={css({ fontSize: { base: '6xl', md: '8xl' }, lineHeight: '1', color: 'ink' })} />
-        {drill.recognitionMs !== undefined ? <span className={cx(numberClass, css({ fontSize: 'sm', color: 'inkVariant' }))}>Recognition {seconds(drill.recognitionMs)} s</span> : null}
+        {drill.phase === 'execution'
+          ? <LiveClock since={drill.executionStartedAt} className={css({ fontSize: { base: '6xl', md: '8xl' }, lineHeight: '1', color: 'green' })} />
+          : <span className={cx(numberClass, css({ fontSize: { base: '6xl', md: '8xl' }, lineHeight: '1', color: 'ink' }))}>0.00</span>}
+        {drill.recognitionMs !== undefined
+          ? <span className={cx(numberClass, css({ fontSize: 'sm', color: 'inkVariant' }))}>Looked for {seconds(drill.recognitionMs)} s</span>
+          : <span className={css({ fontSize: 'sm', color: 'inkVariant' })}>Look, then turn. The clock starts on your first turn; U turns before it count as looking.</span>}
         <div className={css({ display: 'grid', gap: '2' })}>
           {drill.hint ? <span className={algClass} aria-label="Hint">{drill.hint}</span> : null}
           <SecondaryRow>

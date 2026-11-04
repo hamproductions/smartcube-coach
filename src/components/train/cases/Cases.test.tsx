@@ -129,7 +129,7 @@ describe('Algorithm cases trainer', () => {
     })
   }, 60_000)
 
-  it('verifies the case on a smart cube by state: setup from solved, then solve', async () => {
+  it('verifies the case on a smart cube by state: setup routed from the cube, clock waits, then solve', async () => {
     const user = userEvent.setup()
     const cube = fakeCube()
     renderWithCube(<CasesTrainer />, cube.source)
@@ -139,15 +139,16 @@ describe('Algorithm cases trainer', () => {
     await user.click(screen.getByRole('button', { name: /^OLL 27 Sune,/ }))
     await user.click(screen.getByRole('button', { name: /^Practice selected \(1\)/ }))
 
-    expect(await screen.findByRole('heading', { name: 'Turn this onto a solved cube' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: 'Turn this from where your cube is' })).toBeInTheDocument()
     const puzzle = await puzzles['3x3x3'].kpuzzle()
     const sune = (await repositories.algorithms.all()).find((record) => record.name === 'OLL 27 Sune')!
     const display = caseDisplay(puzzle, sune)
     for (const move of cubeMovesFor(display.setup)) await act(async () => cube.turn(move))
-    await waitFor(() => expect(screen.getByText('Your first turn ends recognition.')).toBeInTheDocument(), { timeout: 5_000 })
+    await waitFor(() => expect(screen.getByText('Look, then turn. The clock starts on your first turn.')).toBeInTheDocument(), { timeout: 5_000 })
+    expect(screen.getByLabelText('Timer')).toHaveTextContent('0.00')
 
     for (const move of cubeMovesFor(display.replay)) await act(async () => cube.turn(move))
-    await waitFor(() => expect(screen.getByLabelText('Verdict')).toHaveTextContent('Solved'), { timeout: 5_000 })
+    await waitFor(() => expect(screen.getByText('Solved')).toBeInTheDocument(), { timeout: 5_000 })
     await waitFor(async () => {
       const [attempt] = await repositories.attempts.all()
       expect(attempt.protocol).toBe('state-success')

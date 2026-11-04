@@ -6,6 +6,7 @@ import { remapMoveForPlayer } from '../../../domain/cubedex/smartcubeParity'
 import { faceTurnsOnly } from '../../../domain/faceTurnsOnly'
 import { reorientToSolvedCenters } from '../../../domain/lastLayer'
 import { isEollCase } from '../../../domain/training'
+import { getScrambleToSolution } from '../../../domain/cubedex/scramble'
 
 export type CaseGoal = 'f2l' | 'oriented' | 'edges-oriented' | 'solved'
 
@@ -106,12 +107,26 @@ export function reachesGoal(puzzle: KPuzzle, record: AlgorithmRecord, moves: str
   }
 }
 
-export function matchesCase(puzzle: KPuzzle, record: AlgorithmRecord, moves: string[]) {
+export function matchesCase(puzzle: KPuzzle, record: AlgorithmRecord, moves: string[], from?: KPattern) {
   try {
-    const actual = normalised(apply(puzzle.defaultPattern(), moves))
+    const actual = normalised(apply(from ?? puzzle.defaultPattern(), moves))
     const target = normalised(casePattern(puzzle, record))
     return AUF.some((auf) => apply(target, auf ? [auf] : []).isIdentical(actual))
   } catch {
     return false
   }
+}
+
+export function toHoldFrame(puzzle: KPuzzle, physical: KPattern, rotation: string) {
+  if (!rotation.trim()) return normalised(physical)
+  const turn = puzzle.algToTransformation(new Alg(rotation))
+  const back = puzzle.algToTransformation(new Alg(rotation).invert())
+  return normalised(back.applyTransformation(physical.experimentalToTransformation()!).applyTransformation(turn).toKPattern())
+}
+
+export async function routeToCase(puzzle: KPuzzle, record: AlgorithmRecord, from: KPattern): Promise<string[]> {
+  if (matchesCase(puzzle, record, [], from)) return []
+  if (normalised(from).isIdentical(puzzle.defaultPattern())) return caseDisplay(puzzle, record).setup
+  const route = await getScrambleToSolution(new Alg(record.setup.replace(/[()]/g, ' ')).invert().toString(), from)
+  return faceTurns(route.toString())
 }

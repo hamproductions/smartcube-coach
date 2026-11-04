@@ -9,6 +9,8 @@ import { createId } from '../../../domain/ids'
 import { defaultPreferences, readPreferences } from '../../../storage/preferences'
 import { repositories } from '../../../storage/database'
 import type { TrainerAttempt } from '../../../domain/models'
+import { useOptionalCubeConnection } from '../../../device/CubeConnection'
+import { CrossPlanOnCube } from './CrossPlanOnCube'
 
 const INSPECTION_MS = 15_000
 const PAD_FACES = ['U', 'D', 'R', 'L', 'F', 'B']
@@ -24,6 +26,19 @@ const padButton = css({
 })
 
 export function CrossPlanTrainer() {
+  const connected = Boolean(useOptionalCubeConnection()?.handle)
+  const [rotation, setRotation] = useState(viewRotationForHold(defaultPreferences.diagramTopColor, defaultPreferences.diagramFrontColor))
+  const [bottomColour, setBottomColour] = useState('white')
+  useEffect(() => {
+    void readPreferences().then((prefs) => {
+      setRotation(viewRotationForHold(prefs.diagramTopColor, prefs.diagramFrontColor))
+      setBottomColour(OPPOSITE_COLOUR[prefs.diagramTopColor] ?? 'white')
+    }).catch(() => undefined)
+  }, [])
+  return connected ? <CrossPlanOnCube rotation={rotation} bottomColour={bottomColour} /> : <CrossPlanTyped />
+}
+
+function CrossPlanTyped() {
   const [rotation, setRotation] = useState(viewRotationForHold(defaultPreferences.diagramTopColor, defaultPreferences.diagramFrontColor))
   const [bottomColour, setBottomColour] = useState('white')
   const [round, setRound] = useState<Round | null>(null)

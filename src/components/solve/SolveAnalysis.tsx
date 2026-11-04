@@ -13,7 +13,7 @@ import { conjugateQuaternion, gyroDisplayQuaternion, gyroSensorQuaternion, holdQ
 import { gainReason, lossReason, solveVerdict, type SolveVerdict, type StageVerdict } from '../../domain/solveVerdict'
 import { turnMetrics } from '../../domain/turnMetrics'
 import { setSharedScramble } from '../../device/CubeConnection'
-import { navigate } from '../../app/route'
+import { navigate, routeHref } from '../../app/route'
 import { Icon, IC } from '../ui/Icon'
 import { DASH, card, mono, plain, sectionTitle } from '../ui/Page'
 
@@ -27,6 +27,7 @@ const secs = (ms?: number) => ms === undefined ? DASH : (ms / 1000).toFixed(2)
 const signed = (ms: number) => `${ms < 0 ? '-' : '+'}${(Math.abs(ms) / 1000).toFixed(2)}s`
 const smallLabel = css({ fontSize: 'xs', color: 'inkVariant' })
 const stageMs = (stage: StageRecord) => stage.recognitionMs === undefined && stage.executionMs === undefined ? undefined : (stage.recognitionMs ?? 0) + (stage.executionMs ?? 0)
+const trainerForStage = (name: string) => /^cross/i.test(name) ? 'cross-plan' : name.startsWith('F2L') ? 'f2l-cube' : /^(OLL|PLL)/.test(name) ? 'cases' : undefined
 const slotLabel = (stage: StageRecord) => /^F2L (\d)/.exec(stage.name)?.[1] ? `Slot ${/^F2L (\d)/.exec(stage.name)![1]}` : stage.name
 
 const round = css({
@@ -312,7 +313,8 @@ export function SolveAnalysis({ solve, stages, history = [], penalty, onPenalty,
                         {stage.caseName && <span className={cx(mono, css({ px: '2', py: '1', borderRadius: 'pill', bg: 'floating', fontSize: 'xs' }))}>{stage.caseName}</span>}
                         {!single && <span className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>{secs(stageMs(stage))}s</span>}
                         {judged?.deltaMs !== undefined && Math.abs(judged.deltaMs) >= 100 && <span className={cx(mono, css({ fontSize: 'xs', color: judged.deltaMs < 0 ? 'green' : 'error' }))} title={`Your usual ${stage.name}: ${secs(judged.usualMs)}s`}>{signed(judged.deltaMs)}</span>}
-                        {tips && <button type="button" aria-expanded={openTips === stage.id} aria-label={`Tips for ${stage.name}`} onClick={() => setOpenTips((current) => current === stage.id ? undefined : stage.id)} className={css({ ml: 'auto', w: '44px', h: '44px', display: 'grid', placeItems: 'center', color: 'inkVariant', cursor: 'pointer', _hover: { color: 'ink' } })}><Icon d={openTips === stage.id ? 'M6 15l6-6 6 6' : 'M9 18l6-6-6-6'} size={16} /></button>}
+                        {trainerForStage(stage.name) && <a href={routeHref({ section: 'train', detail: trainerForStage(stage.name) })} className={css({ ml: 'auto', minH: '44px', px: '2', display: 'inline-flex', alignItems: 'center', fontSize: 'xs', color: 'green', textDecoration: 'none', _hover: { textDecoration: 'underline' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}>Train</a>}
+                        {tips && <button type="button" aria-expanded={openTips === stage.id} aria-label={`Tips for ${stage.name}`} onClick={() => setOpenTips((current) => current === stage.id ? undefined : stage.id)} className={css({ ml: trainerForStage(stage.name) ? '0' : 'auto', w: '44px', h: '44px', display: 'grid', placeItems: 'center', color: 'inkVariant', cursor: 'pointer', _hover: { color: 'ink' } })}><Icon d={openTips === stage.id ? 'M6 15l6-6 6 6' : 'M9 18l6-6-6-6'} size={16} /></button>}
                       </div>
                       <p className={cx(mono, css({ display: 'flex', flexWrap: 'wrap', columnGap: '2.5', rowGap: '1', fontSize: 'md', pl: single ? '0' : '1' }))}>
                         {tokens.length === 0 ? <span className={smallLabel}>No turns</span> : tokens.map((token) => {

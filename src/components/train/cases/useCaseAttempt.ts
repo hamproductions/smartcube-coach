@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { KPuzzle } from 'cubing/kpuzzle'
+import type { KPattern, KPuzzle } from 'cubing/kpuzzle'
+import { Alg } from 'cubing/alg'
 import type { AlgorithmRecord } from '../../../domain/models'
-import { subscribeResolvedMoves } from '../../../device/CubeConnection'
+import { subscribeResolvedMoves, subscribeTrackerReset, trackedPattern } from '../../../device/CubeConnection'
 import type { AttemptInput, FinishedAttempt } from './attempts'
-import { matchesCase, reachesGoal, solverMove } from './caseState'
+import { matchesCase, reachesGoal, routeToCase, solverMove, toHoldFrame } from './caseState'
 
 export type AttemptPhase = 'setup' | 'recognize' | 'execute' | 'done'
 
@@ -17,6 +18,10 @@ export type AttemptState = {
   endedAt?: number
   success?: boolean
   setupMoves: string[]
+  /** Turns still needed to reach the case from where the cube is now; undefined while it is being worked out. */
+  setupRoute?: string[]
+  /** When the case became ready to solve; recognition runs from here to the first turn. */
+  readyAt?: number
   moves: string[]
   hintLevel: number
 }
@@ -33,6 +38,15 @@ export function useCaseAttempt({ puzzle, rotation, split, onDone }: Options) {
   const stateRef = useRef<AttemptState | undefined>(undefined)
   const context = useRef({ puzzle, rotation, split, onDone })
   context.current = { puzzle, rotation, split, onDone }
+  const live = useRef<KPattern | undefined>(undefined)
+  const routing = useRef(0)
+
+  const readLive = useCallback(() => {
+    const { puzzle: activePuzzle, rotation: activeRotation } = context.current
+    const physical = trackedPattern()
+    if (!activePuzzle || !physical) return undefined
+    try { return toHoldFrame(activePuzzle, physical, activeRotation) } catch { return undefined }
+  }, [])
 
   const commit = useCallback((next: AttemptState | undefined) => {
     stateRef.current = next
@@ -53,31 +67,52 @@ export function useCaseAttempt({ puzzle, rotation, split, onDone }: Options) {
     })
   }, [commit])
 
+  const reroute = useCallback((current: AttemptState) => {
+    const { puzzle: activePuzzle } = context.current
+    const from = live.current
+    if (!activePuzzle || !from) return
+    const ticket = ++routing.current
+    void routeToCase(activePuzzle, current.record, from).then((route) => {
+      const latest = stateRef.current
+      if (ticket !== routing.current || !latest || latest.round !== current.round || latest.phase !== 'setup') return
+      if (route.length === 0) commit({ ...latest, setupRoute: [], phase: 'recognize', startedAt: performance.now(), readyAt: performance.now() })
+      else commit({ ...latest, setupRoute: route })
+    }).catch(() => undefined)
+  }, [commit])
+
   const begin = useCallback((record: AlgorithmRecord, options: { cube: boolean; hintLevel?: number }) => {
     const previous = stateRef.current
-    commit({
+    if (options.cube) live.current = readLive() ?? live.current
+    const now = performance.now()
+    const next: AttemptState = {
       record,
       round: (previous?.round ?? 0) + 1,
       phase: options.cube ? 'setup' : context.current.split ? 'recognize' : 'execute',
       input: options.cube ? 'smart-cube' : 'keyboard',
-      startedAt: performance.now(),
+      startedAt: now,
+      readyAt: options.cube ? undefined : now,
       setupMoves: [],
       moves: [],
       hintLevel: options.hintLevel ?? 0
-    })
-  }, [commit])
+    }
+    commit(next)
+    if (options.cube) reroute(next)
+  }, [commit, readLive, reroute])
 
   const skipSetup = useCallback(() => {
     const current = stateRef.current
     if (!current || current.phase !== 'setup') return
-    commit({ ...current, phase: context.current.split ? 'recognize' : 'execute', startedAt: performance.now() })
+    commit({ ...current, phase: context.current.split ? 'recognize' : 'execute', startedAt: performance.now(), readyAt: performance.now() })
   }, [commit])
 
   const restartSetup = useCallback(() => {
     const current = stateRef.current
     if (!current || current.phase !== 'setup') return
-    commit({ ...current, setupMoves: [] })
-  }, [commit])
+    live.current = readLive() ?? live.current
+    const next = { ...current, setupMoves: [], setupRoute: undefined }
+    commit(next)
+    reroute(next)
+  }, [commit, readLive, reroute])
 
   const recognize = useCallback(() => {
     const current = stateRef.current
@@ -101,16 +136,38 @@ export function useCaseAttempt({ puzzle, rotation, split, onDone }: Options) {
 
   const stop = useCallback(() => commit(undefined), [commit])
 
+  useEffect(() => subscribeTrackerReset(() => { live.current = readLive() }), [readLive])
+
   useEffect(() => subscribeResolvedMoves((resolved) => {
     const current = stateRef.current
     const { puzzle: activePuzzle, rotation: activeRotation, split: timed } = context.current
+    const turned = resolved.rawMoves.map((raw) => solverMove(raw.move, activeRotation))
+    if (live.current && turned.length) {
+      try { live.current = live.current.applyAlg(new Alg(turned.join(' '))) } catch { live.current = readLive() }
+    }
     if (!current || !activePuzzle || current.phase === 'done') return
     const at = performance.now()
-    const turned = resolved.rawMoves.map((raw) => solverMove(raw.move, activeRotation))
     if (current.phase === 'setup') {
       const setupMoves = [...current.setupMoves, ...turned]
-      if (matchesCase(activePuzzle, current.record, setupMoves)) commit({ ...current, setupMoves, phase: timed ? 'recognize' : 'execute', startedAt: at })
-      else commit({ ...current, setupMoves })
+      const from = live.current
+      if (from && matchesCase(activePuzzle, current.record, [], from)) {
+        routing.current += 1
+        commit({ ...current, setupMoves, setupRoute: [], phase: timed ? 'recognize' : 'execute', startedAt: at, readyAt: at })
+        return
+      }
+      const route = current.setupRoute
+      const single = turned.length === 1 ? turned[0] : undefined
+      if (route?.length && single && route[0] === single) {
+        commit({ ...current, setupMoves, setupRoute: route.slice(1) })
+        return
+      }
+      if (route?.length && single && /2$/.test(route[0]) && route[0][0] === single[0]) {
+        commit({ ...current, setupMoves, setupRoute: [route[0][0] + (single.endsWith("'") ? "'" : ''), ...route.slice(1)] })
+        return
+      }
+      const next = { ...current, setupMoves, setupRoute: undefined }
+      commit(next)
+      reroute(next)
       return
     }
     const moves = [...current.moves, ...turned]
@@ -119,11 +176,12 @@ export function useCaseAttempt({ puzzle, rotation, split, onDone }: Options) {
       moves,
       phase: 'execute',
       input: 'smart-cube',
-      recognizedAt: current.recognizedAt ?? (timed ? at : undefined)
+      recognizedAt: current.recognizedAt ?? at,
+      readyAt: current.readyAt ?? current.startedAt
     }
     if (reachesGoal(activePuzzle, current.record, moves)) complete(next, true, at, 'smart-cube')
     else commit(next)
-  }), [commit, complete])
+  }), [commit, complete, readLive, reroute])
 
   return { state, begin, skipSetup, restartSetup, recognize, finish, hint, stop }
 }

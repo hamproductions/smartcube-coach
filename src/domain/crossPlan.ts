@@ -38,7 +38,11 @@ export async function gradeCrossPlan(scramble: string, plan: string[], frame: He
 }
 
 export async function optimalCrossPlan(scramble: string, frame: HeldFrame) {
-  let pattern = (await puzzles['3x3x3'].kpuzzle()).defaultPattern().applyAlg(scramble)
+  return optimalCrossFrom((await puzzles['3x3x3'].kpuzzle()).defaultPattern().applyAlg(scramble), frame)
+}
+
+export async function optimalCrossFrom(start: KPattern, frame: HeldFrame) {
+  let pattern = start
   let remaining = await crossTurns(pattern, frame.bottom)
   const moves: string[] = []
   while (remaining !== undefined && remaining > 0 && moves.length < 10) {

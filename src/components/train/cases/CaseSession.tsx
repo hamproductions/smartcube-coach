@@ -26,7 +26,7 @@ type Props = {
   onEnd: () => void
 }
 
-const PHASE_LABEL = { setup: 'Set up', recognize: 'Recognise', execute: 'Execute', done: '' } as const
+const PHASE_LABEL = { setup: 'Set up', recognize: 'Ready', execute: 'Solving', done: '' } as const
 
 export function CaseSession({ pool, attempts, mode, puzzle, rotation, cube, onRecord, onEnd }: Props) {
   const [results, setResults] = useState<SessionResult[]>([])
@@ -41,6 +41,7 @@ export function CaseSession({ pool, attempts, mode, puzzle, rotation, cube, onRe
   }, [mode])
 
   const { state, begin, skipSetup, restartSetup, recognize, finish, hint } = useCaseAttempt({ puzzle, rotation, split: true, onDone })
+  const [last, setLast] = useState<AttemptState>()
 
   const next = useCallback(() => {
     const { pool: currentPool, attempts: currentAttempts, cube: currentCube } = latest.current
@@ -49,6 +50,12 @@ export function CaseSession({ pool, attempts, mode, puzzle, rotation, cube, onRe
   }, [begin, mode])
 
   useEffect(() => { next() }, [next])
+
+  useEffect(() => {
+    if (state?.phase !== 'done' || state.input !== 'smart-cube' || !state.moves.length) return
+    setLast(state)
+    next()
+  }, [state, next])
 
   useEffect(() => {
     setCriticalActivity(true)
@@ -86,6 +93,7 @@ export function CaseSession({ pool, attempts, mode, puzzle, rotation, cube, onRe
         <Action compact onClick={onEnd}>End session</Action>
       </SessionStrip>
       {error && <p role="alert" className={css({ color: 'error', fontSize: 'sm' })}>{error}</p>}
+      {last && state.phase !== 'done' && <LastResult state={last} />}
       <div className={css({ display: 'grid', gap: { base: '3', lg: '8' }, gridTemplateColumns: { base: '1fr', lg: 'minmax(0, 1.1fr) minmax(0, 1fr)' }, alignItems: 'center', flex: '1' })}>
         <CaseStage record={record} puzzle={puzzle} rotation={rotation} moves={state.moves} replay={state.phase === 'done' && !state.moves.length} />
         <div className={css({ display: 'flex', flexDirection: 'column', gap: { base: '2', md: '4' }, alignItems: { base: 'stretch', lg: 'flex-start' } })}>
@@ -108,30 +116,16 @@ function Running({ state, puzzle, named, onRecognize, onFinish, onHint, onSkipSe
   onSkipSetup: () => void
   onRestartSetup: () => void
 }) {
-  const now = useNow(state.phase !== 'setup')
+  const now = useNow(state.phase === 'execute')
   const { record } = state
   const recognitionMs = state.recognizedAt === undefined ? undefined : state.recognizedAt - state.startedAt
   const cube = state.input === 'smart-cube'
 
   if (state.phase === 'setup') {
-    const setupMoves = caseDisplay(puzzle, record).setup
-    return (
-      <>
-        <span className={labelText}>Set up</span>
-        <h2 className={css({ fontSize: 'xl', fontWeight: 'semibold' })}>Turn this onto a solved cube</h2>
-        <p className={cx(mono, css({ fontSize: { base: 'lg', md: '2xl' }, letterSpacing: '0.06em', lineHeight: '1.4' }))}>{setupMoves.join(' ')}</p>
-        <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>
-          {state.setupMoves.length === 0 ? 'The clock starts the moment the cube matches the case.' : `Turned ${state.setupMoves.length} moves. Not matching yet${state.setupMoves.length > setupMoves.length + 2 ? ': solve the cube and restart the setup' : ''}.`}
-        </p>
-        <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
-          <Action primary hotkey="Space" onClick={onSkipSetup}>It is set up</Action>
-          <Action hotkey="R" onClick={onRestartSetup}>Restart setup</Action>
-        </div>
-      </>
-    )
+    return <SetupPrompt state={state} puzzle={puzzle} onSkipSetup={onSkipSetup} onRestartSetup={onRestartSetup} />
   }
 
-  const elapsed = now - state.startedAt
+  const elapsed = state.phase === 'execute' ? now - (state.recognizedAt ?? state.startedAt) : 0
   const goal = GOAL_LABEL[goalFor(record)]
   return (
     <>
@@ -146,7 +140,7 @@ function Running({ state, puzzle, named, onRecognize, onFinish, onHint, onSkipSe
       )}
       <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>
         {state.phase === 'recognize'
-          ? (cube ? 'Your first turn ends recognition.' : 'Press Space the moment you know the case.')
+          ? (cube ? 'Look, then turn. The clock starts on your first turn.' : 'Press Space the moment you know the case.')
           : (cube ? `The cube stops the clock at ${goal}.` : 'Press Space when the algorithm is done.')}
       </p>
       <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2', w: { base: 'full', lg: 'auto' } })}>
@@ -188,5 +182,39 @@ function Verdict({ state, attempts, mode, onNext }: { state: AttemptState; attem
         </>}
       </div>
     </>
+  )
+}
+
+export function SetupPrompt({ state, puzzle, onSkipSetup, onRestartSetup }: { state: AttemptState; puzzle: KPuzzle | undefined; onSkipSetup: () => void; onRestartSetup: () => void }) {
+  const cube = state.input === 'smart-cube'
+  const route = cube ? state.setupRoute : caseDisplay(puzzle, state.record).setup
+  return (
+    <>
+      <span className={labelText}>Set up</span>
+      <h2 className={css({ fontSize: 'xl', fontWeight: 'semibold' })}>{cube ? 'Turn this from where your cube is' : 'Turn this onto a solved cube'}</h2>
+      <p aria-live="polite" className={cx(mono, css({ fontSize: { base: 'lg', md: '2xl' }, letterSpacing: '0.06em', lineHeight: '1.4', minH: '1.4em' }))}>
+        {route === undefined ? <span className={css({ color: 'inkVariant', fontSize: 'md' })}>Working out the turns from your cube...</span> : route.join(' ')}
+      </p>
+      <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>
+        {cube ? 'A wrong turn just updates the moves. When the cube matches the case, the clock waits for your first turn.' : 'The clock waits until you press Space.'}
+      </p>
+      <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
+        <Action primary hotkey="Space" onClick={onSkipSetup}>It is set up</Action>
+        <Action hotkey="R" onClick={onRestartSetup}>{cube ? 'Re-read my cube' : 'Restart setup'}</Action>
+      </div>
+    </>
+  )
+}
+
+function LastResult({ state }: { state: AttemptState }) {
+  const recognitionMs = state.recognizedAt === undefined ? undefined : state.recognizedAt - state.startedAt
+  const executionMs = state.recognizedAt === undefined || state.endedAt === undefined ? undefined : state.endedAt - state.recognizedAt
+  return (
+    <p className={cx(card, css({ px: '4', py: '3', display: 'flex', flexWrap: 'wrap', gap: '3', alignItems: 'baseline', fontSize: 'sm' }))}>
+      <span className={css({ color: state.success ? 'green' : 'error', fontWeight: 'semibold' })}>{state.success ? 'Solved' : 'Missed'}</span>
+      <span className={css({ fontWeight: 'semibold' })}>{state.record.name}</span>
+      <span className={cx(mono, css({ color: 'inkVariant' }))}>{state.record.algorithm}</span>
+      <span className={cx(mono, css({ ml: 'auto' }))}>{seconds(recognitionMs)} look · {seconds(executionMs)} turn</span>
+    </p>
   )
 }
