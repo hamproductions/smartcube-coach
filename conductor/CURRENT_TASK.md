@@ -28,6 +28,7 @@
 - Hidden colours and the turn pacer are unchanged: hidden colours is sticker knowledge with no cube state to check; the pacer already reads the cube.
 
 ## Next
+- Full handoff: `docs/HANDOFF_2026-11-04-redesign-and-training.md`. Shipped `688d01f` to Pages; waiting on the owner's physical-cube verdict.
 - Owner decides when to push; the live site changes only after a push.
 
 ## Reviews
