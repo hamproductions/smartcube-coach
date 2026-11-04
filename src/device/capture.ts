@@ -1,5 +1,5 @@
 import type { KPattern } from 'cubing/kpuzzle'
-import { evaluateScramble, followScrambleWithPrefixes, nextExpectedMove, scramblePrefixStates } from '../domain/scramble'
+import { evaluateScramble, followScrambleWithPrefixes, isSolvedPattern, nextExpectedMove, scramblePrefixStates } from '../domain/scramble'
 
 export type CaptureStatus = 'idle' | 'scrambling' | 'ready' | 'inspection' | 'solving' | 'complete'
 
@@ -104,6 +104,8 @@ export class CaptureSession {
    * arriving in parallel from invalidating the move being processed.
    */
   private prefixes?: KPattern[]
+  private start?: KPattern
+  private recordScramble = ''
   /**
    * Turns that arrived while the solve was completing. A solver puts the cube down for a
    * fraction of a second, not at all — they are already turning the next scramble while the
@@ -120,21 +122,23 @@ export class CaptureSession {
     return structuredClone(this.state)
   }
 
-  async setScramble(scramble: string) {
+  async setScramble(scramble: string, from?: { pattern: KPattern; route: string }) {
     this.generation += 1
     const generation = this.generation
     this.solveEvents = []
     this.prefixes = undefined
+    this.start = from?.pattern
+    this.recordScramble = scramble
     this.state = {
       status: 'scrambling',
-      scramble,
+      scramble: from?.route ?? scramble,
       scrambleMoves: [],
       solveMoves: [],
       offTrack: false
     }
     this.emit()
     try {
-      const prefixes = await scramblePrefixStates(scramble.split(/\s+/).filter(Boolean))
+      const prefixes = await scramblePrefixStates(this.state.scramble.split(/\s+/).filter(Boolean), this.start)
       if (generation === this.generation) this.prefixes = prefixes
     } catch {
       // Without them every turn falls back to the move-list check below.
@@ -151,6 +155,8 @@ export class CaptureSession {
   reset() {
     this.generation += 1
     this.solveEvents = []
+    this.start = undefined
+    this.recordScramble = ''
     // Reset declares the cube solved and starts over, so turns held from before it are not
     // part of anything any more.
     this.pendingMoves = []
@@ -173,6 +179,8 @@ export class CaptureSession {
     // otherwise resume and write its own status/moves over the acceptance, putting the
     // session straight back into 'scrambling'.
     this.generation += 1
+    this.start = undefined
+    this.recordScramble = setupAlg
     this.state.scramble = setupAlg
     this.state.scrambleMoves = setupAlg.split(/\s+/).filter(Boolean)
     this.state.status = 'ready'
@@ -212,12 +220,12 @@ export class CaptureSession {
       const { puzzles } = await import('cubing/puzzles')
       const { Alg } = await import('cubing/alg')
       const kpuzzle = await puzzles['3x3x3'].kpuzzle()
-      const solved = kpuzzle.defaultPattern()
+      const base = this.start ?? kpuzzle.defaultPattern()
       const turned = this.state.scrambleMoves.join(' ')
-      const current = turned.trim() ? solved.applyAlg(Alg.fromString(turned)) : solved
+      const current = turned.trim() ? base.applyAlg(Alg.fromString(turned)) : base
       const wanted = matchedIndex > 0
-        ? solved.applyAlg(Alg.fromString(targetMoves.slice(0, matchedIndex).join(' ')))
-        : solved
+        ? base.applyAlg(Alg.fromString(targetMoves.slice(0, matchedIndex).join(' ')))
+        : base
       return shortestFix(current, wanted)
     } catch {
       return undefined
@@ -307,7 +315,8 @@ export class CaptureSession {
 
     let complete: boolean
     try {
-      complete = await evaluateScramble('', `${this.state.scramble} ${this.state.solveMoves.join(' ')}`)
+      const performed = `${this.state.scramble} ${this.state.solveMoves.join(' ')}`
+      complete = this.start ? await isSolvedPattern(this.start.applyAlg(performed)) : await evaluateScramble('', performed)
     } catch {
       if (generation !== this.generation) return
       this.state.evaluationUnsupported = true
@@ -325,7 +334,7 @@ export class CaptureSession {
       // The hero jumped from the running clock straight to 0.00, never showing the time.
       this.emit()
       await this.onComplete({
-        scramble: this.state.scramble,
+        scramble: this.recordScramble || this.state.scramble,
         moves: [...this.state.solveMoves],
         events: [...this.solveEvents],
         startedAt: this.state.startedAt ?? hostTimestamp,

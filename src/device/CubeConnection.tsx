@@ -2,7 +2,9 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { CubeEvent, CubeInputHandle, CubeInputSource } from './inputSource'
 import { bluetoothSource } from './sources'
 import { supportsWebBluetooth } from './webBluetooth'
-import { generateScramble } from '../domain/scramble'
+import { generateScramble, isSolvedPattern } from '../domain/scramble'
+import { getScrambleToSolution } from '../domain/cubedex/scramble'
+import { Alg } from 'cubing/alg'
 import { CubedexMoveTracker, type ResolvedCubeMove } from './cubedex/moveTracker'
 import { CubedexSolveTracker, type SolveTrackerSnapshot } from './cubedex/solveTracker'
 import { CaptureSession, type CaptureSnapshot } from './capture'
@@ -367,14 +369,22 @@ export async function newSharedScramble() {
   const next = await generateScramble()
   sharedTargetScramble = next
   ensureSharedTrackers(next)
+  const pattern = trackedPattern()
+  const unsolved = pattern && !(await isSolvedPattern(pattern).catch(() => true))
+  const route = unsolved ? await getScrambleToSolution(new Alg(next).invert().toString(), pattern).catch(() => undefined) : undefined
   // Replace, don't ensure: the solve tracker is built once at app start, before the first
   // scramble exists, so it was permanently targeting '' and reported "already solved" for
   // the rest of the session. Every new scramble needs a tracker aimed at it.
-  sharedSolveTracker.current = new CubedexSolveTracker(next)
-  await sharedMoveTracker.current?.reset()
-  await ensureSharedCapture().setScramble(next)
-  for (const listener of scrambleListeners) listener(next)
-  return next
+  sharedSolveTracker.current = new CubedexSolveTracker(next, route ? pattern : null)
+  if (route !== undefined && pattern) {
+    await ensureSharedCapture().setScramble(next, { pattern, route })
+  } else {
+    await sharedMoveTracker.current?.reset()
+    await ensureSharedCapture().setScramble(next)
+  }
+  const shown = route ?? next
+  for (const listener of scrambleListeners) listener(shown)
+  return shown
 }
 
 export function useCubedexCubeTracker(targetScramble: string): CubedexTrackerState {

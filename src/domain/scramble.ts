@@ -65,9 +65,9 @@ export async function scramblePositionOfPattern(pattern: KPattern, targetMoves: 
  * the middle of turning `R2` correctly. A cube part-way through the next move's own face is
  * following it. Anything else genuinely is off.
  */
-export async function scramblePrefixStates(targetMoves: string[]): Promise<KPattern[]> {
+export async function scramblePrefixStates(targetMoves: string[], start?: KPattern): Promise<KPattern[]> {
   const puzzle = await puzzles['3x3x3'].kpuzzle()
-  const prefixes: KPattern[] = [puzzle.defaultPattern()]
+  const prefixes: KPattern[] = [start ?? puzzle.defaultPattern()]
   for (const move of targetMoves) {
     prefixes.push(prefixes[prefixes.length - 1].applyAlg(new Alg(move)))
   }
@@ -157,3 +157,8 @@ export function nextExpectedMove(targetMoves: string[], actualMoves: string[]) {
   return { index, expected: targetMoves[index], actual: mistake, complete: false }
 }
 
+
+export async function isSolvedPattern(pattern: KPattern) {
+  const solved = (await puzzles['3x3x3'].kpuzzle()).defaultPattern()
+  return (reorientToSolvedCenters(pattern) ?? pattern).isIdentical(solved)
+}
