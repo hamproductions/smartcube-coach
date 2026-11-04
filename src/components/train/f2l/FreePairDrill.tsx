@@ -11,6 +11,8 @@ import { CubeStage, Key, Segmented, SessionStrip, focusRing, labelClass, numberC
 import { SLOT_LABEL } from './queue'
 import { readChoice, writeChoice } from './remember'
 import { CHOICE_KEYS } from '../lookahead/positions'
+import { useOptionalCubeConnection } from '../../../device/CubeConnection'
+import { useCubeFreePair } from './useCubeFreePair'
 
 const MODES: FreePairMode[] = ['normal', '2gen']
 const MODE_LABEL: Record<FreePairMode, string> = { normal: 'Normal', '2gen': '2gen' }
@@ -41,6 +43,9 @@ export function FreePairDrill({ startRound }: { startRound?: number }) {
   const nextButton = useRef<HTMLButtonElement>(null)
 
   const answered = answer !== null
+  const connected = Boolean(useOptionalCubeConnection()?.handle)
+  const pickRef = useRef<(index: number, input: TrainerAttempt['input']) => void>(() => undefined)
+  const onCube = useCubeFreePair(prompt, connected, answered, (index) => pickRef.current(index, 'smart-cube'))
   const working = prompt ? prompt.options.map((_, index) => gradeFreePair(prompt, index)) : []
   const shown = prompt && answered ? (working[answer] ? answer : working.findIndex(Boolean)) : -1
   const base = prompt ? `z2 ${prompt.setup}` : 'z2'
@@ -79,6 +84,8 @@ export function FreePairDrill({ startRound }: { startRound?: number }) {
     setResults((current) => [...current, { success: Boolean(attempt.answerCorrect), ms: attempt.totalMs }])
     void repositories.attempts.put(attempt).catch(() => setError('Could not save this answer'))
   }
+
+  pickRef.current = pick
 
   const replay = () => {
     setPlaying(false)
@@ -160,6 +167,23 @@ export function FreePairDrill({ startRound }: { startRound?: number }) {
                 )
               })}
             </div>
+
+            {connected && !answered && (
+              <section aria-label="On your cube" aria-live="polite" className={css({ display: 'grid', gap: '2', p: '4', borderRadius: 'card', bg: 'container', borderWidth: '1px', borderColor: 'floating', maxW: '560px' })}>
+                {onCube.phase === 'routing' && <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>Working out the turns from your cube...</p>}
+                {onCube.phase === 'setup' && (
+                  <>
+                    <span className={labelClass}>Hold white on the bottom, green in front, and set up the position</span>
+                    <p className={cx(numberClass, css({ fontSize: { base: 'lg', md: 'xl' }, wordSpacing: '0.2em' }))}>{onCube.route?.join(' ')}</p>
+                  </>
+                )}
+                {onCube.phase === 'answer' && (
+                  <p className={css({ fontSize: 'sm', color: onCube.offOptions ? 'amber' : 'ink' })}>
+                    {onCube.offOptions ? 'That does not match any option. Turn it back and try one of the listed finishes.' : 'Set up. Turn the finish you would use on your cube; the cube picks the option. Or tap one.'}
+                  </p>
+                )}
+              </section>
+            )}
 
             {answered ? null : (
               <div className={css({ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '3', color: 'inkVariant', fontSize: 'sm' })}>
