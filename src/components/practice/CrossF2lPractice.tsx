@@ -23,18 +23,20 @@ import { createId } from '../../domain/ids'
 import { defaultPreferences, readPreferences } from '../../storage/preferences'
 import { clearAttempts, patchAttempt, readAttempts, readGoal, saveAttempt, writeGoal } from '../../storage/practiceAttempts'
 import { bluetoothSource } from '../../device/sources'
+import { useRoutedScramble } from '../train/useRoutedScramble'
 
-const DASH = '—'
+const DASH = '–'
 const seconds = (ms: number) => (ms / 1000).toFixed(2)
 const colourName = (colour: string) => colour[0].toUpperCase() + colour.slice(1)
 
 const keyboardMoves: Record<string, string> = { u: 'U', r: 'R', f: 'F', d: 'D', l: 'L', b: 'B' }
 
-const label = css({ fontFamily: 'mono', fontSize: '2xs', letterSpacing: '0.18em', textTransform: 'uppercase', color: 'inkMuted' })
+const label = css({ fontSize: 'xs', color: 'inkVariant' })
 const chip = css({
   display: 'inline-flex', alignItems: 'center', gap: '2', px: '3', minH: '10', borderRadius: 'control',
   borderWidth: '1px', borderColor: 'floating', bg: 'transparent', color: 'inkVariant', cursor: 'pointer',
-  fontSize: 'sm', fontFamily: 'mono', _hover: { color: 'ink', borderColor: 'outline' },
+  fontSize: 'sm', whiteSpace: 'nowrap', flexShrink: '0', _hover: { color: 'ink', borderColor: 'outline' },
+  _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' },
   '&[aria-pressed=true]': { bg: 'floating', color: 'ink', borderColor: 'green' }
 })
 
@@ -47,6 +49,10 @@ export function CrossF2lPractice() {
   const [state, dispatch] = useReducer(practiceReducer, initialPracticeState)
   const stateRef = useRef(state)
   stateRef.current = state
+
+  const { scramble, generate, follow } = useRoutedScramble()
+  const followRef = useRef(follow)
+  followRef.current = follow
 
   const [attempts, setAttempts] = useState<PracticeAttempt[]>([])
   const [scheme, setScheme] = useState<ColorScheme>(defaultScheme)
@@ -67,7 +73,8 @@ export function CrossF2lPractice() {
     }).catch(() => {
       setViewRotation(viewRotationForHold(defaultPreferences.diagramTopColor, defaultPreferences.diagramFrontColor))
     })
-  }, [])
+    void generate()
+  }, [generate])
 
   const chooseGoal = useCallback((next: PracticeGoal) => {
     setGoal(next)
@@ -75,13 +82,30 @@ export function CrossF2lPractice() {
     dispatch({ type: 'unready' })
   }, [])
 
+  const arm = useCallback(() => {
+    const pattern = trackedPattern()
+    const current = stateRef.current
+    if (!pattern) { setNotice('The cube is not being tracked yet. Connect it or turn on the keyboard cube.'); return }
+    if (current.phase !== 'scrambling') return
+    const met = goalReached(pattern, goalRef.current)
+    if (!canArm({ ...current, scrambleTurns: Math.max(1, current.scrambleTurns) }, met !== undefined)) {
+      setNotice(`That is already ${goalLabel(goalRef.current.pairs).toLowerCase()} on ${met?.face}. Turn the scramble first.`)
+      return
+    }
+    setNotice(undefined)
+    startPattern.current = pattern
+    dispatch({ type: 'ready', wall: Date.now(), alreadyMet: false })
+  }, [])
+  const armRef = useRef(arm)
+  armRef.current = arm
+
   useEffect(() => {
     const seed = () => {
       const pattern = trackedPattern()
       try { setDisplayAlg(pattern ? patternToPlayerAlg(pattern) : '') } catch { setDisplayAlg('') }
     }
     seed()
-    const offReset = subscribeTrackerReset(() => { setDisplayAlg(''); dispatch({ type: 'restart' }) })
+    const offReset = subscribeTrackerReset(() => { setDisplayAlg(''); dispatch({ type: 'restart' }); void generate() })
     const offMoves = subscribeResolvedMoves((resolved) => {
       const last = resolved.rawMoves[resolved.rawMoves.length - 1]
       const move: PracticeMove = { move: resolved.move, cube: last?.cubeTimestamp ?? null, wall: last?.localTimestamp ?? Date.now() }
@@ -90,25 +114,13 @@ export function CrossF2lPractice() {
       setNotice(undefined)
       setDisplayAlg((alg) => [alg, ...resolved.rawMoves.map((raw) => raw.move)].filter(Boolean).join(' '))
       dispatch({ type: 'move', move, goal: goalRef.current, reached })
+      if (stateRef.current.phase === 'scrambling' || stateRef.current.phase === 'done') {
+        const followed = followRef.current(resolved.pattern)
+        if (followed?.complete && followed.moves.length > 0) queueMicrotask(() => armRef.current())
+      }
     })
     return () => { offReset(); offMoves() }
-  }, [])
-
-  const arm = useCallback(() => {
-    const pattern = trackedPattern()
-    const current = stateRef.current
-    if (!pattern) { setNotice('The cube is not being tracked yet.'); return }
-    if (current.phase !== 'scrambling') return
-    if (current.scrambleTurns === 0) { setNotice('Scramble the cube first — turn it any way you like.'); return }
-    const met = goalReached(pattern, goalRef.current)
-    if (!canArm(current, met !== undefined)) {
-      setNotice(`That is already ${goalLabel(goalRef.current.pairs).toLowerCase()} on ${met?.face}. Scramble it some more.`)
-      return
-    }
-    setNotice(undefined)
-    startPattern.current = pattern
-    dispatch({ type: 'ready', wall: Date.now(), alreadyMet: false })
-  }, [])
+  }, [generate])
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -118,10 +130,6 @@ export function CrossF2lPractice() {
       if (event.code === 'Space' || event.key === 'Enter') {
         event.preventDefault()
         arm()
-        return
-      }
-      if (event.key === 'Escape') {
-        dispatch({ type: 'unready' })
         return
       }
       if (!keyboardCube) return
@@ -160,6 +168,7 @@ export function CrossF2lPractice() {
     setLastId(attempt.id)
     setAttempts((existing) => [...existing, attempt].slice(-300))
     void saveAttempt(attempt).catch(() => undefined)
+    void generate()
     const from = startPattern.current
     if (!from) return
     void bestCross(from)
@@ -169,19 +178,19 @@ export function CrossF2lPractice() {
         return patchAttempt(attempt.id, { bestCross: best })
       })
       .catch(() => undefined)
-  }, [state.phase, state.result])
+  }, [state.phase, state.result, generate])
 
   useEffect(() => {
     if (state.phase === 'done' && displayAlg.split(' ').length > 120) {
       const pattern = trackedPattern()
-      try { if (pattern) setDisplayAlg(patternToPlayerAlg(pattern)) } catch { /* keep the running alg */ }
+      try { if (pattern) setDisplayAlg(patternToPlayerAlg(pattern)) } catch { return }
     }
   }, [state.phase, displayAlg])
 
   const scoped = useMemo(() => attempts.filter((attempt) => attempt.pairs === goal.pairs), [attempts, goal.pairs])
   const lastResult = state.phase === 'done' && state.result
     ? { ...state.result, bestCross: attempts.find((attempt) => attempt.id === lastId)?.bestCross }
-    : attempts[attempts.length - 1]
+    : undefined
   const stats = useMemo(() => {
     const times = scoped.map((attempt) => attempt.durationMs)
     const lastFive = times.slice(-5)
@@ -197,117 +206,118 @@ export function CrossF2lPractice() {
     : state.phase === 'done' && state.result ? state.result.durationMs
       : 0
   const inspectionMs = state.phase === 'ready' && state.readyAt !== undefined ? Math.max(0, now - state.readyAt) : 0
-
   const connected = cube.handle !== undefined
-  const headline = state.phase === 'scrambling'
-    ? (state.scrambleTurns === 0 ? 'Scramble your cube' : `${state.scrambleTurns} turn${state.scrambleTurns === 1 ? '' : 's'} scrambled`)
-    : state.phase === 'ready' ? 'Look it over'
-      : state.phase === 'solving' ? `Solving · ${goalLabel(goal.pairs)}`
-        : `${goalLabel(state.result?.pairs ?? goal.pairs)} on ${colourName(scheme[state.result?.face ?? 'D'])}`
-  const instruction = state.phase === 'scrambling'
-    ? 'Turn the cube any way you like. It does not need a given scramble. Press Space when it is mixed up.'
-    : state.phase === 'ready' ? 'Your first turn starts the clock. It stops by itself the moment the goal is true.'
-      : state.phase === 'solving' ? 'Keep going — the clock stops on its own.'
-        : 'Turn the cube to start the next scramble. Nothing to reset.'
+  const tracking = connected || keyboardCube
+
+  const status = state.phase === 'ready' ? 'Inspect. Your first turn starts the clock.'
+    : state.phase === 'solving' ? `Solving to ${goalLabel(goal.pairs).toLowerCase()}. The clock stops by itself.`
+      : state.phase === 'done' ? 'Done. Turn the next scramble when you are ready.'
+        : scramble?.offTrack ? 'Off the scramble. Undo the last turn, or get a new scramble from where your cube is.'
+          : 'Turn this scramble on your cube.'
 
   return (
-    <div className={css({ display: 'grid', gap: '8', p: { base: '4', lg: '8' }, gridTemplateColumns: { base: '1fr', xl: 'minmax(0, 1.4fr) minmax(20rem, 1fr)' }, alignItems: 'start', overflowY: 'auto', h: 'full' })}>
-      <section aria-label="Practice" className={css({ display: 'grid', gap: '6', alignContent: 'start' })}>
-        <header className={css({ display: 'grid', gap: '2' })}>
-          <span className={label}>Cross → F2L practice</span>
-          <h1 className={css({ fontSize: '2xl', color: 'ink', fontWeight: 'medium' })}>{headline}</h1>
-          <p className={css({ color: 'inkVariant', fontSize: 'sm', maxW: '40rem' })}>{instruction}</p>
-        </header>
-
-        <div role="group" aria-label="Goal" className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
-          {[0, 1, 2, 3, 4].map((pairs) => (
-            <button key={pairs} type="button" className={chip} aria-pressed={goal.pairs === pairs} onClick={() => chooseGoal({ ...goal, pairs })}>
-              {goalLabel(pairs)}
-            </button>
-          ))}
+    <div className={css({ display: 'grid', gap: '8', gridTemplateColumns: { base: '1fr', lg: 'minmax(0, 1fr) 20rem' }, alignItems: 'start' })}>
+      <section aria-label="Attempt" className={css({ display: 'flex', flexDirection: 'column', gap: '6', minW: '0' })}>
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+          <div role="group" aria-label="Goal" className={css({ display: 'flex', flexWrap: { base: 'nowrap', md: 'wrap' }, overflowX: 'auto', gap: '2', pb: { base: '1', md: '0' } })}>
+            {[0, 1, 2, 3, 4].map((pairs) => (
+              <button key={pairs} type="button" className={chip} aria-pressed={goal.pairs === pairs} onClick={() => chooseGoal({ ...goal, pairs })}>
+                {goalLabel(pairs)}
+              </button>
+            ))}
+          </div>
+          <div role="group" aria-label="Cross colour" className={css({ display: 'flex', flexWrap: { base: 'nowrap', md: 'wrap' }, overflowX: 'auto', gap: '2', alignItems: 'center', pb: { base: '1', md: '0' } })}>
+            <button type="button" className={chip} aria-pressed={goal.face === 'any'} onClick={() => chooseGoal({ ...goal, face: 'any' })}>Any colour</button>
+            {faces.map((face: Face) => (
+              <button key={face} type="button" className={chip} aria-pressed={goal.face === face} onClick={() => chooseGoal({ ...goal, face })} title={`Cross on the ${face} face`}>
+                <span aria-hidden className={css({ w: '3', h: '3', borderRadius: 'full', borderWidth: '1px', borderColor: 'outline' })} style={{ background: HEX[scheme[face]] }} />
+                {colourName(scheme[face])}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div role="group" aria-label="Cross colour" className={css({ display: 'flex', flexWrap: 'wrap', gap: '2', alignItems: 'center' })}>
-          <span className={label}>Cross colour</span>
-          <button type="button" className={chip} aria-pressed={goal.face === 'any'} onClick={() => chooseGoal({ ...goal, face: 'any' })}>Any</button>
-          {faces.map((face: Face) => (
-            <button key={face} type="button" className={chip} aria-pressed={goal.face === face} onClick={() => chooseGoal({ ...goal, face })} title={`Cross on the ${face} face`}>
-              <span aria-hidden className={css({ w: '3', h: '3', borderRadius: 'full', borderWidth: '1px', borderColor: 'outline' })} style={{ background: HEX[scheme[face]] }} />
-              {colourName(scheme[face])}
-            </button>
-          ))}
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '3', p: { base: '4', md: '6' }, borderRadius: 'card', bg: 'container', borderWidth: '1px', borderColor: 'floating' })}>
+          <div className={css({ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '3' })}>
+            <span className={label}>Scramble</span>
+            <button type="button" onClick={() => { dispatch({ type: 'unready' }); void generate() }} className={css({ fontSize: 'sm', color: 'green', cursor: 'pointer', _hover: { textDecoration: 'underline' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}>New scramble</button>
+          </div>
+          <p aria-label="Scramble moves" className={css({ fontFamily: 'mono', fontSize: { base: '20px', md: '26px' }, lineHeight: '1.5', display: 'flex', flexWrap: 'wrap', columnGap: '2', minH: '10' })}>
+            {!scramble && <span className={css({ color: 'inkVariant', fontSize: 'md' })}>Working out a scramble from where your cube is…</span>}
+            {scramble?.moves.map((move, index) => {
+              const scrambling = state.phase === 'scrambling' || state.phase === 'done'
+              const done = !scrambling || index < scramble.done
+              const next = scrambling && !scramble.offTrack && index === scramble.done
+              return (
+                <span key={`${move}-${index}`} data-state={done ? 'done' : next ? 'next' : 'pending'} className={css({ px: '1', borderRadius: 'control', borderWidth: '1px', borderColor: next ? 'green' : 'transparent', bg: next ? 'rgba(34,197,94,0.14)' : 'transparent', color: next ? 'green' : 'ink', opacity: done ? '0.35' : '1' })}>{move}</span>
+              )
+            })}
+          </p>
+          <p role="status" className={css({ fontSize: 'sm', color: scramble?.offTrack && state.phase === 'scrambling' ? 'amber' : 'inkVariant' })}>{notice ?? status}</p>
         </div>
 
-        <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '6', alignItems: 'end' })}>
-          <div className={css({ display: 'grid', gap: '1' })}>
-            <span className={label}>{state.phase === 'ready' ? 'Inspection' : state.phase === 'done' ? 'Time' : 'Time'}</span>
+        <div className={css({ display: 'flex', flexWrap: 'wrap', alignItems: 'end', gap: '6' })}>
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '1' })}>
+            <span className={label}>{state.phase === 'ready' ? 'Inspection' : 'Time'}</span>
             <strong
               data-testid="practice-clock"
-              className={css({ fontFamily: 'mono', fontSize: { base: '6xl', md: '8xl' }, fontWeight: 'normal', lineHeight: '0.85', letterSpacing: '-0.05em', fontVariantNumeric: 'tabular-nums' })}
-              style={{ color: state.phase === 'done' ? 'var(--colors-green, #4ade80)' : undefined }}
+              className={css({ fontFamily: 'mono', fontSize: { base: '64px', md: '96px' }, fontWeight: 'semibold', lineHeight: '0.9', letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums', color: state.phase === 'done' ? 'green' : 'ink' })}
             >{seconds(state.phase === 'ready' ? inspectionMs : elapsedMs)}</strong>
           </div>
-          <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap' })}>
-            {state.phase === 'scrambling' && <Button variant="solid" onClick={arm}>Ready <kbd className={css({ fontFamily: 'mono', fontSize: 'xs', opacity: '0.7' })}>Space</kbd></Button>}
-            {state.phase === 'ready' && <Button variant="outline" onClick={() => dispatch({ type: 'unready' })}>Keep scrambling</Button>}
+          <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap', pb: '2' })}>
+            {state.phase === 'scrambling' && <Button variant="outline" onClick={arm}>I scrambled it myself <kbd className={css({ fontFamily: 'mono', fontSize: 'xs', opacity: '0.7' })}>Space</kbd></Button>}
+            {state.phase === 'ready' && <Button variant="outline" onClick={() => dispatch({ type: 'unready' })}>Back to scrambling</Button>}
             {state.phase === 'solving' && <Button variant="outline" onClick={() => dispatch({ type: 'unready' })}>Abort</Button>}
           </div>
         </div>
-        {notice && <p role="status" className={css({ color: 'amber', fontSize: 'sm' })}>{notice}</p>}
 
         {lastResult && (
-          <div aria-label="Last attempt" className={css({ display: 'grid', gap: '4', pt: '4', borderTopWidth: '1px', borderColor: 'rule' })}>
-            <span className={label}>Last attempt · {goalLabel(lastResult.pairs)} on {colourName(scheme[lastResult.face])} · {seconds(lastResult.durationMs)}s</span>
-            <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '10' })}>
+          <section aria-label="Last attempt" className={css({ display: 'flex', flexDirection: 'column', gap: '4', pt: '5', borderTopWidth: '1px', borderColor: 'floating' })}>
+            <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{goalLabel(lastResult.pairs)} on {colourName(scheme[lastResult.face])}</h2>
+            <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '8' })}>
               <Metric title="Turns" value={String(lastResult.turns)} />
               <Metric title="TPS" value={lastResult.durationMs > 0 ? (lastResult.turns / (lastResult.durationMs / 1000)).toFixed(2) : DASH} />
-              <Metric title="Looked for" value={lastResult.recognitionMs === null ? DASH : `${seconds(lastResult.recognitionMs)}s`} />
+              <Metric title="Inspection" value={lastResult.recognitionMs === null ? DASH : `${seconds(lastResult.recognitionMs)}s`} />
               <Metric title="Pairs" value={lastResult.slots.length ? lastResult.slots.join(' ') : DASH} />
               <Metric
-                title="Shortest cross from there"
+                title="Shortest cross"
                 value={lastResult.bestCross ? `${lastResult.bestCross.turns} turn${lastResult.bestCross.turns === 1 ? '' : 's'}` : '…'}
                 note={lastResult.bestCross ? `on ${colourName(scheme[lastResult.bestCross.face])}` : undefined}
               />
             </div>
             <p aria-label="Your moves" className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant', wordBreak: 'break-word' })}>{lastResult.moves.join(' ')}</p>
-          </div>
+          </section>
         )}
       </section>
 
-      <aside aria-label="Cube and history" className={css({ display: 'grid', gap: '6', alignContent: 'start' })}>
-        <div className={css({ display: 'grid', placeItems: 'center' })}>
-          <Cube3D gyro size={280} viewRotation={viewRotation} setupAlg={displayAlg} />
+      <aside aria-label="Cube and session" className={css({ display: 'flex', flexDirection: 'column', gap: '6' })}>
+        <div className={css({ display: 'grid', placeItems: 'center', aspectRatio: '1', w: 'full', maxW: '20rem', mx: 'auto' })}>
+          <Cube3D gyro viewRotation={viewRotation} setupAlg={displayAlg} />
         </div>
 
         {!connected && (
-          <div className={css({ display: 'grid', gap: '3', p: '4', borderWidth: '1px', borderColor: 'floating', borderRadius: 'card' })}>
-            <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>No cube connected. Connect it, or turn a virtual cube with the keyboard.</p>
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '3', p: '4', borderWidth: '1px', borderColor: 'floating', borderRadius: 'card' })}>
+            <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>{tracking ? 'Keyboard cube on: u r f d l b turn a face, Shift for counter-clockwise.' : 'Connect your smart cube, or use the keyboard cube.'}</p>
             <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap' })}>
-              <Button variant="outline" onClick={() => { void cube.connect(bluetoothSource({ requestInitialState: true })).catch((error: unknown) => cube.setStatus(error instanceof Error ? error.message : 'Could not connect to a cube')) }}>Connect cube</Button>
+              <Button variant="solid" onClick={() => { void cube.connect(bluetoothSource({ requestInitialState: true })).catch((error: unknown) => cube.setStatus(error instanceof Error ? error.message : 'Could not connect to a cube')) }}>Connect cube</Button>
               <Button variant="outline" aria-pressed={keyboardCube} onClick={() => setKeyboardCube((value) => !value)}>{keyboardCube ? 'Keyboard cube on' : 'Keyboard cube'}</Button>
             </div>
-            {keyboardCube && <p className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkMuted' })}>u r f d l b turn a face clockwise. Hold Shift for counter-clockwise.</p>}
           </div>
         )}
 
-        <p className={css({ fontSize: 'xs', color: 'inkMuted' })}>
-          The app follows your cube from the last time you told it the cube was solved. If the 3D cube stops matching yours, solve it and{' '}
-          <button type="button" className={css({ textDecoration: 'underline', color: 'inkVariant', cursor: 'pointer' })} onClick={() => { void resetTrackedCubeToSolved() }}>reset the tracking</button>.
-        </p>
-
-        <div className={css({ display: 'grid', gap: '3' })}>
+        <section aria-label="Session" className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
           <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' })}>
-            <span className={label}>{goalLabel(goal.pairs)} · {scoped.length} attempt{scoped.length === 1 ? '' : 's'}</span>
-            {attempts.length > 0 && <button type="button" className={css({ fontSize: 'xs', color: 'inkMuted', cursor: 'pointer', _hover: { color: 'ink' } })} onClick={() => { setAttempts([]); void clearAttempts().catch(() => undefined) }}>Clear history</button>}
+            <h2 className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{goalLabel(goal.pairs)} · {scoped.length} attempt{scoped.length === 1 ? '' : 's'}</h2>
+            {attempts.length > 0 && <button type="button" className={css({ fontSize: 'xs', color: 'inkVariant', cursor: 'pointer', _hover: { color: 'ink' } })} onClick={() => { setAttempts([]); void clearAttempts().catch(() => undefined) }}>Clear history</button>}
           </div>
-          <div className={css({ display: 'flex', gap: '8' })}>
+          <div className={css({ display: 'flex', gap: '6' })}>
             <Metric title="Best" value={stats.best === undefined ? DASH : seconds(stats.best)} />
             <Metric title="Mean of 5" value={stats.mean5 === undefined ? DASH : seconds(stats.mean5)} />
             <Metric title="Avg turns" value={stats.turns === undefined ? DASH : stats.turns.toFixed(1)} />
           </div>
-          <table className={css({ width: 'full', fontFamily: 'mono', fontSize: 'sm', borderCollapse: 'collapse' })}>
+          <table className={css({ width: 'full', fontFamily: 'mono', fontSize: 'sm', borderCollapse: 'collapse', fontVariantNumeric: 'tabular-nums' })}>
             <thead>
-              <tr className={css({ color: 'inkMuted', textAlign: 'left' })}>
+              <tr className={css({ color: 'inkVariant', textAlign: 'left', fontFamily: 'sans', fontSize: 'xs' })}>
                 <th className={css({ py: '2', fontWeight: 'normal' })}>#</th>
                 <th className={css({ fontWeight: 'normal' })}>Time</th>
                 <th className={css({ fontWeight: 'normal' })}>Turns</th>
@@ -317,20 +327,24 @@ export function CrossF2lPractice() {
             </thead>
             <tbody>
               {scoped.slice(-12).reverse().map((attempt, index) => (
-                <tr key={attempt.id} className={css({ borderTopWidth: '1px', borderColor: 'rule', color: 'ink' })}>
-                  <td className={css({ py: '2', color: 'inkMuted' })}>{scoped.length - index}</td>
+                <tr key={attempt.id} className={css({ borderTopWidth: '1px', borderColor: 'floating' })}>
+                  <td className={css({ py: '2', color: 'inkVariant' })}>{scoped.length - index}</td>
                   <td>{seconds(attempt.durationMs)}</td>
                   <td>{attempt.turns}</td>
-                  <td>{colourName(scheme[attempt.face])}</td>
+                  <td className={css({ fontFamily: 'sans' })}>{colourName(scheme[attempt.face])}</td>
                   <td>{attempt.bestCross ? attempt.bestCross.turns : DASH}</td>
                 </tr>
               ))}
               {scoped.length === 0 && (
-                <tr><td colSpan={5} className={css({ py: '4', color: 'inkMuted' })}>No attempts at this goal yet.</td></tr>
+                <tr><td colSpan={5} className={css({ py: '4', fontFamily: 'sans', color: 'inkVariant' })}>No attempts at this goal yet. Turn the scramble to start one.</td></tr>
               )}
             </tbody>
           </table>
-        </div>
+          <p className={css({ fontSize: 'xs', color: 'inkVariant' })}>
+            If the 3D cube stops matching yours, solve it and{' '}
+            <button type="button" className={css({ textDecoration: 'underline', color: 'ink', cursor: 'pointer' })} onClick={() => { void resetTrackedCubeToSolved() }}>reset tracking</button>.
+          </p>
+        </section>
       </aside>
     </div>
   )
@@ -338,10 +352,10 @@ export function CrossF2lPractice() {
 
 function Metric({ title, value, note }: { title: string; value: string; note?: string }) {
   return (
-    <div className={css({ display: 'grid', gap: '1' })}>
+    <div className={css({ display: 'flex', flexDirection: 'column', gap: '1' })}>
       <span className={label}>{title}</span>
-      <strong className={css({ fontFamily: 'mono', fontSize: '2xl', fontWeight: 'normal', lineHeight: '1', color: 'ink', fontVariantNumeric: 'tabular-nums' })}>{value}</strong>
-      {note ? <small className={css({ fontSize: 'xs', color: 'inkMuted' })}>{note}</small> : null}
+      <strong className={css({ fontFamily: 'mono', fontSize: 'xl', fontWeight: 'medium', lineHeight: '1', fontVariantNumeric: 'tabular-nums' })}>{value}</strong>
+      {note ? <small className={css({ fontSize: 'xs', color: 'inkVariant' })}>{note}</small> : null}
     </div>
   )
 }
