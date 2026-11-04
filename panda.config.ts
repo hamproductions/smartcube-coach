@@ -192,8 +192,12 @@ export default defineConfig({
     'html, body': {
       bg: 'surface',
       color: 'ink',
-      fontFamily: 'sans'
-    }
+      fontFamily: 'sans',
+      WebkitFontSmoothing: 'antialiased'
+    },
+    body: { margin: '0', minWidth: '320px' },
+    'button, a': { font: 'inherit', color: 'inherit' },
+    ':where(button, a, input, select, textarea, summary):focus-visible': { outline: '2px solid {colors.green}', outlineOffset: '2px' }
   },
 
   lightningcss: true,

@@ -1,11 +1,9 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { css } from 'styled-system/css'
 
 type Props = { surface: string; children: ReactNode }
 type State = { message?: string }
 
-// One panel throwing must not blank the whole app. A live solve in progress is the
-// expensive thing to lose: the capture keeps running in LiveSolve's own state, so a
-// crashed cube view has to stay a crashed cube view and nothing more.
 export class ErrorBoundary extends Component<Props, State> {
   state: State = {}
 
@@ -20,16 +18,11 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (!this.state.message) return this.props.children
     return (
-      <article className="panel">
-        <header className="panel-head">
-          <span className="kicker">{this.props.surface}</span>
-          <h2>This panel stopped</h2>
-        </header>
-        <p className="panel-note">{this.state.message}</p>
-        <div className="stage-actions">
-          <button className="button secondary" onClick={() => this.setState({ message: undefined })}>Try again</button>
-        </div>
-      </article>
+      <section role="alert" className={css({ m: { base: '4', md: '8' }, p: '5', display: 'flex', flexDirection: 'column', gap: '3', alignItems: 'flex-start', borderRadius: 'card', bg: 'container', borderWidth: '1px', borderColor: 'floating' })}>
+        <h2 className={css({ fontSize: 'lg', fontWeight: 'semibold' })}>This part of the app stopped</h2>
+        <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>{this.props.surface}: {this.state.message}</p>
+        <button type="button" onClick={() => this.setState({ message: undefined })} className={css({ px: '4', minH: '11', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', bg: 'floating', cursor: 'pointer' })}>Try again</button>
+      </section>
     )
   }
 }

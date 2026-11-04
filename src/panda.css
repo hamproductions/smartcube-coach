@@ -1,12 +1,1 @@
-/*
- * Migration cascade. src/styles.css is the pre-Panda sheet being migrated out
- * (see AGENTS.md: Panda CSS + Park UI is the stack). It has to be pulled into a
- * named layer: unlayered CSS outranks every layered rule no matter what order it
- * is imported in, so while it stayed unlayered it silently overrode every Panda
- * style in the app. Ranked here below `utilities`, so a migrated component wins,
- * and above `reset`/`base`, so surfaces still on the old sheet keep their layout
- * until they are migrated.
- */
-@layer reset, base, tokens, legacy, recipes, utilities;
-
-@import './styles.css' layer(legacy);
+@layer reset, base, tokens, recipes, utilities;
