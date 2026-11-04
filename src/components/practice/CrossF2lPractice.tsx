@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { css } from 'styled-system/css'
 import { Button } from '../ui/Button'
 import { Cube3D } from '../solve/Cube3D'
-import { HEX, defaultScheme, schemeFor, type ColorScheme } from '../ui/LastLayerDiagram'
+import { defaultScheme, schemeFor, type ColorScheme } from '../ui/LastLayerDiagram'
 import { useCubeConnection, injectCubeEvent, subscribeResolvedMoves, subscribeTrackerReset, trackedPattern, resetTrackedCubeToSolved } from '../../device/CubeConnection'
 import { viewRotationForHold } from '../../domain/cubeHold'
 import { patternToPlayerAlg } from '../../domain/cubedex/scramble'
@@ -117,6 +117,7 @@ export function CrossF2lPractice() {
       if (stateRef.current.phase === 'scrambling' || stateRef.current.phase === 'done') {
         const followed = followRef.current(resolved.pattern)
         if (followed?.complete && followed.moves.length > 0) queueMicrotask(() => armRef.current())
+        else if (followed?.offTrack && followed.done === 0) void generate()
       }
     })
     return () => { offReset(); offMoves() }
@@ -127,9 +128,9 @@ export function CrossF2lPractice() {
       const target = event.target instanceof HTMLElement ? event.target : null
       if (target && (/^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(target.tagName) || target.isContentEditable)) return
       if (event.metaKey || event.ctrlKey || event.altKey) return
-      if (event.code === 'Space' || event.key === 'Enter') {
+      if ((event.code === 'Space' || event.key === 'Enter') && stateRef.current.phase === 'scrambling') {
         event.preventDefault()
-        arm()
+        void generate()
         return
       }
       if (!keyboardCube) return
@@ -150,7 +151,7 @@ export function CrossF2lPractice() {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [arm, keyboardCube])
+  }, [generate, keyboardCube])
 
   useEffect(() => {
     if (state.phase !== 'solving' && state.phase !== 'ready') return
@@ -190,7 +191,7 @@ export function CrossF2lPractice() {
   const scoped = useMemo(() => attempts.filter((attempt) => attempt.pairs === goal.pairs), [attempts, goal.pairs])
   const lastResult = state.phase === 'done' && state.result
     ? { ...state.result, bestCross: attempts.find((attempt) => attempt.id === lastId)?.bestCross }
-    : undefined
+    : state.phase === 'scrambling' ? attempts.find((attempt) => attempt.id === lastId) : undefined
   const stats = useMemo(() => {
     const times = scoped.map((attempt) => attempt.durationMs)
     const lastFive = times.slice(-5)
@@ -218,23 +219,26 @@ export function CrossF2lPractice() {
   return (
     <div className={css({ display: 'grid', gap: '8', gridTemplateColumns: { base: '1fr', lg: 'minmax(0, 1fr) 20rem' }, alignItems: 'start' })}>
       <section aria-label="Attempt" className={css({ display: 'flex', flexDirection: 'column', gap: '6', minW: '0' })}>
-        <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
-          <div role="group" aria-label="Goal" className={css({ display: 'flex', flexWrap: { base: 'nowrap', md: 'wrap' }, overflowX: 'auto', gap: '2', pb: { base: '1', md: '0' } })}>
+          <div className={css({ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '3' })}>
+          <div role="group" aria-label="Goal" className={css({ display: 'flex', flexWrap: { base: 'nowrap', md: 'wrap' }, overflowX: 'auto', gap: '2', pb: { base: '1', md: '0' }, maxW: 'full' })}>
             {[0, 1, 2, 3, 4].map((pairs) => (
               <button key={pairs} type="button" className={chip} aria-pressed={goal.pairs === pairs} onClick={() => chooseGoal({ ...goal, pairs })}>
                 {goalLabel(pairs)}
               </button>
             ))}
           </div>
-          <div role="group" aria-label="Cross colour" className={css({ display: 'flex', flexWrap: { base: 'nowrap', md: 'wrap' }, overflowX: 'auto', gap: '2', alignItems: 'center', pb: { base: '1', md: '0' } })}>
-            <button type="button" className={chip} aria-pressed={goal.face === 'any'} onClick={() => chooseGoal({ ...goal, face: 'any' })}>Any colour</button>
-            {faces.map((face: Face) => (
-              <button key={face} type="button" className={chip} aria-pressed={goal.face === face} onClick={() => chooseGoal({ ...goal, face })} title={`Cross on the ${face} face`}>
-                <span aria-hidden className={css({ w: '3', h: '3', borderRadius: 'pill', borderWidth: '1px', borderColor: 'outline' })} style={{ background: HEX[scheme[face]] }} />
-                {colourName(scheme[face])}
-              </button>
-            ))}
-          </div>
+          <label className={css({ display: 'flex', alignItems: 'center', gap: '2', fontSize: 'sm', color: 'inkVariant' })}>
+            Cross colour
+            <select
+              aria-label="Cross colour"
+              value={goal.face}
+              onChange={(event) => chooseGoal({ ...goal, face: event.target.value as Face | 'any' })}
+              className={css({ minH: '10', px: '3', borderRadius: 'control', bg: 'container', color: 'ink', borderWidth: '1px', borderColor: 'floating', fontSize: 'sm', _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}
+            >
+              <option value="any">Any colour</option>
+              {faces.map((face: Face) => <option key={face} value={face}>{colourName(scheme[face])}</option>)}
+            </select>
+          </label>
         </div>
 
         <div className={css({ display: 'flex', flexDirection: 'column', gap: '3', p: { base: '4', md: '6' }, borderRadius: 'card', bg: 'container', borderWidth: '1px', borderColor: 'floating' })}>
@@ -265,7 +269,6 @@ export function CrossF2lPractice() {
             >{seconds(state.phase === 'ready' ? inspectionMs : elapsedMs)}</strong>
           </div>
           <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap', pb: '2' })}>
-            {state.phase === 'scrambling' && <Button variant="outline" onClick={arm}>I scrambled it myself <kbd className={css({ fontFamily: 'mono', fontSize: 'xs', opacity: '0.7' })}>Space</kbd></Button>}
             {state.phase === 'ready' && <Button variant="outline" onClick={() => dispatch({ type: 'unready' })}>Back to scrambling</Button>}
             {state.phase === 'solving' && <Button variant="outline" onClick={() => dispatch({ type: 'unready' })}>Abort</Button>}
           </div>
@@ -290,8 +293,8 @@ export function CrossF2lPractice() {
         )}
       </section>
 
-      <aside aria-label="Cube and session" className={css({ display: 'flex', flexDirection: 'column', gap: '6' })}>
-        <div className={css({ display: 'grid', placeItems: 'center', aspectRatio: '1', w: 'full', maxW: '20rem', mx: 'auto' })}>
+      <aside aria-label="Cube and session" className={css({ display: 'flex', flexDirection: 'column', gap: '6', order: { base: '-1', lg: '0' } })}>
+        <div className={css({ display: 'grid', placeItems: 'center', aspectRatio: '1', w: 'full', maxW: { base: '13rem', lg: '20rem' }, mx: 'auto' })}>
           <Cube3D gyro viewRotation={viewRotation} setupAlg={displayAlg} />
         </div>
 

@@ -1,4 +1,5 @@
 import type { KPattern } from 'cubing/kpuzzle'
+import { patternToPlayerAlg } from '../domain/cubedex/scramble'
 import { evaluateScramble, followScrambleWithPrefixes, isSolvedPattern, nextExpectedMove, scramblePrefixStates } from '../domain/scramble'
 
 export type CaptureStatus = 'idle' | 'scrambling' | 'ready' | 'inspection' | 'solving' | 'complete'
@@ -12,6 +13,7 @@ export type CaptureSnapshot = {
   wrongMove?: string
   /** True when the turns made no longer follow the scramble. */
   offTrack: boolean
+  startAlg?: string
   /** The turns that undo the divergence, cancelled down. Empty while on track. */
   recovery?: string[]
   /** How many scramble moves are genuinely matched so far — the only honest progress. */
@@ -87,6 +89,14 @@ function shortestFix(from: KPattern, to: KPattern): string[] | undefined {
   return undefined
 }
 
+function safePlayerAlg(pattern: KPattern) {
+  try {
+    return patternToPlayerAlg(pattern)
+  } catch {
+    return undefined
+  }
+}
+
 export class CaptureSession {
   private state: CaptureSnapshot = {
     status: 'idle',
@@ -132,6 +142,7 @@ export class CaptureSession {
     this.state = {
       status: 'scrambling',
       scramble: from?.route ?? scramble,
+      startAlg: from ? safePlayerAlg(from.pattern) : undefined,
       scrambleMoves: [],
       solveMoves: [],
       offTrack: false

@@ -15,6 +15,7 @@ export function HistoryRoute() {
   const [solves, setSolves] = useState<SolveRecord[]>()
   const [stages, setStages] = useState<StageRecord[]>([])
   const [reload, setReload] = useState(0)
+  const [storageError, setStorageError] = useState<string>()
 
   useEffect(() => subscribeSolveSaved(() => setReload((count) => count + 1)), [])
   useEffect(() => {
@@ -22,11 +23,24 @@ export function HistoryRoute() {
       .then(([allSolves, allStages]) => {
         setSolves(allSolves)
         setStages(allStages)
+        setStorageError(undefined)
       })
-      .catch(() => setSolves([]))
+      .catch((reason: unknown) => {
+        setStorageError(reason instanceof Error ? reason.message : 'storage could not be opened')
+        setSolves([])
+      })
   }, [reload])
 
   if (!solves) return null
+
+  if (storageError) {
+    return (
+      <div className={css(pageFrameRaw, { gap: '4' })}>
+        <h1 className={css({ fontSize: { base: 'xl', md: '2xl' }, fontWeight: 'semibold' })}>Stats</h1>
+        <p role="alert" className={css({ color: 'error' })}>Local storage is unavailable ({storageError}), so your solves could not be read. Nothing shown here is a real record. Close other tabs of this app and reload.</p>
+      </div>
+    )
+  }
 
   const open = openId ? solves.find((record) => record.id === openId) : undefined
 

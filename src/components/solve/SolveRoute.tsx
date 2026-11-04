@@ -33,7 +33,7 @@ import { ANALYSIS_VERSION, type SolveRecord, type StageRecord } from '../../doma
 // Wires the cockpit to real stored solves. Nothing here invents a number: a value the
 // data cannot support is rendered as an em dash, per the design system's own rule that
 // "—" is the empty state rather than 0.00, so a blank is never mistaken for a measurement.
-const DASH = '—'
+const DASH = '–'
 
 // Penalty-aware, matching statistics.ts effectiveSolveMs. Using the raw duration here
 // put a DNF'd solve in the rail as a valid time — and let it win "best" — while the ao5
@@ -245,7 +245,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
   ].filter((split): split is StageSplit => split !== undefined)
 
   const averages = useMemo<AverageRow[]>(() => [
-    { label: 'single', now: selected ? secondsOf(selected).toFixed(2) : DASH, best: bestTime === undefined ? DASH : bestTime.toFixed(2) },
+    { label: 'single', now: selected ? (isDnf(selected) ? 'DNF' : secondsOf(selected).toFixed(2)) : DASH, best: bestTime === undefined ? DASH : bestTime.toFixed(2) },
     { label: 'ao5', now: averageLabel(averageOf(solves, 5)), best: averageLabel(bestAverageOf(solves, 5)), emphasis: true },
     { label: 'ao12', now: averageLabel(averageOf(solves, 12)), best: averageLabel(bestAverageOf(solves, 12)) },
     { label: 'ao50', now: averageLabel(averageOf(solves, 50)), best: averageLabel(bestAverageOf(solves, 50)) },
@@ -318,9 +318,9 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
           // completes, the app immediately issues a new scramble, and the hero used to snap
           // to 0.00 — so an 18 second solve was never shown at all. Once the first turn of
           // the next scramble lands, it clears.
-          ? (selected && capture.scrambleMoves.length === 0 ? secondsOf(selected).toFixed(2) : '0.00')
+          ? (selected && capture.scrambleMoves.length === 0 ? (isDnf(selected) ? 'DNF' : secondsOf(selected).toFixed(2)) : '0.00')
           : timer.phase === 'stopped'
-            ? (selected ? secondsOf(selected).toFixed(2) : '0.00')
+            ? (selected ? (isDnf(selected) ? 'DNF' : secondsOf(selected).toFixed(2)) : '0.00')
             : (keyboardTimerElapsedMs(timer, performance.now()) / 1000).toFixed(2)}
       connected={cube.handle !== undefined}
       tps={selected ? tpsOf(selected) : undefined}
@@ -365,7 +365,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
       // moves you turn — the same state the tracker uses. It previously rendered the
       // target scramble, so it could never follow your turns and "Cube is solved" changed
       // nothing on screen. The scramble to perform is the text above; this is your cube.
-      cube={<Cube3D gyro viewRotation={viewRotationForHold(hold.top, hold.front)} setupAlg={[...capture.scrambleMoves, ...capture.solveMoves].join(' ')} />}
+      cube={<Cube3D gyro viewRotation={viewRotationForHold(hold.top, hold.front)} setupAlg={[capture.startAlg ?? '', ...capture.scrambleMoves, ...capture.solveMoves].filter(Boolean).join(' ')} />}
     />
     {detailSolve && (
       <BreakdownDialog

@@ -23,7 +23,8 @@ export function useRoute() {
   useEffect(() => {
     const update = () => {
       setRoute(parseRoute(window.location.hash))
-      document.querySelector('main')?.scrollTo({ top: 0 })
+      const main = document.querySelector('main')
+      if (main && typeof main.scrollTo === 'function') main.scrollTo({ top: 0 })
     }
     window.addEventListener('hashchange', update)
     return () => window.removeEventListener('hashchange', update)

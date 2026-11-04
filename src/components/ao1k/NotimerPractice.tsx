@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { css } from 'styled-system/css'
 import { Cube3D } from '../solve/Cube3D'
 import { Button } from '../ui/Button'
+import { viewRotationForHold } from '../../domain/cubeHold'
+import { defaultPreferences, readPreferences } from '../../storage/preferences'
 import { generateScramble } from '../../domain/scramble'
 import {
   loadOrDeriveChecklist,
@@ -35,6 +37,11 @@ export function NotimerPractice({ store }: NotimerPracticeProps) {
   const [checklist, setChecklist] = useState<ChecklistItem[]>([])
   const [modifier, setModifier] = useState<NotimerSolveModifier>('OK')
   const [isLoaded, setIsLoaded] = useState(false)
+  const [rotation, setRotation] = useState(viewRotationForHold(defaultPreferences.diagramTopColor, defaultPreferences.diagramFrontColor))
+
+  useEffect(() => {
+    void readPreferences().then((prefs) => setRotation(viewRotationForHold(prefs.diagramTopColor, prefs.diagramFrontColor))).catch(() => undefined)
+  }, [])
 
   useEffect(() => {
     let cancelled = false
@@ -111,7 +118,7 @@ export function NotimerPractice({ store }: NotimerPracticeProps) {
       <section aria-label="Solve" className={css({ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4', order: { base: '-1', lg: '0' } })}>
         <span className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant' })}>Solve {solve.sequence + 1}</span>
         <p aria-label="Scramble" className={css({ fontFamily: 'mono', fontSize: { base: '18px', md: '22px' }, lineHeight: '1.5', textAlign: 'center' })}>{solve.scramble}</p>
-        <div className={css({ w: '14rem', h: '14rem' })}><Cube3D setupAlg={solve.scramble} /></div>
+        <div className={css({ w: '14rem', h: '14rem' })}><Cube3D setupAlg={solve.scramble} viewRotation={rotation} /></div>
         <p className={css({ fontSize: 'sm', color: 'inkVariant', textAlign: 'center', maxW: '28rem' })}>Solve slowly with no timer. Tick the list before you start and after you finish.</p>
         <div role="group" aria-label="Result" className={css({ display: 'flex', gap: '2' })}>
           {(['OK', '+2', 'DNF'] as const).map((option) => (

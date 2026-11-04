@@ -4,7 +4,7 @@ import { Metronome, bpmToIntervalMs } from '../domain/tools/metronome'
 import { subscribeResolvedMoves } from '../device/CubeConnection'
 import { Button } from './ui/Button'
 
-const PRESETS = [40, 60, 80, 100, 120, 150, 180, 240]
+const PRESETS = [1, 1.5, 2, 2.5, 3, 4, 5, 6].map((tps) => tps * 60)
 
 const chip = css({
   display: 'inline-flex', alignItems: 'baseline', gap: '1', px: '3', minH: '10', borderRadius: 'control', flexShrink: '0',
@@ -17,7 +17,7 @@ export function TurnPacer() {
   const metronome = useRef<Metronome>(undefined)
   const [bpm, setBpm] = useState(60)
   const [running, setRunning] = useState(false)
-  const [sound, setSound] = useState(true)
+  const [sound, setSound] = useState(false)
   const [beat, setBeat] = useState(0)
   const [turns, setTurns] = useState<number[]>([])
   const beats = useRef<number[]>([])
@@ -75,7 +75,7 @@ export function TurnPacer() {
       <div role="group" aria-label="Rate" className={css({ display: 'flex', gap: '2', overflowX: 'auto', maxW: 'full', pb: '1' })}>
         {PRESETS.map((preset) => (
           <button key={preset} type="button" className={chip} aria-pressed={preset === bpm} onClick={() => setBpm(preset)}>
-            {preset}<span className={css({ fontSize: 'xs', color: 'inkVariant' })}>bpm</span>
+            {(preset / 60).toFixed(1)}<span className={css({ fontSize: 'xs', color: 'inkVariant' })}>TPS</span>
           </button>
         ))}
       </div>

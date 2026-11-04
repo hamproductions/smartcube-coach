@@ -34,7 +34,7 @@ describe('TurnPacer', () => {
 
     expect(screen.getByText(/1000 ms apart/)).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: /^120/ }))
+    await user.click(screen.getByRole('button', { name: /^2\.0/ }))
     expect(screen.getByText(/500 ms apart/)).toBeInTheDocument()
   })
 
@@ -42,10 +42,10 @@ describe('TurnPacer', () => {
     const user = userEvent.setup()
     render(<TurnPacer />)
 
-    expect(screen.getByRole('button', { name: /^60/ })).toHaveAttribute('aria-pressed', 'true')
-    await user.click(screen.getByRole('button', { name: /^80/ }))
-    expect(screen.getByRole('button', { name: /^80/ })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: /^60/ })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: /^1\.0/ })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(screen.getByRole('button', { name: /^1\.5/ }))
+    expect(screen.getByRole('button', { name: /^1\.5/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /^1\.0/ })).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('toggles between starting and stopping the pacer', async () => {

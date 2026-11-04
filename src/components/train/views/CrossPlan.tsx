@@ -192,8 +192,8 @@ export function CrossPlanTrainer() {
         )}
       </section>
 
-      <aside aria-label="Cube and session" className={css({ display: 'flex', flexDirection: 'column', gap: '6' })}>
-        <div className={css({ aspectRatio: '1', w: 'full', maxW: '20rem', mx: 'auto' })}>
+      <aside aria-label="Cube and session" className={css({ display: 'flex', flexDirection: 'column', gap: '6', order: { base: '-1', lg: '0' } })}>
+        <div className={css({ aspectRatio: '1', w: 'full', maxW: { base: '13rem', lg: '20rem' }, mx: 'auto' })}>
           <Cube3D viewRotation={rotation} setupAlg={cubeAlg} />
         </div>
         <section aria-label="Session" className={css({ display: 'flex', gap: '6' })}>

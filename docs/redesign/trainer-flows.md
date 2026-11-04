@@ -46,7 +46,7 @@ Train opens on a hub grouped by solve stage, because a cuber decides what to wor
 
 ### Plan the cross (`cross-plan`)
 - Prompt: the scrambled cube on screen with the scramble text. A 15 second inspection clock runs.
-- Answer: execute the planned cross on the cube, or type it as moves.
+- Answer: type the plan, or tap it on the move pad, in the hold shown on the cube. Turning a cross on the smart cube against the clock is Cross to pairs with the Cross goal, so it is not duplicated here.
 - Verdict: cross solved or not, your move count against the optimal count, and the optimal cross played on the cube.
 
 ### F2L on the cube (`f2l-cube`)
@@ -72,13 +72,18 @@ Train opens on a hub grouped by solve stage, because a cuber decides what to wor
 - Answer: run through the queue; each case is done or given up.
 - Verdict: targets met, and the misses listed for the next run.
 
-### Pair tracking, Piece tracking, Edge orientation, Hidden colours
+### Hidden colours
+- Prompt: a corner drawn with two of its stickers placed where they sit on a real cube, and the third shown as unknown. There are no moves to follow, so there is no pace and no hide step.
+- Answer: tap one of the six colours, or press 1 to 6.
+- Verdict: right or wrong, with the hidden sticker filled in.
+
+### Pair tracking, Piece tracking, Edge orientation
 - Prompt: the start position on the cube with the target piece named; the moves play on the cube at a set pace, then the cube is hidden.
 - Answer: tap the location (slot, edge position, oriented or flipped, colour). No typing.
 - Verdict: right or wrong, then the moves replay with the piece followed.
 
 ### Turn pacer (`pacer`)
-- Metronome at a chosen turns-per-second; the beat is visible and audible on request.
+- Metronome at a chosen turns per second; the beat is always visible and is audible only when sound is switched on. With the smart cube connected it reports the actual rate and the share of turns on the beat.
 
 ### Solve checklist (`checklist`)
 - Pre-solve and post-solve notes per solve, with the scramble to solve.

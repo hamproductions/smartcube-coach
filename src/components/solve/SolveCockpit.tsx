@@ -41,14 +41,15 @@ export function SolveCockpit({
   const offTrack = Boolean(scrambleProgress?.offTrack)
   const [trendWindow, setTrendWindow] = useState(12)
   const total = splits.reduce((sum, split) => sum + split.seconds, 0)
-  const trend = solves.length > 1
-    ? solves.slice(0, trendWindow).reverse().map((solve, index, list) => {
-        const values = list.map((entry) => Number(entry.time)).filter((value) => Number.isFinite(value))
-        const low = Math.min(...values); const high = Math.max(...values)
-        const span = high - low || 1
-        const x = (index / Math.max(1, list.length - 1)) * 100
-        const y = 38 - ((Number(solve.time) - low) / span) * 36
-        return `${index === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
+  const points = solves.slice(0, trendWindow).reverse().map((solve) => Number(solve.time))
+  const timed = points.filter((value) => Number.isFinite(value))
+  const low = Math.min(...timed)
+  const span = Math.max(...timed) - low || 1
+  const trend = timed.length > 1
+    ? points.map((value, index) => ({ value, index })).filter(({ value }) => Number.isFinite(value)).map(({ value, index }, position) => {
+        const x = (index / Math.max(1, points.length - 1)) * 100
+        const y = 38 - ((value - low) / span) * 36
+        return `${position === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`
       }).join(' ')
     : ''
   const [whole, fraction] = elapsed.includes('.') ? elapsed.split('.') : [elapsed, undefined]

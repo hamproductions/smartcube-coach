@@ -12,7 +12,7 @@ const tokens = (alg: string) => alg.trim().split(/\s+/).filter(Boolean)
 
 export function useRoutedScramble() {
   const [scramble, setScramble] = useState<RoutedScramble | null>(null)
-  const plan = useRef<{ moves: string[]; prefixes: KPattern[] } | null>(null)
+  const plan = useRef<{ moves: string[]; prefixes: KPattern[]; done: number } | null>(null)
   const request = useRef(0)
 
   const generate = useCallback(async () => {
@@ -25,7 +25,7 @@ export function useRoutedScramble() {
     const moves = tokens(route)
     const prefixes = await scramblePrefixStates(moves, start)
     if (id !== request.current) return
-    plan.current = { moves, prefixes }
+    plan.current = { moves, prefixes, done: 0 }
     setScramble({ moves, done: 0, offTrack: false, complete: moves.length === 0 })
   }, [])
 
@@ -33,13 +33,14 @@ export function useRoutedScramble() {
     const current = plan.current
     if (!current) return undefined
     const result = followScrambleWithPrefixes(pattern, current.prefixes, current.moves)
+    if (result.matched !== undefined) current.done = result.matched
     const next: RoutedScramble = {
       moves: current.moves,
-      done: result.matched ?? 0,
+      done: current.done,
       offTrack: !result.onTrack,
       complete: result.matched === current.moves.length
     }
-    setScramble((previous) => previous && previous.moves === current.moves && result.matched === undefined ? { ...previous, offTrack: !result.onTrack } : next)
+    setScramble(next)
     return next
   }, [])
 

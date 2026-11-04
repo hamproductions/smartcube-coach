@@ -289,12 +289,15 @@ export async function resetTrackedCubeToSolved() {
   // The capture session is app-owned state too. Resetting only the trackers left it
   // holding the moves and status from the abandoned attempt, so the scramble progress and
   // the rendered cube kept describing a cube the app had just declared solved.
+  sharedTargetScramble = sharedRawScramble ?? sharedTargetScramble
   await ensureSharedCapture().setScramble(currentTargetScramble())
+  for (const listener of scrambleListeners) listener(currentTargetScramble())
 }
 
 const sharedMoveTracker: { current: CubedexMoveTracker | null } = { current: null }
 const sharedSolveTracker: { current: CubedexSolveTracker | null } = { current: null }
 let sharedTargetScramble: string | null = null
+let sharedRawScramble: string | null = null
 
 /**
  * The one capture session for the whole application.
@@ -363,6 +366,7 @@ export async function ensureSharedScramble() {
  */
 export async function setSharedScramble(next: string) {
   sharedTargetScramble = next
+  sharedRawScramble = next
   ensureSharedTrackers(next)
   sharedSolveTracker.current = new CubedexSolveTracker(next)
   await sharedMoveTracker.current?.reset()
@@ -373,7 +377,6 @@ export async function setSharedScramble(next: string) {
 
 export async function newSharedScramble() {
   const next = await generateScramble()
-  sharedTargetScramble = next
   ensureSharedTrackers(next)
   const pattern = trackedPattern()
   const unsolved = pattern && !(await isSolvedPattern(pattern).catch(() => true))
@@ -389,6 +392,8 @@ export async function newSharedScramble() {
     await ensureSharedCapture().setScramble(next)
   }
   const shown = route ?? next
+  sharedRawScramble = next
+  sharedTargetScramble = shown
   for (const listener of scrambleListeners) listener(shown)
   return shown
 }

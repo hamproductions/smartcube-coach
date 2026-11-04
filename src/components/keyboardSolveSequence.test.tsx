@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from '../App'
@@ -7,12 +7,13 @@ import { MIN_KEYBOARD_SOLVE_MS, STOP_GUARD_MS } from '../domain/keyboardTimer'
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// These drove <LiveSolve/> directly, which App renders nowhere — the suite passed while
-// the screen a user actually opens went untested. Render the real app and open the route.
+const solveLink = async () => within(await screen.findByRole('navigation', { name: 'Primary' }, { timeout: 10_000 })).getByRole('link', { name: 'Solve' })
+
 const renderPlayground = async () => {
+  window.location.hash = ''
   const user = userEvent.setup()
   render(<App />)
-  await user.click(await screen.findByRole('button', { name: 'Playground' }, { timeout: 10_000 }))
+  await user.click(await solveLink())
 }
 
 const driveOneSolve = async (stopCode: string, stopKey: string) => {
@@ -137,7 +138,8 @@ describe('keyboard timer with real nav-button focus, as actually driven', () => 
     const user = userEvent.setup()
     render(<App />)
 
-    const liveSolveNav = screen.getByRole('button', { name: 'Playground' })
+    window.location.hash = ''
+    const liveSolveNav = await solveLink()
     await user.click(liveSolveNav)
     expect(document.activeElement).toBe(liveSolveNav)
 
@@ -170,7 +172,8 @@ describe('keyboard timer with real nav-button focus, as actually driven', () => 
     const user = userEvent.setup()
     render(<App />)
 
-    const liveSolveNav = screen.getByRole('button', { name: 'Playground' })
+    window.location.hash = ''
+    const liveSolveNav = await solveLink()
     await user.click(liveSolveNav)
 
     await driveOneSolve('Space', ' ')

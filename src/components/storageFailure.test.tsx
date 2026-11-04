@@ -1,8 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { repositories } from '../storage/database'
-import { HistoryProgress } from './HistoryProgress'
-import { TrainerHub } from './TrainerHub'
+import { HistoryRoute } from './history/HistoryRoute'
+import { CasesTrainer } from './train/views/Cases'
 import { CubeConnectionProvider } from '../device/CubeConnection'
 
 describe('storage failure is reported, not disguised as empty', () => {
@@ -20,16 +20,16 @@ describe('storage failure is reported, not disguised as empty', () => {
   })
 
   it('tells the user their solve history could not be read', async () => {
-    render(<HistoryProgress />)
+    render(<HistoryRoute />)
 
     await waitFor(() => expect(screen.getByText(/Local storage is unavailable/)).toBeInTheDocument())
     expect(screen.getByText(/Nothing shown here is a real record/)).toBeInTheDocument()
   }, 20_000)
 
   it('tells the user the trainer could not load its cases', async () => {
-    render(<CubeConnectionProvider><TrainerHub /></CubeConnectionProvider>)
+    render(<CubeConnectionProvider><CasesTrainer /></CubeConnectionProvider>)
 
-    await waitFor(() => expect(screen.getByText(/Local storage is unavailable/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText(/Local storage could not be opened/)).toBeInTheDocument())
     expect(screen.getByText(/attempts will not be saved/)).toBeInTheDocument()
   }, 20_000)
 })
