@@ -18,6 +18,12 @@ export type CaptureSnapshot = {
   recovery?: string[]
   /** How many scramble moves are genuinely matched so far — the only honest progress. */
   matchedIndex?: number
+  /** Off the scramble and the cube is back to solved, so the scramble should start over. */
+  backToSolved?: boolean
+  /** Off the scramble by more than a few turns, so undoing is no longer the quick way back. */
+  recoveryUnreachable?: boolean
+  /** Host time the scramble was verified; the gyro is re-zeroed here. */
+  scrambledAt?: number
   inspectionStartedAt?: number
   inspectionPenalty?: 'none' | '+2' | 'dnf'
   startedAt?: number
@@ -34,6 +40,9 @@ export type CompletedCapture = {
   startedAt: number
   endedAt: number
   penalty: 'none' | '+2' | 'dnf'
+  gyro?: number[][]
+  gyroReference?: number[]
+  deviceName?: string
 }
 
 type ClockPoint = { cube: number; host: number }
@@ -115,6 +124,9 @@ export class CaptureSession {
    */
   private prefixes?: KPattern[]
   private start?: KPattern
+  private gyro: number[][] = []
+  private gyroReference?: number[]
+  private lastGyro?: { quaternion: { x: number; y: number; z: number; w: number }; at: number }
   private recordScramble = ''
   /**
    * Turns that arrived while the solve was completing. A solver puts the cube down for a
@@ -138,6 +150,8 @@ export class CaptureSession {
     this.solveEvents = []
     this.prefixes = undefined
     this.start = from?.pattern
+    this.gyro = []
+    this.gyroReference = undefined
     this.recordScramble = scramble
     this.state = {
       status: 'scrambling',
@@ -181,6 +195,21 @@ export class CaptureSession {
     this.emit()
   }
 
+  recordGyro(quaternion: { x: number; y: number; z: number; w: number }, at: number) {
+    this.lastGyro = { quaternion, at }
+    if (!this.gyroReference && (this.state.status === 'ready' || this.state.status === 'inspection')) this.markGyroReference()
+    if (this.state.status !== 'solving' || this.state.startedAt === undefined) return
+    const offset = Math.round(at - this.state.startedAt)
+    const previous = this.gyro[this.gyro.length - 1]
+    if (offset < 0 || (previous && offset - previous[0] < 40) || this.gyro.length >= 6000) return
+    this.gyro.push([offset, quaternion.x, quaternion.y, quaternion.z, quaternion.w])
+  }
+
+  private markGyroReference() {
+    const quaternion = this.lastGyro?.quaternion
+    this.gyroReference = quaternion ? [quaternion.x, quaternion.y, quaternion.z, quaternion.w] : undefined
+  }
+
   invalidate() {
     this.generation += 1
   }
@@ -199,6 +228,8 @@ export class CaptureSession {
     this.state.wrongMove = undefined
     this.state.offTrack = false
     this.state.matchedIndex = this.state.scrambleMoves.length
+    this.state.scrambledAt = performance.now()
+    this.markGyroReference()
     this.emit()
   }
 
@@ -237,7 +268,7 @@ export class CaptureSession {
       const wanted = matchedIndex > 0
         ? base.applyAlg(Alg.fromString(targetMoves.slice(0, matchedIndex).join(' ')))
         : base
-      return shortestFix(current, wanted)
+      return { fix: shortestFix(current, wanted), solved: await isSolvedPattern(current) }
     } catch {
       return undefined
     }
@@ -286,16 +317,20 @@ export class CaptureSession {
       // scrambled state returned most of the scramble again.
       // Computed from the two cube states, never from the move history — same position, same
       // instruction, however the solver got there.
-      const recovery = this.state.offTrack
+      const divergence = this.state.offTrack
         ? await this.fixToMatchedPoint(targetMoves, this.state.matchedIndex)
-        : []
+        : { fix: [], solved: false }
       // Re-check after that await, as after every other one here: a reset or a new scramble
       // in flight replaces this.state, and writing the old scramble's recovery onto the new
       // state showed an undo hint for a scramble the solver had not started.
       if (generation !== this.generation) return
-      this.state.recovery = recovery
+      this.state.recovery = divergence?.fix
+      this.state.backToSolved = this.state.offTrack && (divergence?.solved ?? false)
+      this.state.recoveryUnreachable = this.state.offTrack && divergence !== undefined && divergence.fix === undefined
       if (verified) {
         this.state.status = 'ready'
+        this.state.scrambledAt = hostTimestamp
+        this.markGyroReference()
         this.state.expectedMove = undefined
         this.state.wrongMove = undefined
       }
@@ -315,6 +350,7 @@ export class CaptureSession {
       this.state.inspectionPenalty = inspectionPenalty(hostTimestamp - (this.state.inspectionStartedAt ?? hostTimestamp))
       this.state.status = 'solving'
       this.state.startedAt = hostTimestamp
+      this.gyro = this.lastGyro ? [[0, this.lastGyro.quaternion.x, this.lastGyro.quaternion.y, this.lastGyro.quaternion.z, this.lastGyro.quaternion.w]] : []
       // The cube's clock is monotonic, so a running readout must not be measured against
       // Date.now() — that subtraction printed a raw epoch in the timer. This is the same
       // instant on the wall clock, for display only; the recorded duration still comes from
@@ -350,7 +386,9 @@ export class CaptureSession {
         events: [...this.solveEvents],
         startedAt: this.state.startedAt ?? hostTimestamp,
         endedAt: hostTimestamp,
-        penalty: this.state.inspectionPenalty ?? 'none'
+        penalty: this.state.inspectionPenalty ?? 'none',
+        gyro: this.gyro.length > 1 ? [...this.gyro] : undefined,
+        gyroReference: this.gyroReference
       })
       if (generation !== this.generation) return
     }

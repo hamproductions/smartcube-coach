@@ -136,7 +136,7 @@ export function SolveCockpit({
                     ))}
                     <span className={css({ color: 'inkVariant' })}>to get back.</span>
                   </>
-                ) : <span className={css({ color: 'inkVariant' })}>Press New scramble and it starts from where your cube is.</span>}
+                ) : <span className={css({ color: 'inkVariant' })}>Getting a new scramble from where your cube is.</span>}
               </>
             ) : scrambleProgress && scrambleProgress.total > 0 && scrambleProgress.done < scrambleProgress.total ? (
               <span className={css({ fontFamily: 'mono', color: 'inkVariant' })}>{scrambleProgress.done} / {scrambleProgress.total}</span>

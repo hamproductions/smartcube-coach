@@ -9,7 +9,7 @@ import { onCubeColoursChange, readCubeColours } from '../cube/cubeColours'
 
 const tokens = (alg: string) => alg.trim().split(/\s+/).filter(Boolean)
 
-export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, highlight }: { setupAlg?: string; viewRotation?: string; size?: number; gyro?: boolean; highlight?: string[] }) {
+export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, gyroResetKey, highlight, orientation }: { setupAlg?: string; viewRotation?: string; size?: number; gyro?: boolean; gyroResetKey?: number; highlight?: string[]; orientation?: Quaternion | null }) {
   const host = useRef<HTMLDivElement | null>(null)
   const renderer = useRef<CubeRenderer | null>(null)
   const applied = useRef('')
@@ -69,6 +69,7 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, h
       sync()
       cube.highlight(highlightRef.current ? highlightRef.current.split(' ') : null)
       applyColours()
+      if (orientationRef.current) cube.setOrientation(orientationRef.current)
       cube.start()
     })
     return () => {
@@ -84,6 +85,17 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, h
   useEffect(() => {
     renderer.current?.highlight(highlightKey ? highlightKey.split(' ') : null)
   }, [highlightKey])
+
+  const orientationRef = useRef(orientation)
+  orientationRef.current = orientation
+  useEffect(() => {
+    if (orientation === undefined) return
+    renderer.current?.setOrientation(orientation)
+  }, [orientation?.x, orientation?.y, orientation?.z, orientation?.w, orientation === null])
+
+  useEffect(() => {
+    basis.current = null
+  }, [gyroResetKey])
 
   useEffect(() => {
     basis.current = null

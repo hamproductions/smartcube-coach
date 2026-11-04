@@ -74,6 +74,9 @@ export async function recordCompletedCapture(completed: CompletedCapture) {
     // the speed it was actually turned. Raw events are not persisted, so without this the
     // real timing is gone the moment the capture ends.
     moveOffsetsMs: moveOffsets(completed.events),
+    gyro: completed.gyro,
+    gyroReference: completed.gyroReference,
+    deviceId: completed.deviceName,
     source: 'cube',
     stateVerified: true,
     verificationDetail: 'state-verified capture'

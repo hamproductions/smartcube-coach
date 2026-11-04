@@ -366,7 +366,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
       // moves you turn — the same state the tracker uses. It previously rendered the
       // target scramble, so it could never follow your turns and "Cube is solved" changed
       // nothing on screen. The scramble to perform is the text above; this is your cube.
-      cube={<Cube3D gyro viewRotation={viewRotationForHold(hold.top, hold.front)} setupAlg={[capture.startAlg ?? '', ...capture.scrambleMoves, ...capture.solveMoves].filter(Boolean).join(' ')} />}
+      cube={<Cube3D gyro gyroResetKey={capture.scrambledAt} viewRotation={viewRotationForHold(hold.top, hold.front)} setupAlg={[capture.startAlg ?? '', ...capture.scrambleMoves, ...capture.solveMoves].filter(Boolean).join(' ')} />}
     />
     {detailSolve && (
       <BreakdownDialog
@@ -376,6 +376,8 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
         <SolveAnalysis
           solve={detailSolve}
           stages={stages.filter((stage) => stage.solveId === detailSolve.id).sort((left, right) => left.startEvent - right.startEvent)}
+          history={stages}
+          onDeleted={() => { closeDetail(); setReload((count) => count + 1) }}
           penalty={detailSolve.penalty === '+2' ? 'plus_two' : detailSolve.penalty === 'dnf' ? 'dnf' : 'none'}
           onPenalty={(next) => {
             const penalty = next === 'plus_two' ? '+2' : next === 'dnf' ? 'dnf' : 'none'

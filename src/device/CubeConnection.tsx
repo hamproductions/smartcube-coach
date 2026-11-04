@@ -90,6 +90,7 @@ export function CubeConnectionProvider({ children }: { children: ReactNode }) {
       handleRef.current = next
       setHandle(next)
       setBatteryLevel(undefined)
+      connectedCubeName = next.name || undefined
       setStatus(`${next.name} · ${next.protocol}`)
       return next
     } catch (error) {
@@ -195,6 +196,7 @@ export type CubedexTrackerState = SolveTrackerSnapshot & { lastMove: ResolvedCub
 // header kept reporting a live cube while the app had forgotten where that cube was.
 let onSharedResolvedMove: ((resolved: ResolvedCubeMove) => void) | null = null
 let captureSuspended = false
+let connectedCubeName: string | undefined
 let movedWhileSuspended = false
 
 export function suspendSolveCapture(suspended: boolean) {
@@ -222,7 +224,7 @@ export function ensureSharedTrackers(targetScramble = '') {
       } else {
         const capture = ensureSharedCapture()
         for (const raw of resolved.rawMoves) {
-          await capture.handleMove(raw.move, raw.cubeTimestamp ?? null, raw.localTimestamp ?? Date.now())
+          await capture.handleMove(raw.move, raw.cubeTimestamp ?? null, raw.localTimestamp ?? raw.timestamp)
         }
       }
       onSharedResolvedMove?.(resolved)
@@ -264,6 +266,7 @@ let trackerBusUnsubscribe: (() => void) | null = null
  * next turn and lost — so move one of a scramble read as "off the scramble".
  */
 export function injectCubeEvent(event: CubeEvent) {
+  if (event.type === 'GYRO' && !captureSuspended) ensureSharedCapture().recordGyro(event.quaternion, event.timestamp)
   const tracker = sharedMoveTracker.current
   if (tracker) tracker.slicePairing = ensureSharedCapture().snapshot.status !== 'scrambling'
   void tracker?.handleEvent(event)
@@ -327,11 +330,22 @@ export function ensureSharedCapture() {
       // window was dropped, and the app was out of sync with the cube from the next solve
       // onwards. The scramble is issued immediately; the analysis follows on its own.
       await newSharedScramble()
-      void recordCompletedCapture(completed)
+      void recordCompletedCapture({ ...completed, deviceName: connectedCubeName })
     },
-    (snapshot) => { for (const listener of captureListeners) listener(snapshot) }
+    (snapshot) => {
+      for (const listener of captureListeners) listener(snapshot)
+      if (snapshot.status === 'scrambling' && (snapshot.backToSolved || snapshot.recoveryUnreachable)) restartLostScramble()
+    }
   )
   return sharedCapture.current
+}
+
+let restartingScramble = false
+
+function restartLostScramble() {
+  if (restartingScramble || captureSuspended) return
+  restartingScramble = true
+  void newSharedScramble().catch(() => undefined).finally(() => { restartingScramble = false })
 }
 
 export function subscribeCapture(listener: (snapshot: CaptureSnapshot) => void) {

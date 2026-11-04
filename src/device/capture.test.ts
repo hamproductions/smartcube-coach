@@ -381,6 +381,45 @@ describe('the way back is stateless', () => {
   })
 })
 
+describe('getting lost while scrambling', () => {
+  it('flags a cube solved mid-scramble so the scramble can start over', async () => {
+    const { puzzles } = await import('cubing/puzzles')
+    const start = (await puzzles['3x3x3'].kpuzzle()).defaultPattern().applyAlg('R U')
+    const session = new CaptureSession(async () => undefined, () => undefined)
+    await session.setScramble("R U F' L2", { pattern: start, route: "F' L2" })
+    await session.handleMove("F'", null, 100)
+    expect(session.snapshot.backToSolved).toBe(false)
+    for (const move of ['F', "U'", "R'"]) await session.handleMove(move, null, 100)
+    expect(session.snapshot.offTrack).toBe(true)
+    expect(session.snapshot.backToSolved).toBe(true)
+  })
+
+  it('flags a divergence too deep to undo quickly', async () => {
+    const session = new CaptureSession(async () => undefined, () => undefined)
+    await session.setScramble("R U F' L2")
+    for (const move of ['B', 'D', 'L', 'B', 'D']) await session.handleMove(move, null, 100)
+    expect(session.snapshot.offTrack).toBe(true)
+    expect(session.snapshot.recoveryUnreachable).toBe(true)
+  })
+})
+
+describe('the gyro reference', () => {
+  it('is the orientation the cube was held in when the scramble finished', async () => {
+    const completed: Array<{ gyroReference?: number[] }> = []
+    const session = new CaptureSession(async (capture) => { completed.push(capture) }, () => undefined)
+    await session.setScramble('R')
+    session.recordGyro({ x: 0.1, y: 0.2, z: 0.3, w: 0.9 }, 50)
+    await session.handleMove('R', null, 100)
+    expect(session.snapshot.scrambledAt).toBe(100)
+    session.recordGyro({ x: 0.5, y: 0, z: 0, w: 0.8 }, 150)
+    await session.handleMove('U', null, 200)
+    session.recordGyro({ x: 0.4, y: 0, z: 0, w: 0.9 }, 260)
+    await session.handleMove("U'", null, 300)
+    await session.handleMove("R'", null, 400)
+    expect(completed[0]?.gyroReference).toEqual([0.1, 0.2, 0.3, 0.9])
+  })
+})
+
 describe('the live readout uses the wall clock', () => {
   it('records a wall-clock start alongside the cube-clock one', async () => {
     const session = new CaptureSession(async () => undefined, () => undefined)

@@ -38,6 +38,9 @@ export type SolveRecord = {
    * events are not persisted, so this is the only record of the real rhythm.
    */
   moveOffsetsMs?: number[]
+  /** Gyro samples while solving: [ms from the first move, x, y, z, w] as the cube reported them. */
+  gyro?: number[][]
+  gyroReference?: number[]
   source?: 'simulator' | 'cube' | 'replay' | 'keyboard'
   stateVerified?: boolean
   verificationDetail?: string

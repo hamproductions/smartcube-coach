@@ -55,6 +55,8 @@ export function HistoryRoute() {
           <SolveAnalysis
             solve={open}
             stages={stages.filter((stage) => stage.solveId === open.id).sort((left, right) => left.startEvent - right.startEvent)}
+            history={stages}
+            onDeleted={() => { setReload((count) => count + 1); navigate({ section: 'stats' }) }}
             penalty={open.penalty === '+2' ? 'plus_two' : open.penalty === 'dnf' ? 'dnf' : 'none'}
             onPenalty={(next) => {
               const penalty = next === 'plus_two' ? '+2' : next === 'dnf' ? 'dnf' : 'none'
