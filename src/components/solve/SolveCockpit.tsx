@@ -62,7 +62,6 @@ export function SolveCockpit({
       <aside aria-label="Session solves" className={css({ gridArea: 'times', minH: { lg: '0' }, display: 'flex', flexDirection: 'column', borderRightWidth: { lg: '1px' }, borderTopWidth: { base: '1px', lg: '0' }, borderColor: 'floating' })}>
         <div className={css({ px: '5', pt: '5', pb: '3', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' })}>
           <span className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{sessionName}</span>
-          <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>{solves.length} solves</span>
         </div>
         <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', px: '5', pb: '2', fontSize: 'xs', color: 'inkVariant' })}>
           <span>TPS</span>

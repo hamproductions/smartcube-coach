@@ -5,6 +5,7 @@ import { remapMoveForPlayer } from '../../domain/cubedex/smartcubeParity'
 import { conjugateQuaternion, gyroDisplayQuaternion, gyroSensorQuaternion, type Quaternion } from '../../domain/gyro'
 import { useOptionalCubeConnection } from '../../device/CubeConnection'
 import type { CubeRenderer } from '../cube/CubeRenderer'
+import { onCubeColoursChange, readCubeColours } from '../cube/cubeColours'
 
 const tokens = (alg: string) => alg.trim().split(/\s+/).filter(Boolean)
 
@@ -52,6 +53,8 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, h
     if (!element || navigator.userAgent.includes('jsdom')) return
     let disposed = false
     let observer: ResizeObserver | undefined
+    const applyColours = () => { void readCubeColours().then((colours) => { if (!disposed) renderer.current?.setColours(colours) }).catch(() => undefined) }
+    const stopColours = onCubeColoursChange(applyColours)
     void import('../cube/CubeRenderer').then(({ CubeRenderer }) => {
       if (disposed) return
       const cube = new CubeRenderer()
@@ -63,10 +66,12 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, h
       applied.current = ''
       sync()
       cube.highlight(highlightRef.current ? highlightRef.current.split(' ') : null)
+      applyColours()
       cube.start()
     })
     return () => {
       disposed = true
+      stopColours()
       observer?.disconnect()
       renderer.current?.canvas.remove()
       renderer.current?.dispose()

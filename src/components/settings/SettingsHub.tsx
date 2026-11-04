@@ -152,7 +152,7 @@ export function SettingsHub() {
             <span className={note}>How fast algorithm cases play back in the trainers.</span>
           </div>
           <div className={css({ display: 'flex', flexDirection: 'column', gap: '3', pt: '4', borderTopWidth: '1px', borderColor: 'floating' })}>
-            <p className={note}>Colours and player options below are saved on this device. The 3D cubes in this app do not read them yet.</p>
+            <p className={note}>Colours below are saved on this device and every 3D cube in the app uses them.</p>
             <Ao1kSettingsPanel store={ao1kStore} />
           </div>
         </div>

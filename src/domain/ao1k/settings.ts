@@ -27,12 +27,12 @@ export type CubeColors = {
 }
 
 export const DEFAULT_CUBE_COLORS: CubeColors = {
-  up: '#FFFFFF',
-  down: '#EEFF00',
-  front: '#3EF600',
-  back: '#2870FF',
-  right: '#FF0000',
-  left: '#FFA914',
+  up: '#F4F4F0',
+  down: '#FFD500',
+  front: '#00A651',
+  back: '#0B5BD3',
+  right: '#D1202A',
+  left: '#FF6A13',
   eo: '#FF00FF'
 }
 
