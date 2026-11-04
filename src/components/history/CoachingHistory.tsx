@@ -8,6 +8,7 @@ import type { SolveRecord, StageRecord } from '../../domain/models'
 import { routeHref } from '../../app/route'
 import { trainerById } from '../train/trainers'
 import { StageTrendChart, type StagePoint } from './StageTrendChart'
+import { InsightCard } from './InsightCard'
 import { DASH, PageHeader, plain, Section, card, mono, pageFrame, primaryButton, secondaryButton } from '../ui/Page'
 
 const STAGES = [
@@ -310,34 +311,19 @@ function Coaching({ insights }: { insights: Insight[] }) {
       ) : (
         <ol className={css({ display: 'flex', flexDirection: 'column', gap: '3', listStyle: 'none', m: '0', p: '0' })}>
           {insights.map((insight) => {
-            const trainer = trainerForInsight(insight)
             const plan = insight.finding ? buildPrescription(insight.finding) : undefined
             return (
-              <li key={insight.id} className={cx(card, css({ p: { base: '4', md: '5' }, display: 'flex', flexDirection: 'column', gap: '3' }))}>
-                <div className={css({ display: 'flex', flexDirection: { base: 'column', md: 'row' }, gap: '4', md: { alignItems: 'flex-start', justifyContent: 'space-between' } })}>
-                  <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5', minW: '0', maxW: '72ch' })}>
-                    <h3 className={css({ fontSize: 'md', fontWeight: 'semibold' })}>
-                      {plain(insight.headline)}
-                      {insight.savingMs !== undefined && (
-                        <span className={cx(mono, css({ ml: '2', fontSize: 'xs', fontWeight: 'medium', color: 'green', whiteSpace: 'nowrap' }))}>about {seconds(insight.savingMs)}s per solve</span>
-                      )}
-                    </h3>
-                    <p className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant', lineHeight: '1.6' }))}>{plain(insight.evidence)}</p>
-                    {insight.detail && <p className={css({ fontSize: 'sm', color: 'inkVariant', lineHeight: '1.6' })}>{plain(insight.detail)}</p>}
-                  </div>
-                  <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap', flexShrink: '0' })}>
-                    {plan && (
-                      <button type="button" aria-expanded={openPlan === insight.id} onClick={() => setOpenPlan((current) => current === insight.id ? undefined : insight.id)} className={secondaryButton}>
-                        {openPlan === insight.id ? 'Hide plan' : 'Show plan'}
-                      </button>
-                    )}
-                    <a href={routeHref(trainer ? { section: 'train', detail: trainer.id } : { section: 'train' })} className={primaryButton}>
-                      {trainer ? `Train: ${trainer.name}` : 'Browse trainers'}
-                    </a>
-                  </div>
-                </div>
+              <li key={insight.id} className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+                <InsightCard
+                  insight={{ ...insight, trainer: insight.trainer ?? trainerForInsight(insight)?.id }}
+                  extra={plan && (
+                    <button type="button" aria-expanded={openPlan === insight.id} onClick={() => setOpenPlan((current) => current === insight.id ? undefined : insight.id)} className={secondaryButton}>
+                      {openPlan === insight.id ? 'Hide plan' : 'Show plan'}
+                    </button>
+                  )}
+                />
                 {plan && openPlan === insight.id && (
-                  <div className={css({ pt: '3', borderTopWidth: '1px', borderColor: 'floating', display: 'flex', flexDirection: 'column', gap: '3' })}>
+                  <div className={cx(card, css({ p: { base: '4', md: '5' }, display: 'flex', flexDirection: 'column', gap: '3' }))}>
                     <div className={css({ display: 'flex', gap: '3', alignItems: 'baseline', flexWrap: 'wrap' })}>
                       <h4 className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{plan.title}</h4>
                       <span className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>{plan.duration}</span>
@@ -352,9 +338,6 @@ function Coaching({ insights }: { insights: Insight[] }) {
                         </li>
                       ))}
                     </ol>
-                    <p className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>
-                      Passes when {plan.passCondition.metric.replace(/_/g, ' ')} reaches {(plan.passCondition.target / 1000).toFixed(2)}s median over {plan.passCondition.fullSolveSample} solves.
-                    </p>
                   </div>
                 )}
               </li>

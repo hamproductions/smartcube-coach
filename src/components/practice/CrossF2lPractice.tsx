@@ -210,7 +210,7 @@ export function CrossF2lPractice() {
   const connected = cube.handle !== undefined
   const tracking = connected || keyboardCube
 
-  const status = state.phase === 'ready' ? 'Inspect. Your first turn starts the clock.'
+  const status = state.phase === 'ready' ? 'Scrambled. The clock starts on your first turn.'
     : state.phase === 'solving' ? `Solving to ${goalLabel(goal.pairs).toLowerCase()}. The clock stops by itself.`
       : state.phase === 'done' ? 'Done. Turn the next scramble when you are ready.'
         : scramble?.offTrack ? 'Off the scramble. Undo the last turn, or get a new scramble from where your cube is.'
@@ -262,11 +262,12 @@ export function CrossF2lPractice() {
 
         <div className={css({ display: 'flex', flexWrap: 'wrap', alignItems: 'end', gap: '6' })}>
           <div className={css({ display: 'flex', flexDirection: 'column', gap: '1' })}>
-            <span className={label}>{state.phase === 'ready' ? 'Inspection' : 'Time'}</span>
+            <span className={label}>Time</span>
             <strong
               data-testid="practice-clock"
               className={css({ fontFamily: 'mono', fontSize: { base: '64px', md: '96px' }, fontWeight: 'semibold', lineHeight: '0.9', letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums', color: state.phase === 'done' ? 'green' : 'ink' })}
-            >{seconds(state.phase === 'ready' ? inspectionMs : elapsedMs)}</strong>
+            >{seconds(elapsedMs)}</strong>
+            {state.phase === 'ready' && <span className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant', fontVariantNumeric: 'tabular-nums' })}>Inspecting {Math.floor(inspectionMs / 1000)}s</span>}
           </div>
           <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap', pb: '2' })}>
             {state.phase === 'ready' && <Button variant="outline" onClick={() => dispatch({ type: 'unready' })}>Back to scrambling</Button>}

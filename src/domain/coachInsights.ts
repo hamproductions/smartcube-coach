@@ -9,6 +9,12 @@ export type Insight = {
   savingMs?: number
   detail?: string
   stage?: string
+  /** One concrete thing to practise. */
+  action?: string
+  /** The trainer that practises it. */
+  trainer?: string
+  /** The solve where this showed most, to open and replay. */
+  example?: { solveId: string; label: string }
   /** Set when this insight maps onto an existing prescription plan. */
   finding?: Finding
 }
@@ -53,34 +59,87 @@ function f2lInOrder(solveStages: StageRecord[]) {
   return solveStages.filter((stage) => stage.name.startsWith('F2L')).sort((left, right) => left.startEvent - right.startEvent)
 }
 
+type Family = 'Cross' | 'F2L' | 'OLL' | 'PLL'
+
+const FAMILY_ADVICE: Record<Family, { look: string; lookTrainer: string; turns: string; turnsTrainer: string }> = {
+  Cross: {
+    look: 'Plan the whole cross in inspection so the first turn starts the solve instead of a search.',
+    lookTrainer: 'cross-plan',
+    turns: 'Plan the cross in inspection and compare your plan with the shortest one the trainer shows.',
+    turnsTrainer: 'cross-plan'
+  },
+  F2L: {
+    look: 'While you insert one pair, find the next. Pair tracking drills exactly that: follow a pair through turns without stopping.',
+    lookTrainer: 'pair-tracking',
+    turns: 'Drill the F2L cases you solve long until the short insert is automatic. F2L on the cube times each case and shows the reference.',
+    turnsTrainer: 'f2l-cube'
+  },
+  OLL: {
+    look: 'Recognise the case from the top pattern before you start turning. Drill OLL in Recognise mode until the name comes instantly.',
+    lookTrainer: 'cases',
+    turns: 'You are solving some OLLs in more than one algorithm. Learn the full OLL for the cases you two-look.',
+    turnsTrainer: 'cases'
+  },
+  PLL: {
+    look: 'Recognise PLL from two sides without rotating. Drill PLL in Recognise mode.',
+    lookTrainer: 'cases',
+    turns: 'Learn the shorter algorithm for the PLLs you solve long, then run them in Time attack.',
+    turnsTrainer: 'time-attack'
+  }
+}
+
+function familyOf(stage: StageRecord): Family | undefined {
+  if (/^cross/i.test(stage.name)) return 'Cross'
+  if (stage.name.startsWith('F2L')) return 'F2L'
+  if (stage.name === 'OLL') return 'OLL'
+  if (stage.name === 'PLL') return 'PLL'
+  return undefined
+}
+
+function quantile(values: number[], q: number) {
+  const sorted = [...values].sort((left, right) => left - right)
+  return sorted[Math.floor(q * (sorted.length - 1))] ?? 0
+}
+
 /**
- * Where the time actually goes: turning versus not turning.
- *
- * This leads because it reframes everything below it. A solver whose hands are fast and
- * whose eyes are slow will otherwise be prescribed finger drills that cannot help.
+ * Where the looking time goes, by step, and how much of it this solver has already shown
+ * they can do without: the gap between their usual and their own best quarter.
  */
 function recognitionShare(stages: StageRecord[]): Insight | undefined {
-  const recognition = stages.reduce((sum, stage) => sum + (stage.recognitionMs ?? 0), 0)
-  const execution = stages.reduce((sum, stage) => sum + (stage.executionMs ?? 0), 0)
-  const total = recognition + execution
-  if (total === 0) return undefined
-  const share = recognition / total
   const solves = bySolve(stages)
-  const perSolve = solves.map((group) => {
-    const rec = group.reduce((sum, stage) => sum + (stage.recognitionMs ?? 0), 0)
-    const all = rec + group.reduce((sum, stage) => sum + (stage.executionMs ?? 0), 0)
-    return all === 0 ? 0 : rec / all
-  })
+  if (solves.length < 2) return undefined
+  const perFamily = new Map<Family, Array<{ solveId: string; ms: number }>>()
+  for (const group of solves) {
+    const totals = new Map<Family, number>()
+    for (const stage of group) {
+      const family = familyOf(stage)
+      if (!family || stage.recognitionMs === undefined) continue
+      totals.set(family, (totals.get(family) ?? 0) + stage.recognitionMs)
+    }
+    for (const [family, value] of totals) perFamily.set(family, [...(perFamily.get(family) ?? []), { solveId: group[0].solveId, ms: value }])
+  }
+  const ranked = [...perFamily.entries()]
+    .filter(([, rows]) => rows.length >= 2)
+    .map(([family, rows]) => {
+      const values = rows.map((row) => row.ms)
+      const usual = mean(values)
+      const best = quantile(values, 0.25)
+      const worst = rows.reduce((top, row) => row.ms > top.ms ? row : top)
+      return { family, usual, best, saving: usual - best, worst, count: rows.length }
+    })
+    .sort((left, right) => right.saving - left.saving)
+  const top = ranked[0]
+  if (!top || top.saving < 150) return undefined
+  const advice = FAMILY_ADVICE[top.family]
   return {
     id: 'recognition-share',
-    headline: `${Math.round(share * 100)}% of your solve is spent not turning`,
-    evidence: `${ms(recognition)}s recognition against ${ms(execution)}s execution across ${solves.length} solve${solves.length === 1 ? '' : 's'} (${perSolve.slice(-8).map((value) => `${Math.round(value * 100)}%`).join(' · ')}).`,
-    // The "largest block" claim only holds when recognition actually exceeds turning,
-    // which stopped being true once the execution-gap rule (§1.5) moved AUF and undone
-    // turns out of recognition. Derive it instead of asserting it.
-    detail: share > 0.5
-      ? 'Recognition is pauses between moves, not thinking time you can feel. It is the largest single block of time in these solves.'
-      : 'Recognition is pauses between moves, not thinking time you can feel. Turning is the bigger share here, but this is the part that responds to lookahead work.'
+    stage: top.family,
+    headline: `You lose about ${ms(top.saving)}s a solve looking before ${top.family === 'F2L' ? 'F2L pairs' : `the ${top.family}`}`,
+    evidence: `Your usual ${top.family} recognition is ${ms(top.usual)}s per solve; your best quarter of solves does it in ${ms(top.best)}s.`,
+    savingMs: top.saving,
+    action: advice.look,
+    trainer: advice.lookTrainer,
+    example: { solveId: top.worst.solveId, label: `Slowest: ${ms(top.worst.ms)}s looking before ${top.family}` }
   }
 }
 
@@ -127,7 +186,9 @@ function lookaheadCollapse(stages: StageRecord[]): Insight | undefined {
   return {
     id: 'lookahead-collapse',
     headline: `Your lookahead stops after the first pair`,
-    evidence: `First pair is found in ${ms(firstMean)}s, the rest average ${ms(laterMean)}s — ${(laterMean / firstMean).toFixed(1)}x slower, in ${firstWasFastest} of ${counted} solve${counted === 1 ? '' : 's'}.`,
+    action: FAMILY_ADVICE.F2L.look,
+    trainer: 'pair-tracking',
+    evidence: `First pair is found in ${ms(firstMean)}s, the rest average ${ms(laterMean)}s, ${(laterMean / firstMean).toFixed(1)}x slower, in ${firstWasFastest} of ${counted} solve${counted === 1 ? '' : 's'}.`,
     savingMs,
     detail: 'The first pair is planned during inspection. After that you are searching with the cube stopped, which is why the gap is this wide.',
     // The measured first-pair time is the target: it is this solver's own demonstrated
@@ -231,29 +292,36 @@ function slotBias(stages: StageRecord[]): Insight | undefined {
 }
 
 /**
- * Move efficiency: how many turns the solve spent above the optimal solution.
- *
- * `optimalMoveCount` is already computed per stage in reconstruction.ts, and was only
- * ever surfaced in an unmounted component. Wasted turns are the most direct form of
- * "your solution was longer than it needed to be" the stored data supports.
+ * Extra turns over the shortest solution, by step, priced at this solver's own turn speed.
  */
 function moveEfficiency(stages: StageRecord[]): Insight | undefined {
-  const scored = stages.filter((stage) => stage.optimalMoveCount !== undefined && stage.moveCount > 0)
+  const scored = stages.filter((stage) => stage.optimalMoveCount !== undefined && stage.moveCount > 0 && familyOf(stage))
   if (scored.length === 0) return undefined
-  const wasted = scored.reduce((sum, stage) => sum + Math.max(0, stage.moveCount - (stage.optimalMoveCount as number)), 0)
-  if (wasted <= 0) return undefined
-  const solves = bySolve(stages).length
-  const perSolve = wasted / Math.max(1, solves)
-  const worst = [...scored].sort((left, right) =>
-    (right.moveCount - (right.optimalMoveCount as number)) - (left.moveCount - (left.optimalMoveCount as number)))[0]
-  const worstWaste = worst.moveCount - (worst.optimalMoveCount as number)
-
+  const solves = new Set(scored.map((stage) => stage.solveId)).size
+  if (solves < 2) return undefined
+  const waste = (stage: StageRecord) => Math.max(0, stage.moveCount - (stage.optimalMoveCount as number))
+  const turning = stages.reduce((sum, stage) => sum + (stage.executionMs ?? 0), 0)
+  const turns = stages.reduce((sum, stage) => sum + stage.moveCount, 0)
+  const msPerTurn = turns > 0 ? turning / turns : 0
+  const byFamily = new Map<Family, StageRecord[]>()
+  for (const stage of scored) byFamily.set(familyOf(stage)!, [...(byFamily.get(familyOf(stage)!) ?? []), stage])
+  const ranked = [...byFamily.entries()]
+    .map(([family, rows]) => ({ family, rows, extraPerSolve: rows.reduce((sum, stage) => sum + waste(stage), 0) / solves }))
+    .sort((left, right) => right.extraPerSolve - left.extraPerSolve)
+  const top = ranked[0]
+  if (!top || top.extraPerSolve < 2) return undefined
+  const worst = [...top.rows].sort((left, right) => waste(right) - waste(left))[0]
+  const advice = FAMILY_ADVICE[top.family]
+  const savingMs = top.extraPerSolve * msPerTurn
   return {
     id: 'move-efficiency',
     stage: worst.name,
-    headline: `You turn ${perSolve.toFixed(1)} more moves per solve than needed`,
-    evidence: `${wasted} extra turns across ${scored.length} scored stage${scored.length === 1 ? '' : 's'}; worst is ${worst.name} at ${worst.moveCount} moves against an optimal ${worst.optimalMoveCount} (+${worstWaste}).`,
-    detail: 'Extra turns cost time even at a high turn rate. The optimal count is the shortest solution for that exact state, so the gap is recoverable with better planning rather than faster hands.'
+    headline: `Your ${top.family === 'F2L' ? 'F2L pairs take' : `${top.family} takes`} ${top.extraPerSolve.toFixed(0)} more turns a solve than needed`,
+    evidence: `At your turn speed that is about ${ms(savingMs)}s a solve. Worst: ${worst.name} in ${worst.moveCount} turns where ${worst.optimalMoveCount} would do.`,
+    savingMs,
+    action: advice.turns,
+    trainer: advice.turnsTrainer,
+    example: { solveId: worst.solveId, label: `${worst.name}: ${worst.moveCount} turns, shortest ${worst.optimalMoveCount}` }
   }
 }
 

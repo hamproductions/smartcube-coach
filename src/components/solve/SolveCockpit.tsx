@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { css } from 'styled-system/css'
+import type { Insight } from '../../domain/coachInsights'
+import { InsightCard } from '../history/InsightCard'
 
 const STAGE_COLOURS = ['#9333ea', '#4f46e5', '#3b82f6', '#22c55e']
 
@@ -20,7 +22,7 @@ export type SolveCockpitProps = {
   solves: SolveRow[]
   averages: AverageRow[]
   sessionName: string
-  insights?: Array<{ id: string; headline: string; evidence: string; detail?: string }>
+  insights?: Insight[]
   onOpenInsights?(): void
   cube: ReactNode
   onConnect(): void
@@ -205,14 +207,9 @@ export function SolveCockpit({
         {insights && insights.length > 0 && (
           <section aria-label="What to work on" className={css({ w: 'full', maxW: '40rem', mt: '10', display: 'flex', flexDirection: 'column', gap: '3' })}>
             <h2 className={css({ fontWeight: 'semibold', fontSize: 'sm' })}>What to work on</h2>
-            {insights.map((insight) => (
-              <div key={insight.id} className={css({ p: '4', borderRadius: 'card', bg: 'container', borderWidth: '1px', borderColor: 'floating', display: 'flex', flexDirection: 'column', gap: '1' })}>
-                <span className={css({ fontWeight: 'medium' })}>{insight.headline}</span>
-                <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>{insight.evidence}</span>
-              </div>
-            ))}
+            {insights.map((insight) => <InsightCard key={insight.id} insight={insight} />)}
             {onOpenInsights && (
-              <button type="button" onClick={onOpenInsights} className={css({ alignSelf: 'flex-start', px: '4', minH: '11', borderRadius: 'control', bg: 'transparent', color: 'green', borderWidth: '1px', borderColor: 'floating', cursor: 'pointer', fontSize: 'sm', _hover: { bg: 'floating' } })}>Open in Stats</button>
+              <button type="button" onClick={onOpenInsights} className={css({ alignSelf: 'flex-start', px: '4', minH: '11', borderRadius: 'control', bg: 'transparent', color: 'inkVariant', cursor: 'pointer', fontSize: 'sm', _hover: { color: 'ink' } })}>All coaching in Stats</button>
             )}
           </section>
         )}
