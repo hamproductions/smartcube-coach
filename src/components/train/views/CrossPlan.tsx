@@ -17,7 +17,7 @@ const PAD_FACES = ['U', 'D', 'R', 'L', 'F', 'B']
 const PAD_SUFFIXES = ['', "'", '2']
 
 type Verdict = { solved: boolean; yours: number; optimal?: number; solution?: string[] }
-type Round = { scramble: string; startedAt: number }
+type Round = { scramble: string; startedAt?: number }
 
 const padButton = css({
   minH: '44px', minW: '0', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', bg: 'container',
@@ -58,8 +58,7 @@ function CrossPlanTyped() {
     setRound(null)
     try {
       const scramble = await generateScramble()
-      setRound({ scramble, startedAt: performance.now() })
-      requestAnimationFrame(() => { if (window.matchMedia('(min-width: 768px)').matches) input.current?.focus({ preventScroll: true }) })
+      setRound({ scramble })
     } catch {
       setError('Could not make a scramble. Reload the page and try again.')
     }
@@ -73,8 +72,13 @@ function CrossPlanTyped() {
     void next()
   }, [next])
 
+  const beginInspection = useCallback(() => {
+    setRound((current) => current && current.startedAt === undefined ? { ...current, startedAt: performance.now() } : current)
+    requestAnimationFrame(() => input.current?.focus({ preventScroll: true }))
+  }, [])
+
   useEffect(() => {
-    if (!round || verdict) return
+    if (!round || round.startedAt === undefined || verdict) return
     let frameId = 0
     const tick = () => { setNow(performance.now()); frameId = requestAnimationFrame(tick) }
     frameId = requestAnimationFrame(tick)
@@ -90,6 +94,7 @@ function CrossPlanTyped() {
     setChecking(true)
     setError(undefined)
     const endedAt = performance.now()
+    const startedAt = round.startedAt ?? endedAt
     const [graded, solution] = await Promise.all([gradeCrossPlan(round.scramble, parsed, frame), optimalCrossPlan(round.scramble, frame)])
     const result: Verdict = { solved: graded.solved, yours: parsed.length, optimal: graded.optimal, solution }
     setVerdict(result)
@@ -105,11 +110,11 @@ function CrossPlanTyped() {
       curriculumMode: 'drill',
       setup: { seed: round.scramble, generatorId: 'random-state-scramble', generatorVersion: '1', caseId: 'cross-inspection', scramble: round.scramble, constraintHash: `cross-${frame.bottom}` },
       input: 'keyboard',
-      startedAt: round.startedAt,
+      startedAt,
       endedAt,
-      phaseEvents: [{ phase: 'prompt', at: round.startedAt, source: 'system' }, { phase: 'grading', at: endedAt, source: 'user' }],
-      inspectionMs: endedAt - round.startedAt,
-      totalMs: endedAt - round.startedAt,
+      phaseEvents: [{ phase: 'prompt', at: startedAt, source: 'system' }, { phase: 'grading', at: endedAt, source: 'user' }],
+      inspectionMs: endedAt - startedAt,
+      totalMs: endedAt - startedAt,
       outcome: graded.solved ? 'success' : 'incorrect',
       answer: parsed.join(' '),
       answerCorrect: graded.solved,
@@ -131,13 +136,18 @@ function CrossPlanTyped() {
       if (verdict && (event.code === 'Space' || event.key === 'Enter')) {
         event.preventDefault()
         void next()
+        return
+      }
+      if (round && round.startedAt === undefined && event.code === 'Space') {
+        event.preventDefault()
+        beginInspection()
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [verdict, next])
+  }, [verdict, next, round, beginInspection])
 
-  const remainingMs = round && !verdict ? INSPECTION_MS - (now - round.startedAt) : undefined
+  const remainingMs = round && round.startedAt !== undefined && !verdict ? INSPECTION_MS - (now - round.startedAt) : undefined
   const solvedCount = history.filter((entry) => entry.solved).length
   const extra = history.filter((entry) => entry.solved && entry.optimal !== undefined)
   const averageExtra = extra.length ? extra.reduce((total, entry) => total + entry.yours - (entry.optimal ?? 0), 0) / extra.length : undefined
@@ -155,7 +165,10 @@ function CrossPlanTyped() {
           <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>Hold it with the {bottomColour} cross on the bottom, as the cube shows, and plan the whole cross before you turn.</p>
         </div>
 
-        {!verdict && (
+        {!verdict && round && round.startedAt === undefined && (
+          <div><Button variant="solid" onClick={beginInspection}>Start inspection <kbd className={css({ fontFamily: 'mono', fontSize: 'xs', opacity: '0.7' })}>Space</kbd></Button></div>
+        )}
+        {!verdict && round?.startedAt !== undefined && (
           <div className={css({ display: 'flex', alignItems: 'baseline', gap: '3' })}>
             <span aria-label="Inspection" className={css({ fontFamily: 'mono', fontSize: { base: '48px', md: '64px' }, fontWeight: 'semibold', lineHeight: '1', fontVariantNumeric: 'tabular-nums', color: remainingMs !== undefined && remainingMs < 0 ? 'amber' : 'ink' })}>
               {remainingMs === undefined ? '15.0' : (Math.abs(remainingMs) / 1000).toFixed(1)}
