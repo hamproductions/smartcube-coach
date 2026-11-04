@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { RecoStage } from '../integrations/reco'
-import { css, cx } from 'styled-system/css'
+import { css } from 'styled-system/css'
 import { ErrorBoundary } from './ui/ErrorBoundary'
 import { Cube3D } from './solve/Cube3D'
 
-const control = css({
+const controlRaw = css.raw({
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '2', minH: '44px', px: '4',
   borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', bg: 'transparent', color: 'ink',
   fontSize: 'sm', fontWeight: 'medium', cursor: 'pointer', _hover: { bg: 'floating' },
   _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' }
 })
+const control = css(controlRaw)
 
 type CubePlaybackProps = {
   title: string
@@ -95,15 +96,15 @@ function CubePlaybackView({ title, scramble, moves, stages, setupAlg, moveTimest
       </div>
       {!live && !controller && <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap' })}>
         <button type="button" aria-label="Previous move" onClick={() => nudge(-1)} className={control}>Back</button>
-        <button type="button" aria-label={playing ? 'Pause playback' : 'Play reconstruction'} onClick={() => setPlaying((current) => !current)} className={cx(control, css({ bg: 'green', borderColor: 'green', color: 'onGreen', fontWeight: 'semibold', minW: '6rem', _hover: { bg: 'greenBright' } }))}>
+        <button type="button" aria-label={playing ? 'Pause playback' : 'Play reconstruction'} onClick={() => setPlaying((current) => !current)} className={css(controlRaw, { bg: 'green', borderColor: 'green', color: 'onGreen', fontWeight: 'semibold', minW: '6rem', _hover: { bg: 'greenBright' } })}>
           {playing ? 'Pause' : 'Play'}
         </button>
         <button type="button" aria-label="Next move" onClick={() => nudge(1)} className={control}>Next</button>
-        <button type="button" aria-label="Reset playback" onClick={() => seek(0)} className={cx(control, css({ ml: 'auto' }))}>Reset</button>
+        <button type="button" aria-label="Reset playback" onClick={() => seek(0)} className={css(controlRaw, { ml: 'auto' })}>Reset</button>
       </div>}
       {!live && !controller && stageEnds.length > 0 && <div aria-label="Reconstruction stages" className={css({ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(8rem, 1fr))', gap: '2' })}>
         {stageEnds.map((stage) => (
-          <button key={`${stage.label}-${stage.end}`} type="button" onClick={() => seek(stage.end)} className={cx(control, css({ justifyContent: 'space-between', fontSize: 'xs', color: 'inkVariant' }))}>
+          <button key={`${stage.label}-${stage.end}`} type="button" onClick={() => seek(stage.end)} className={css(controlRaw, { justifyContent: 'space-between', fontSize: 'xs', color: 'inkVariant' })}>
             <span className={css({ overflow: 'hidden', textOverflow: 'ellipsis' })}>{stage.label}</span>
             <span className={css({ fontFamily: 'mono', color: 'ink' })}>{stage.end}</span>
           </button>

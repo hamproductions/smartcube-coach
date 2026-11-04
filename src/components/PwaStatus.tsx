@@ -1,7 +1,7 @@
 import { css } from 'styled-system/css'
-import { Button } from './ui/Button'
 import { useEffect, useState } from 'react'
 import { activateUpdate, registerSmartCubeCoachPwa } from '../pwa/register'
+import { mono, primaryButton, secondaryButton } from './ui/Page'
 
 export function PwaStatus() {
   const [online, setOnline] = useState(navigator.onLine)
@@ -40,15 +40,23 @@ export function PwaStatus() {
   }
 
   return (
-    <div className={css({ display: 'flex', alignItems: 'center', gap: '2', minW: '0' })}>
-      <span className={css({ w: '2', h: '2', borderRadius: 'full', flexShrink: '0', bg: online ? 'green' : 'outline' })} />
-      <div className={css({ display: 'grid', minW: '0', lineHeight: 'tight' })}>
-        <strong className={css({ fontSize: '2xs', letterSpacing: 'wide', color: 'ink', whiteSpace: 'nowrap' })}>{online ? 'LOCAL FIRST' : 'OFFLINE'}</strong>
-        <small className={css({ fontSize: '2xs', color: 'inkVariant', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' })}>{usage || 'Storage checking…'} · {persisted ? 'durable' : 'best effort'}</small>
-        {shellError && <small className={css({ fontSize: '2xs', color: 'error' })}>{shellError}</small>}
+    <div className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+      <div className={css({ display: 'flex', alignItems: 'flex-start', gap: '3' })}>
+        <span aria-hidden className={css({ mt: '1.5', w: '2', h: '2', borderRadius: 'pill', flexShrink: '0', bg: online ? 'green' : 'amber' })} />
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '1', minW: '0' })}>
+          <span className={css({ fontWeight: 'medium' })}>{online ? 'Everything is stored on this device' : 'Offline. Everything keeps working from this device'}</span>
+          <span className={css({ fontSize: 'sm', color: 'inkVariant' })}>
+            {usage && <><span className={mono}>{usage}</span> used · </>}{persisted ? 'durable, the browser will not clear it' : 'best effort, the browser may clear it when space runs low'}
+          </span>
+          {shellError && <span className={css({ fontSize: 'sm', color: 'error' })}>{shellError}</span>}
+        </div>
       </div>
-      {!persisted && <Button size="xs" variant="outline" aria-label="Protect local data" onClick={persist}>Protect</Button>}
-      {update && <Button size="xs" aria-label="Install update" onClick={() => void activateUpdate()}>Update</Button>}
+      {(!persisted || update) && (
+        <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap' })}>
+          {!persisted && <button type="button" onClick={() => void persist()} className={secondaryButton}>Protect local data</button>}
+          {update && <button type="button" onClick={() => void activateUpdate()} className={primaryButton}>Install update</button>}
+        </div>
+      )}
     </div>
   )
 }

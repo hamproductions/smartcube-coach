@@ -4,6 +4,8 @@ import type { SolveRecord, StudyRecord } from '../domain/models'
 import { computePhaseMetrics } from '../domain/solveMetrics'
 import { repositories } from '../storage/database'
 import { CubePlayback } from './CubePlayback'
+import { css, cx } from 'styled-system/css'
+import { DASH, Section, card, mono, primaryButton, secondaryButton, secondaryRaw, sectionTitle, textInput } from './ui/Page'
 
 const defaultUrl = 'https://reco.nz/solve/13444'
 
@@ -12,10 +14,10 @@ const parseSecondsToMs = (value: string | undefined): number | undefined => {
   return Number.isFinite(seconds) ? seconds * 1_000 : undefined
 }
 
-const formatSeconds = (ms: number | undefined): string => (ms === undefined ? '—' : (ms / 1_000).toFixed(2))
-const formatPercent = (value: number | undefined): string => (value === undefined ? '—' : `${value.toFixed(1)}%`)
-const formatCount = (value: number | undefined): string => (value === undefined ? '—' : String(value))
-const formatRate = (value: number | undefined): string => (value === undefined ? '—' : value.toFixed(2))
+const formatSeconds = (ms: number | undefined): string => (ms === undefined ? DASH : (ms / 1_000).toFixed(2))
+const formatPercent = (value: number | undefined): string => (value === undefined ? DASH : `${value.toFixed(1)}%`)
+const formatCount = (value: number | undefined): string => (value === undefined ? DASH : String(value))
+const formatRate = (value: number | undefined): string => (value === undefined ? DASH : value.toFixed(2))
 
 export function RecoStudy() {
   const [url, setUrl] = useState(defaultUrl)
@@ -104,17 +106,21 @@ export function RecoStudy() {
     void updateStudy(notes, next)
   }
 
+  const th = css({ px: '3', py: '2.5', textAlign: 'right', fontWeight: 'normal', fontSize: 'xs', color: 'inkVariant', whiteSpace: 'nowrap', _first: { textAlign: 'left' } })
+  const td = css({ px: '3', py: '2', textAlign: 'right', whiteSpace: 'nowrap', _first: { textAlign: 'left', fontFamily: 'sans' } })
+  const comparison = [
+    { label: 'Their moves', value: String(reconstruction?.moves.length ?? DASH) },
+    { label: 'Your solve of this scramble', value: matchingSolve ? `${matchingSolve.moves.length} moves` : 'Not recorded' },
+    { label: 'Move difference', value: matchingSolve && reconstruction ? String(matchingSolve.moves.length - reconstruction.moves.length) : DASH },
+    { label: 'Bookmarks', value: String(bookmarks.length) }
+  ]
+
   return (
-    <section className="reco-study panel">
-      <div className="reco-study-intro">
-        <div>
-          <span className="eyebrow green">STUDY LIBRARY</span>
-          <h2>Study someone else's solution.</h2>
-          <p>Import a public reconstruction, replay every turn, isolate stages, and keep private notes beside the original attribution.</p>
-        </div>
-        <form onSubmit={importReconstruction}>
-          <label htmlFor="reco-url">reco.nz solve URL</label>
-          <div>
+    <div className={css({ display: 'flex', flexDirection: 'column', gap: '10' })}>
+      <Section id="reco-import" title="Study someone else's solve" description="Import a public reconstruction from reco.nz, replay every turn, and keep your own notes next to the original credit.">
+        <form onSubmit={importReconstruction} className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+          <label htmlFor="reco-url" className={css({ fontSize: 'sm', color: 'inkVariant' })}>reco.nz solve URL</label>
+          <div className={css({ display: 'flex', gap: '2', flexDirection: { base: 'column', sm: 'row' } })}>
             <input
               id="reco-url"
               name="reco-url"
@@ -122,38 +128,48 @@ export function RecoStudy() {
               placeholder="https://reco.nz/solve/13444"
               type="url"
               value={url}
+              className={cx(textInput, mono, css({ flex: '1' }))}
             />
-            <button className="button primary" disabled={status === 'loading'} type="submit">
-              {status === 'loading' ? 'Importing…' : 'Import reconstruction'}
+            <button className={primaryButton} disabled={status === 'loading'} type="submit">
+              {status === 'loading' ? 'Importing...' : 'Import reconstruction'}
             </button>
           </div>
-          {location.hostname.endsWith('github.io') && <p className="editor-message">Static deployment: solve 13444 is bundled with attribution. Arbitrary imports require the local Bun server.</p>}
-          {error && <p className="import-error" role="alert">{error}</p>}
+          {location.hostname.endsWith('github.io') && <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>This hosted copy can only load the bundled solve 13444. Other imports need the local Bun server.</p>}
+          {error && <p className={css({ fontSize: 'sm', color: 'error' })} role="alert">{error}</p>}
         </form>
-      </div>
+      </Section>
 
       {reconstruction && (
-        <div className="reco-study-content">
-          <div className="reco-attribution">
-            <div>
-              <span>{reconstruction.puzzle} · reconstructed by {reconstruction.reconstructor || 'community contributor'}</span>
-              <h2>{reconstruction.solver} · {reconstruction.result}</h2>
-              <p>{reconstruction.subtitle}</p>
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '8' })}>
+          <header className={css({ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '4', flexWrap: 'wrap' })}>
+            <div className={css({ display: 'flex', flexDirection: 'column', gap: '1', minW: '0' })}>
+              <span className={css({ fontSize: 'xs', color: 'inkVariant' })}>{reconstruction.puzzle} · reconstructed by {reconstruction.reconstructor || 'a community contributor'}</span>
+              <h2 className={css({ fontSize: 'xl', fontWeight: 'semibold' })}>{reconstruction.solver} · {reconstruction.result}</h2>
+              {reconstruction.subtitle && <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>{reconstruction.subtitle}</p>}
             </div>
-            <a href={reconstruction.sourceUrl} rel="noreferrer" target="_blank">Open original on reco.nz</a>
-          </div>
+            <a href={reconstruction.sourceUrl} rel="noreferrer" target="_blank" className={secondaryButton}>Open original on reco.nz</a>
+          </header>
 
-          <div className="reco-stats-table" style={{ overflowX: 'auto' }}>
-            <table className="stat-table">
+          <dl className={css({ display: 'grid', gridTemplateColumns: { base: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, gap: '4', m: '0' })}>
+            {comparison.map((item) => (
+              <div key={item.label} className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
+                <dt className={css({ fontSize: 'xs', color: 'inkVariant' })}>{item.label}</dt>
+                <dd className={cx(mono, css({ m: '0', fontSize: 'lg' }))}>{item.value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <div className={cx(card, css({ overflowX: 'auto' }))}>
+            <table className={cx(mono, css({ w: 'full', borderCollapse: 'collapse', fontSize: 'sm' }))}>
               <thead>
-                <tr>
-                  <th>Phase</th>
-                  <th>Time</th>
-                  <th>Split %</th>
-                  <th>STM</th>
-                  <th>STPS</th>
-                  <th>ETM</th>
-                  <th>ETPS</th>
+                <tr className={css({ borderBottomWidth: '1px', borderColor: 'floating', fontFamily: 'sans' })}>
+                  <th scope="col" className={th}>Phase</th>
+                  <th scope="col" className={th}>Time</th>
+                  <th scope="col" className={th}>Split %</th>
+                  <th scope="col" className={th}>STM</th>
+                  <th scope="col" className={th}>STPS</th>
+                  <th scope="col" className={th}>ETM</th>
+                  <th scope="col" className={th}>ETPS</th>
                 </tr>
               </thead>
               <tbody>
@@ -161,87 +177,90 @@ export function RecoStudy() {
                   const durationMs = parseSecondsToMs(reconstruction.stats.Time?.[stage.label])
                   const metrics = computePhaseMetrics(stage.moves, durationMs, totalDurationMs)
                   return (
-                    <tr key={stage.label}>
-                      <td>{stage.label}</td>
-                      <td>{formatSeconds(durationMs)}</td>
-                      <td>{formatPercent(metrics.splitPercent)}</td>
-                      <td>{formatCount(metrics.stm)}</td>
-                      <td>{formatRate(metrics.stps)}</td>
-                      <td>{formatCount(metrics.etm)}</td>
-                      <td>{formatRate(metrics.etps)}</td>
+                    <tr key={stage.label} className={css({ borderBottomWidth: '1px', borderColor: 'floating' })}>
+                      <td className={td}>{stage.label}</td>
+                      <td className={td}>{formatSeconds(durationMs)}</td>
+                      <td className={td}>{formatPercent(metrics.splitPercent)}</td>
+                      <td className={td}>{formatCount(metrics.stm)}</td>
+                      <td className={td}>{formatRate(metrics.stps)}</td>
+                      <td className={td}>{formatCount(metrics.etm)}</td>
+                      <td className={td}>{formatRate(metrics.etps)}</td>
                     </tr>
                   )
                 })}
-                <tr>
-                  <td>Total</td>
-                  <td>{formatSeconds(totalDurationMs)}</td>
-                  <td>{formatPercent(totalMetrics.splitPercent)}</td>
-                  <td>{formatCount(totalMetrics.stm)}</td>
-                  <td>{formatRate(totalMetrics.stps)}</td>
-                  <td>{formatCount(totalMetrics.etm)}</td>
-                  <td>{formatRate(totalMetrics.etps)}</td>
+                <tr className={css({ fontWeight: 'semibold' })}>
+                  <td className={td}>Total</td>
+                  <td className={td}>{formatSeconds(totalDurationMs)}</td>
+                  <td className={td}>{formatPercent(totalMetrics.splitPercent)}</td>
+                  <td className={td}>{formatCount(totalMetrics.stm)}</td>
+                  <td className={td}>{formatRate(totalMetrics.stps)}</td>
+                  <td className={td}>{formatCount(totalMetrics.etm)}</td>
+                  <td className={td}>{formatRate(totalMetrics.etps)}</td>
                 </tr>
               </tbody>
             </table>
-          </div>
-
-          <div className="comparison-strip">
-            <div><span>Expert moves</span><strong>{reconstruction.moves.length}</strong></div>
-            <div><span>Your same-scramble solve</span><strong>{matchingSolve ? matchingSolve.moves.length : 'Not captured'}</strong></div>
-            <div><span>Move delta</span><strong>{matchingSolve ? matchingSolve.moves.length - reconstruction.moves.length : '—'}</strong></div>
-            <div><span>Bookmarks</span><strong>{bookmarks.length}</strong></div>
           </div>
 
           <CubePlayback
             moves={reconstruction.moves}
             scramble={reconstruction.scramble}
             stages={reconstruction.stages}
-            title="Reconstruction playback"
+            title="Replay"
           />
 
-          <div className="study-workbench">
-            <div>
-              <span className="eyebrow">STAGE QUESTIONS</span>
-              <div className="study-stage-list">
+          <div className={css({ display: 'grid', gap: '6', gridTemplateColumns: { base: '1fr', lg: 'repeat(2, minmax(0, 1fr))' } })}>
+            <section aria-labelledby="stage-questions" className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
+              <h3 id="stage-questions" className={sectionTitle}>Pick a stage to study</h3>
+              <ul className={css({ display: 'flex', flexDirection: 'column', gap: '2', listStyle: 'none', m: '0', p: '0' })}>
                 {reconstruction.stages
                   .filter((stage) => stage.label.toLowerCase() !== 'inspection')
                   .map((stage, index, stages) => {
                     const end = stages.slice(0, index + 1).reduce((sum, item) => sum + item.moves.length, 0)
+                    const marked = bookmarks.includes(end)
                     return (
-                      <div className="study-stage-item" key={stage.label}>
+                      <li key={stage.label} className={css({ display: 'flex', gap: '2' })}>
                         <button
+                          type="button"
                           aria-label={`Study ${stage.label}`}
                           aria-pressed={focusStage === stage.label}
-                          className={focusStage === stage.label ? 'active' : ''}
                           onClick={() => setFocusStage(stage.label)}
+                          className={css(secondaryRaw, { flex: '1', justifyContent: 'space-between', '&[aria-pressed=true]': { borderColor: 'green', bg: 'floating' } })}
                         >
-                          <span>Study {stage.label}</span>
-                          <strong>{stage.moves.length} moves</strong>
+                          <span>{stage.label}</span>
+                          <span className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>{stage.moves.length} moves</span>
                         </button>
-                        <button aria-label={`Bookmark ${stage.label}`} onClick={() => toggleBookmark(end)}>{bookmarks.includes(end) ? '★' : '☆'}</button>
-                      </div>
+                        <button
+                          type="button"
+                          aria-label={`Bookmark ${stage.label}`}
+                          aria-pressed={marked}
+                          onClick={() => toggleBookmark(end)}
+                          className={marked ? css(secondaryRaw, { w: '44px', px: '0', color: 'amber' }) : css(secondaryRaw, { w: '44px', px: '0', color: 'inkVariant' })}
+                        >{marked ? '★' : '☆'}</button>
+                      </li>
                     )
                   })}
-              </div>
-              <p className="study-prompt">
+              </ul>
+              <p className={css({ fontSize: 'sm', color: 'inkVariant', lineHeight: '1.6' })}>
                 {focusStage
-                  ? `What did ${reconstruction.solver} preserve or predict during ${focusStage}? Compare orientation, rotations, and transition into the next stage.`
-                  : 'Choose a stage to create a focused study prompt.'}
+                  ? `What did ${reconstruction.solver} keep or predict during ${focusStage}? Compare orientation, rotations, and how they move into the next stage.`
+                  : 'Choose a stage to get a question to study it with.'}
               </p>
-            </div>
-            <div>
-              <label htmlFor="study-notes">Study notes</label>
+            </section>
+            <section className={css({ display: 'flex', flexDirection: 'column', gap: '2' })}>
+              <label htmlFor="study-notes" className={sectionTitle}>Study notes</label>
               <textarea
                 id="study-notes"
                 onChange={(event) => updateNotes(event.target.value)}
-                placeholder="What is reusable in your own solves?"
+                placeholder="What can you reuse in your own solves?"
                 value={notes}
+                rows={6}
+                className={cx(textInput, css({ resize: 'vertical', lineHeight: '1.6' }))}
               />
-              <small>Saved locally under reco.nz solve #{reconstruction.id}</small>
-            </div>
+              <small className={css({ fontSize: 'xs', color: 'inkVariant' })}>Saved on this device with reco.nz solve <span className={mono}>#{reconstruction.id}</span>.</small>
+            </section>
           </div>
         </div>
       )}
-    </section>
+    </div>
   )
 }

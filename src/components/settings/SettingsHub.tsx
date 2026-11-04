@@ -1,58 +1,38 @@
-import { useEffect, useState } from 'react'
-import { css } from 'styled-system/css'
+import { useEffect, useState, type ReactNode } from 'react'
+import { css, cx } from 'styled-system/css'
 import { schemeFor, type StickerColor } from '../ui/LastLayerDiagram'
-import { styled } from 'styled-system/jsx'
-import { useCubeConnection } from '../../device/CubeConnection'
+import { resetTrackedCubeToSolved, useCubeConnection } from '../../device/CubeConnection'
+import { bluetoothSource } from '../../device/sources'
+import { supportsWebBluetooth } from '../../device/webBluetooth'
 import { repositories } from '../../storage/database'
-import { downloadBackup, exportAllData } from '../../storage/transfer'
+import { downloadBackup, downloadCsTimerCsv, exportAllData, exportSessionAsCsTimerCsv } from '../../storage/transfer'
 import { readPreferences, writePreference, type Preferences } from '../../storage/preferences'
+import { parseAppSettings, type SettingsStore } from '../../domain/ao1k/settings'
+import { Ao1kSettingsPanel } from '../ao1k/Ao1kSettingsPanel'
 import { DiagnosticsPanel } from './DiagnosticsPanel'
 import { PwaStatus } from '../PwaStatus'
+import { DASH, PageHeader, Section, card, mono, pageFrame, primaryButton, secondaryButton, textInput } from '../ui/Page'
 
-// Ported from docs/design/stitch/settings_device_hub/code.html: a header, then a
-// two-column grid of bordered cards. Only the cards whose values this app can actually
-// measure or act on are here — the export's firmware, signal-strength and inspection
-// controls have nothing behind them yet, and a control that changes nothing is worse
-// than an absent one. Unmeasurable rows render as a dash rather than a plausible number.
+const COLOURS: StickerColor[] = ['white', 'yellow', 'green', 'blue', 'red', 'orange']
 
-const Card = styled('section', {
-  base: {
-    bg: 'container', borderWidth: '1px', borderColor: 'floating', borderRadius: 'card',
-    p: '6', display: 'flex', flexDirection: 'column'
-  }
-})
-
-const CardTitle = styled('h2', {
-  base: { fontSize: 'md', fontWeight: 'bold', color: 'ink' }
-})
-
-const Inset = styled('div', {
-  base: {
-    bg: 'surface', borderWidth: '1px', borderColor: 'floating', borderRadius: 'control',
-    p: '4', display: 'flex', flexDirection: 'column', gap: '2'
-  }
-})
-
-const Action = styled('button', {
-  base: {
-    w: 'full', minH: '48px', px: '4', borderRadius: 'control',
-    borderWidth: '1px', borderColor: 'floating', bg: 'transparent', color: 'ink',
-    cursor: 'pointer', fontFamily: 'sans', fontSize: 'xs', fontWeight: 'bold',
-    letterSpacing: '0.12em', textTransform: 'uppercase',
-    _hover: { bg: 'floating' }
+const ao1kStore: SettingsStore = {
+  async read() {
+    const record = await repositories.settings.get('ao1k-settings')
+    return parseAppSettings(record?.value)
   },
-  variants: {
-    danger: { true: { borderColor: 'error', color: 'error', _hover: { bg: 'rgba(255,180,171,0.12)' } } }
+  async write(settings) {
+    await repositories.settings.put({ key: 'ao1k-settings', value: settings })
   }
-})
+}
 
-const DASH = '—'
+const group = cx(card, css({ p: { base: '4', md: '5' }, display: 'flex', flexDirection: 'column', gap: '4' }))
+const note = css({ fontSize: 'sm', color: 'inkVariant', maxW: '70ch' })
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '4', fontFamily: 'mono', fontSize: 'sm' })}>
-      <span className={css({ color: 'inkVariant' })}>{label}</span>
-      <span className={css({ color: value === DASH ? 'inkVariant' : 'ink', textAlign: 'right' })}>{value}</span>
+    <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '4', py: '2', borderTopWidth: '1px', borderColor: 'floating', _first: { borderTopWidth: '0', pt: '0' } })}>
+      <dt className={css({ color: 'inkVariant', fontSize: 'sm' })}>{label}</dt>
+      <dd className={cx(mono, css({ m: '0', fontSize: 'sm', textAlign: 'right', minW: '0', overflowWrap: 'anywhere', color: value === DASH ? 'inkVariant' : 'ink' }))}>{value}</dd>
     </div>
   )
 }
@@ -60,13 +40,16 @@ function Row({ label, value }: { label: string; value: string }) {
 export function SettingsHub() {
   const cube = useCubeConnection()
   const [prefs, setPrefs] = useState<Preferences>()
-  const [counts, setCounts] = useState<{ solves: number; stages: number }>()
+  const [counts, setCounts] = useState<{ solves: number; stages: number; studies: number }>()
   const [busy, setBusy] = useState<string>()
+  const [notice, setNotice] = useState<string>()
+  const [diagnostics, setDiagnostics] = useState(false)
+  const bluetooth = supportsWebBluetooth()
 
   useEffect(() => {
     void readPreferences().then(setPrefs).catch(() => undefined)
-    void Promise.all([repositories.solves.all(), repositories.stages.all()])
-      .then(([solves, stages]) => setCounts({ solves: solves.length, stages: stages.length }))
+    void Promise.all([repositories.solves.all(), repositories.stages.all(), repositories.studies.all()])
+      .then(([solves, stages, studies]) => setCounts({ solves: solves.length, stages: stages.length, studies: studies.length }))
       .catch(() => undefined)
   }, [])
 
@@ -74,153 +57,153 @@ export function SettingsHub() {
     void writePreference(key, value).then(setPrefs)
   }
 
+  const connect = () => {
+    void cube.connect(bluetoothSource({ requestInitialState: true }))
+      .catch((error: unknown) => cube.setStatus(error instanceof Error ? error.message : 'Could not connect to a cube'))
+  }
+
+  const invalidHold = prefs !== undefined && !schemeFor(prefs.diagramTopColor, prefs.diagramFrontColor)
+
   return (
-    <div className={css({ flex: '1', minH: '0', overflowY: 'auto', p: '8' })}>
-      <div className={css({ maxW: '1024px', mx: 'auto' })}>
-        <header className={css({ mb: '8', pb: '4', borderBottomWidth: '1px', borderColor: 'floating' })}>
-          <h1 className={css({ fontSize: '2xl', fontWeight: 'semibold', color: 'ink', letterSpacing: '-0.02em' })}>Settings &amp; Device Hub</h1>
-          <p className={css({ mt: '2', color: 'inkVariant' })}>Manage your smart cube connection, playback, and data.</p>
-        </header>
+    <div className={pageFrame}>
+      <PageHeader title="Settings" description="Your cube, how solves are timed and shown, and the data kept on this device." />
 
-        <div className={css({ display: 'grid', gap: 'gutter', gridTemplateColumns: '1fr', lg: { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' } })}>
-          <Card>
-            <CardTitle className={css({ mb: '6' })}>Cube Connection</CardTitle>
-            <Inset>
-              <Row label="Device" value={cube.handle?.name ?? DASH} />
-              <Row label="Protocol" value={cube.handle?.protocol ?? DASH} />
-              <Row label="MAC address" value={cube.handle?.mac ?? DASH} />
-              <Row label="Battery" value={cube.batteryLevel === undefined ? DASH : `${cube.batteryLevel}%`} />
-              <Row label="Status" value={cube.status} />
-            </Inset>
-            <p className={css({ mt: '3', fontSize: 'xs', color: 'inkVariant' })}>
-              Firmware and signal strength are not exposed over this protocol, so they are not shown.
-            </p>
-            <div className={css({ mt: 'auto', pt: '6' })}>
-              <Action
-                type="button"
-                disabled={cube.connecting}
-                onClick={() => { if (cube.handle) void cube.disconnect() }}
-              >{cube.handle ? 'Disconnect' : 'Not connected'}</Action>
+      <Section id="cube" title="Cube">
+        <div className={group}>
+          <dl className={css({ m: '0' })}>
+            <Row label="Device" value={cube.handle?.name || DASH} />
+            <Row label="Protocol" value={cube.handle?.protocol || DASH} />
+            <Row label="MAC address" value={cube.handle?.mac || DASH} />
+            <Row label="Battery" value={cube.batteryLevel === undefined ? DASH : `${cube.batteryLevel}%`} />
+            <Row label="Status" value={<span className={css({ fontFamily: 'sans' })}>{cube.status}</span>} />
+          </dl>
+          <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap' })}>
+            {cube.handle
+              ? <button type="button" onClick={() => void cube.disconnect()} className={secondaryButton}>Disconnect</button>
+              : <button type="button" onClick={connect} disabled={cube.connecting || !bluetooth} className={primaryButton}>{cube.connecting ? 'Connecting...' : 'Connect cube'}</button>}
+            <button
+              type="button"
+              onClick={() => { void resetTrackedCubeToSolved().then(() => { cube.setStatus('Tracking restarted from solved'); setNotice('Tracking restarted. The app now treats your cube as solved.') }) }}
+              className={secondaryButton}
+            >Reset tracking</button>
+          </div>
+          <p className={note}>
+            {bluetooth ? 'Reset tracking tells the app the cube in your hands is solved. Use it when the cube on screen no longer matches yours.' : 'This browser has no Web Bluetooth, so a smart cube cannot connect here. Chrome or Edge on desktop or Android can.'}
+          </p>
+          {notice && <p role="status" className={css({ fontSize: 'sm', color: 'green' })}>{notice}</p>}
+        </div>
+      </Section>
+
+      <Section id="solving" title="Solving">
+        <div className={group}>
+          <label className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4', minH: '44px', cursor: 'pointer' })}>
+            <span className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
+              <span>WCA inspection</span>
+              <span className={note}>15 second countdown before a keyboard timer solve, +2 after 15 seconds and DNF after 17.</span>
+            </span>
+            <input
+              type="checkbox"
+              checked={prefs?.wcaInspection ?? false}
+              onChange={(event) => setPref('wcaInspection', event.target.checked)}
+              className={css({ w: '5', h: '5', flexShrink: '0', accentColor: 'green', cursor: 'pointer', _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' } })}
+            />
+          </label>
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '3', pt: '4', borderTopWidth: '1px', borderColor: 'floating' })}>
+            <div className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
+              <span>How you hold the cube</span>
+              <span className={note}>The solve cube, replays and OLL and PLL diagrams are drawn from this hold. F2L previews keep standard colours.</span>
             </div>
-          </Card>
-
-          <Card>
-            <CardTitle className={css({ mb: '6' })}>Solve preferences</CardTitle>
-            {/* The export ships these toggles; this one is wired because the cockpit's
-                keyboard timer already implements WCA inspection (handleSpaceUp takes a
-                useInspection flag). Toggles with nothing behind them are not shown. */}
-            <label className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4', cursor: 'pointer' })}>
-              <span>
-                <span className={css({ display: 'block', color: 'ink' })}>WCA inspection</span>
-                <span className={css({ display: 'block', mt: '1', fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>15-second countdown before the solve</span>
-              </span>
-              <input
-                type="checkbox"
-                aria-label="WCA inspection"
-                checked={prefs?.wcaInspection ?? false}
-                onChange={(event) => setPref('wcaInspection', event.target.checked)}
-                className={css({ w: '5', h: '5', accentColor: 'green', cursor: 'pointer' })}
-              />
-            </label>
-
-            {/* Last-layer diagrams are drawn from the hold you actually use — a solver with
-                white on top is looking at a different case if the diagram assumes yellow.
-                F2L-family previews come from cubing.js, which has no colour-scheme API, so
-                they keep its fixed scheme; the label says so rather than overclaiming. */}
-            <div className={css({ mt: '6', display: 'flex', gap: '4', flexWrap: 'wrap' })}>
+            <div className={css({ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 10rem))', gap: '3' })}>
               {([['diagramTopColor', 'Top colour'], ['diagramFrontColor', 'Front colour']] as const).map(([key, label]) => (
-                <label key={key} className={css({ display: 'flex', flexDirection: 'column', gap: '1' })}>
-                  <span className={css({ fontSize: 'xs', color: 'inkVariant' })}>{label}</span>
+                <label key={key} className={css({ display: 'flex', flexDirection: 'column', gap: '1.5', fontSize: 'sm', color: 'inkVariant' })}>
+                  {label}
                   <select
-                    aria-label={label}
                     value={prefs?.[key] ?? (key === 'diagramTopColor' ? 'yellow' : 'green')}
                     onChange={(event) => setPref(key, event.target.value as StickerColor)}
-                    className={css({
-                      minH: '40px', px: '3', borderRadius: 'control', bg: 'container', color: 'ink',
-                      borderWidth: '1px', borderColor: 'floating', cursor: 'pointer', fontSize: 'sm'
-                    })}
+                    className={cx(textInput, css({ cursor: 'pointer', textTransform: 'capitalize' }))}
                   >
-                    {(['white', 'yellow', 'green', 'blue', 'red', 'orange'] as StickerColor[]).map((colour) => (
-                      <option key={colour} value={colour}>{colour}</option>
-                    ))}
+                    {COLOURS.map((colour) => <option key={colour} value={colour}>{colour[0].toUpperCase() + colour.slice(1)}</option>)}
                   </select>
                 </label>
               ))}
             </div>
-            <p className={css({ mt: '2', fontSize: 'xs', color: 'inkVariant' })}>
-              Applies to OLL and PLL diagrams. F2L previews are rendered by cubing.js, which
-              has no colour-scheme setting, so they keep its standard colours.
-            </p>
-            {prefs && !schemeFor(prefs.diagramTopColor, prefs.diagramFrontColor) && (
-              <p className={css({ mt: '2', fontSize: 'xs', color: 'error' })}>
-                A cube cannot be held with those two colours adjacent — pick faces that meet at an edge.
-              </p>
-            )}
-          </Card>
+            {invalidHold && <p role="alert" className={css({ fontSize: 'sm', color: 'error' })}>A cube cannot be held with those two colours on top and front. Pick two faces that share an edge.</p>}
+          </div>
+        </div>
+      </Section>
 
-          <Card>
-            <CardTitle className={css({ mb: '6' })}>Playback</CardTitle>
-            <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: '2' })}>
-              <span className={css({ color: 'ink' })}>Playback speed</span>
-              <span className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'green' })}>{(prefs?.playbackSpeed ?? 1).toFixed(1)}x</span>
+      <Section id="look" title="Cube look">
+        <div className={group}>
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '2' })}>
+            <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '3' })}>
+              <label htmlFor="playback-speed">Case playback speed</label>
+              <span className={cx(mono, css({ fontSize: 'sm', color: 'green' }))}>{(prefs?.playbackSpeed ?? 1).toFixed(1)}x</span>
             </div>
             <input
+              id="playback-speed"
               type="range"
               min="0.5"
               max="2"
               step="0.1"
-              aria-label="Playback speed"
               value={prefs?.playbackSpeed ?? 1}
               onChange={(event) => setPref('playbackSpeed', Number(event.target.value))}
-              className={css({ w: 'full', accentColor: 'green', cursor: 'pointer' })}
+              className={css({ w: 'full', minH: '44px', accentColor: 'green', cursor: 'pointer' })}
             />
-            <div className={css({ display: 'flex', justifyContent: 'space-between', mt: '1', fontFamily: 'mono', fontSize: '2xs', color: 'inkVariant' })}>
-              <span>0.5x</span>
-              <span>2.0x</span>
-            </div>
-            <p className={css({ mt: '4', fontSize: 'xs', color: 'inkVariant' })}>
-              Applies to case playback in Training.
-            </p>
-          </Card>
-
-          <Card>
-            <CardTitle className={css({ mb: '6' })}>Data Management</CardTitle>
-            <Inset className={css({ flexDirection: 'row', alignItems: 'center', gap: '4' })}>
-              <div className={css({ display: 'flex', flexDirection: 'column' })}>
-                <span className={css({ color: 'ink' })}>Local storage</span>
-                <span className={css({ mt: '1', fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant' })}>
-                  {counts ? `${counts.solves} solves · ${counts.stages} stages` : DASH}
-                </span>
-              </div>
-            </Inset>
-            <div className={css({ mt: 'auto', pt: '6', display: 'flex', flexDirection: 'column', gap: '4' })}>
-              <Action
-                type="button"
-                onClick={() => {
-                  setBusy('export')
-                  void exportAllData().then(downloadBackup).finally(() => setBusy(undefined))
-                }}
-              >{busy === 'export' ? 'Exporting…' : 'Export all data'}</Action>
-              <Action type="button" danger disabled>Delete all data</Action>
-              <p className={css({ fontSize: 'xs', color: 'inkVariant' })}>
-                Deletion is disabled until it has a confirmation step — it would destroy every recorded solve.
-              </p>
-            </div>
-          </Card>
+            <span className={note}>How fast algorithm cases play back in the trainers.</span>
+          </div>
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '3', pt: '4', borderTopWidth: '1px', borderColor: 'floating' })}>
+            <p className={note}>Colours and player options below are saved on this device. The 3D cubes in this app do not read them yet.</p>
+            <Ao1kSettingsPanel store={ao1kStore} />
+          </div>
         </div>
+      </Section>
 
-        <section className={css({ mt: '10' })}>
-          <h2 className={css({ fontSize: 'xl', fontWeight: 'semibold', color: 'ink', mb: '2' })}>Storage</h2>
-          <p className={css({ color: 'inkVariant', mb: '4' })}>Local-first storage quota, and the browser permission that stops it being evicted.</p>
+      <Section id="data" title="Data">
+        <div className={group}>
           <PwaStatus />
-        </section>
+          <p className={cx(mono, css({ fontSize: 'sm', color: 'inkVariant', pt: '4', borderTopWidth: '1px', borderColor: 'floating' }))}>
+            {counts ? `${counts.solves} solves · ${counts.stages} stages · ${counts.studies} saved studies` : DASH}
+          </p>
+          <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap' })}>
+            <button
+              type="button"
+              disabled={busy !== undefined}
+              onClick={() => {
+                setBusy('export')
+                void exportAllData().then(downloadBackup).finally(() => setBusy(undefined))
+              }}
+              className={secondaryButton}
+            >{busy === 'export' ? 'Exporting...' : 'Export all data'}</button>
+            <button
+              type="button"
+              disabled={busy !== undefined || counts?.solves === 0}
+              onClick={() => {
+                setBusy('cstimer')
+                void exportSessionAsCsTimerCsv('default').then((csv) => downloadCsTimerCsv(csv, 'default')).finally(() => setBusy(undefined))
+              }}
+              className={secondaryButton}
+            >{busy === 'cstimer' ? 'Exporting...' : 'Export solves for csTimer'}</button>
+          </div>
+          <p className={note}>The full export is a JSON backup of every solve, stage, study and setting. The csTimer file holds your solve times.</p>
+        </div>
+      </Section>
 
-        <section className={css({ mt: '10' })}>
-          <h2 className={css({ fontSize: 'xl', fontWeight: 'semibold', color: 'ink', mb: '2' })}>Diagnostics</h2>
-          <p className={css({ color: 'inkVariant', mb: '6' })}>Live state and telemetry from the connected cube.</p>
-          <DiagnosticsPanel />
-        </section>
-      </div>
+      <Section id="diagnostics" title="Diagnostics" description="Developer tools for checking the cube connection without guessing.">
+        <details
+          open={diagnostics}
+          onToggle={(event) => setDiagnostics((event.currentTarget as HTMLDetailsElement).open)}
+          className={card}
+        >
+          <summary className={css({
+            display: 'flex', alignItems: 'center', minH: '44px', px: '4', cursor: 'pointer', fontSize: 'sm', fontWeight: 'medium', listStyle: 'none',
+            _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '-2px' },
+            '&::-webkit-details-marker': { display: 'none' }
+          })}>
+            {diagnostics ? 'Hide developer tools' : 'Show developer tools'}
+          </summary>
+          {diagnostics && <div className={css({ p: { base: '4', md: '5' }, borderTopWidth: '1px', borderColor: 'floating' })}><DiagnosticsPanel /></div>}
+        </details>
+      </Section>
     </div>
   )
 }

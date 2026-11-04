@@ -54,7 +54,7 @@ describe('RecoStudy', () => {
     expect(screen.getByRole('columnheader', { name: 'ETPS' })).toBeInTheDocument()
     expect(screen.getByText('100.0%')).toBeInTheDocument()
     expect(screen.getAllByText('2.90')).toHaveLength(2)
-    expect(screen.getAllByText('—').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('–').length).toBeGreaterThan(0)
     expect(screen.getByRole('textbox', { name: 'Study notes' })).toBeInTheDocument()
   }, 30_000)
 })

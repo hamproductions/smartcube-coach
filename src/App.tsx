@@ -37,7 +37,7 @@ function Shell() {
     <AppShell active={route.section} status={<CubeConnectionIndicator />}>
       <ErrorBoundary surface={`${route.section}/${route.detail ?? ''}`} key={`${route.section}/${route.detail ?? ''}`}>
         {route.section === 'solve' && <SolveRoute onOpenStatistics={() => navigate({ section: 'stats' })} />}
-        {route.section === 'stats' && <HistoryRoute onDrill={() => navigate({ section: 'train', detail: 'pair-tracking' })} />}
+        {route.section === 'stats' && <HistoryRoute />}
         {route.section === 'train' && (trainer ? <TrainerPage trainer={trainer}><Trainer id={trainer.id} /></TrainerPage> : <TrainHub />)}
         {route.section === 'study' && <StudyPage tab={route.detail} />}
         {route.section === 'settings' && <SettingsHub />}

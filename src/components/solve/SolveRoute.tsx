@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { css } from 'styled-system/css'
 import { viewRotationForHold } from '../../domain/cubeHold'
 import { defaultPreferences } from '../../storage/preferences'
@@ -244,18 +244,20 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
     band('PLL', selectedStages.filter((stage) => stage.name === 'PLL'))
   ].filter((split): split is StageSplit => split !== undefined)
 
-  const averages: AverageRow[] = [
+  const averages = useMemo<AverageRow[]>(() => [
     { label: 'single', now: selected ? secondsOf(selected).toFixed(2) : DASH, best: bestTime === undefined ? DASH : bestTime.toFixed(2) },
     { label: 'ao5', now: averageLabel(averageOf(solves, 5)), best: averageLabel(bestAverageOf(solves, 5)), emphasis: true },
     { label: 'ao12', now: averageLabel(averageOf(solves, 12)), best: averageLabel(bestAverageOf(solves, 12)) },
     { label: 'ao50', now: averageLabel(averageOf(solves, 50)), best: averageLabel(bestAverageOf(solves, 50)) },
     { label: 'ao100', now: averageLabel(averageOf(solves, 100)), best: averageLabel(bestAverageOf(solves, 100)) }
-  ]
+  ], [solves, selected, bestTime])
 
+  const insights = useMemo(() => buildInsights(stages).slice(0, 2), [stages])
   const turns = selected?.moves.length
   const pauses = selectedStages.reduce((total, stage) => total + (stage.pauseCount ?? 0), 0)
 
   const detailSolve = solves.find((record) => record.id === detailId)
+  const closeDetail = useCallback(() => setDetailId(undefined), [])
 
   return (
     <>
@@ -326,7 +328,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
       fluency={selectedStages.length > 0 && turns ? `${Math.max(0, 100 - Math.round((pauses / turns) * 100))}%` : undefined}
       awaitingSolve={capture.status !== 'complete' && selected !== undefined}
       splits={splits}
-      insights={buildInsights(stages).slice(0, 2)}
+      insights={insights}
       onOpenInsights={onOpenStatistics}
       solves={solveRows}
       averages={averages}
@@ -365,56 +367,64 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
       // nothing on screen. The scramble to perform is the text above; this is your cube.
       cube={<Cube3D gyro viewRotation={viewRotationForHold(hold.top, hold.front)} setupAlg={[...capture.scrambleMoves, ...capture.solveMoves].join(' ')} />}
     />
-    {/* The breakdown is a modal on this page: the numbers you want after a solve should be
-        one click from the solve, not behind another route. */}
     {detailSolve && (
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={`Solve breakdown, ${secondsOf(detailSolve).toFixed(2)} seconds`}
-        onClick={() => setDetailId(undefined)}
-        className={css({
-          position: 'fixed', inset: '0', zIndex: '50', bg: 'rgba(9,9,11,0.86)',
-          display: 'flex', alignItems: 'stretch', justifyContent: 'center', p: { base: '0', lg: '6' }
-        })}
+      <BreakdownDialog
+        title={`Solve breakdown, ${detailSolve.penalty === 'dnf' ? 'DNF' : `${secondsOf(detailSolve).toFixed(2)} seconds`}`}
+        onClose={closeDetail}
       >
-        <div
-          onClick={(event) => event.stopPropagation()}
-          className={css({
-            w: 'full', maxW: '90rem', display: 'flex', flexDirection: 'column',
-            bg: 'surface', borderWidth: '1px', borderColor: 'floating',
-            borderRadius: { base: '0', lg: 'card' }, overflow: 'hidden'
-          })}
-        >
-          <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: '6', py: '4', borderBottomWidth: '1px', borderColor: 'floating' })}>
-            <span className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant' })}>
-              Solve breakdown · {secondsOf(detailSolve).toFixed(2)}s
-            </span>
-            <button
-              type="button"
-              onClick={() => setDetailId(undefined)}
-              className={css({
-                px: '4', minH: '10', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating',
-                bg: 'container', color: 'ink', cursor: 'pointer', fontSize: 'sm', _hover: { bg: 'floating' }
-              })}
-            >Close</button>
-          </div>
-          <div className={css({ flex: '1', minH: '0', overflowY: 'auto' })}>
-            <SolveAnalysis
-              solve={detailSolve}
-              stages={stages.filter((stage) => stage.solveId === detailSolve.id).sort((left, right) => left.startEvent - right.startEvent)}
-              penalty={detailSolve.penalty === '+2' ? 'plus_two' : detailSolve.penalty === 'dnf' ? 'dnf' : 'none'}
-              onPenalty={(next) => {
-                const penalty = next === 'plus_two' ? '+2' : next === 'dnf' ? 'dnf' : 'none'
-                void repositories.solves.put({ ...detailSolve, penalty } as SolveRecord)
-                  .then(() => setReload((count) => count + 1))
-              }}
-            />
-          </div>
-        </div>
-      </div>
+        <SolveAnalysis
+          solve={detailSolve}
+          stages={stages.filter((stage) => stage.solveId === detailSolve.id).sort((left, right) => left.startEvent - right.startEvent)}
+          penalty={detailSolve.penalty === '+2' ? 'plus_two' : detailSolve.penalty === 'dnf' ? 'dnf' : 'none'}
+          onPenalty={(next) => {
+            const penalty = next === 'plus_two' ? '+2' : next === 'dnf' ? 'dnf' : 'none'
+            void repositories.solves.put({ ...detailSolve, penalty } as SolveRecord)
+              .then(() => setReload((count) => count + 1))
+          }}
+        />
+      </BreakdownDialog>
     )}
     </>
+  )
+}
+
+function BreakdownDialog({ title, onClose, children }: { title: string; onClose(): void; children: ReactNode }) {
+  const close = useRef<HTMLButtonElement>(null)
+  useEffect(() => {
+    const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null
+    close.current?.focus()
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return
+      event.preventDefault()
+      onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => { window.removeEventListener('keydown', onKey); previous?.focus() }
+  }, [onClose])
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={title}
+      onClick={onClose}
+      className={css({ position: 'fixed', inset: '0', zIndex: '50', bg: 'rgba(9,9,11,0.86)', display: 'flex', justifyContent: 'center', p: { base: '0', lg: '6' } })}
+    >
+      <div
+        onClick={(event) => event.stopPropagation()}
+        className={css({ w: 'full', maxW: '1180px', display: 'flex', flexDirection: 'column', bg: 'surface', borderWidth: { base: '0', lg: '1px' }, borderColor: 'floating', borderRadius: { base: '0', lg: 'card' }, overflow: 'hidden' })}
+      >
+        <div className={css({ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '3', px: { base: '4', md: '6' }, py: '2', pt: { base: 'calc(env(safe-area-inset-top, 0px) + 8px)', lg: '2' }, borderBottomWidth: '1px', borderColor: 'floating' })}>
+          <h2 className={css({ fontSize: 'md', fontWeight: 'semibold' })}>Solve breakdown</h2>
+          <button
+            ref={close}
+            type="button"
+            onClick={onClose}
+            className={css({ px: '4', minH: '44px', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', bg: 'transparent', color: 'ink', cursor: 'pointer', fontSize: 'sm', _hover: { bg: 'floating' }, _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' } })}
+          >Close</button>
+        </div>
+        <div className={css({ flex: '1', minH: '0', overflowY: 'auto', px: { base: '4', md: '8' }, py: { base: '5', md: '8' } })}>{children}</div>
+      </div>
+    </div>
   )
 }
 

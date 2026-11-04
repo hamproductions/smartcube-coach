@@ -1,250 +1,273 @@
-import { css } from 'styled-system/css'
-import { styled } from 'styled-system/jsx'
-import { solveSplits, stageDurationMs } from '../../domain/bottleneck'
-import { buildInsights } from '../../domain/coachInsights'
-import { buildPrescription } from '../../domain/prescribe'
 import { useState } from 'react'
+import { css, cx } from 'styled-system/css'
+import { solveSplits, stageDurationMs } from '../../domain/bottleneck'
+import { buildInsights, type Insight } from '../../domain/coachInsights'
+import { buildPrescription } from '../../domain/prescribe'
+import { averageOf, bestAverageOf, bestSingle, effectiveSolveMs } from '../../domain/statistics'
 import type { SolveRecord, StageRecord } from '../../domain/models'
+import { routeHref } from '../../app/route'
+import { trainerById } from '../train/trainers'
+import { StageTrendChart, type StagePoint } from './StageTrendChart'
+import { DASH, PageHeader, plain, Section, card, mono, pageFrame, primaryButton, secondaryButton } from '../ui/Page'
 
-// Ported from docs/design/stitch/coaching_history/code.html. Two sections: an insight
-// banner carrying a primary left edge, then the solve history with its CFOP splits. The
-// banner states a bottleneck only when the stored stages actually support one.
+const STAGES = [
+  { key: 'cross', label: 'Cross', colour: '#9333ea' },
+  { key: 'f2l', label: 'F2L', colour: '#4f46e5' },
+  { key: 'oll', label: 'OLL', colour: '#3b82f6' },
+  { key: 'pll', label: 'PLL', colour: '#22c55e' }
+] as const
 
-const Panel = styled('section', {
-  base: {
-    position: 'relative',
-    // In a column flex container these are flex items, so they shrink to fit the
-    // viewport by default and `overflow: hidden` then clips the content away. That is
-    // what cut the last line off every card and hid half the drill plan.
-    flexShrink: '0',
-    bg: 'container',
-    borderWidth: '1px',
-    borderColor: 'floating',
-    borderRadius: 'card',
-    overflow: 'hidden'
-  }
-})
+const AVERAGES = [5, 12, 50, 100] as const
+const TREND_WINDOW = 50
+const PAGE_SIZE = 50
 
-const LabelCaps = styled('span', {
-  base: {
-    fontFamily: 'sans',
-    fontSize: 'xs',
-    fontWeight: 'bold',
-    letterSpacing: '0.12em',
-    textTransform: 'uppercase'
-  }
-})
+export const INSIGHT_TRAINER: Record<string, string | undefined> = {
+  'recognition-share': 'pacer',
+  'lookahead-collapse': 'pair-tracking',
+  'pause-trigger': 'pair-tracking',
+  'execution-health': 'pair-tracking',
+  'move-efficiency': 'f2l-cube',
+  'slot-not-separable': undefined
+}
 
-const Cell = styled('td', {
-  base: { px: '6', py: '3', color: 'inkVariant', whiteSpace: 'nowrap' },
-  variants: {
-    tone: {
-      time: { color: 'ink', fontWeight: 'bold' },
-      focus: { color: 'green', fontWeight: 'bold' },
-      slow: { color: 'error', fontWeight: 'medium' }
-    }
-  }
-})
+export function trainerForInsight(insightId: string) {
+  return trainerById(INSIGHT_TRAINER[insightId])
+}
 
-const Head = styled('th', {
-  base: {
-    px: '6', py: '3', textAlign: 'left', fontWeight: 'normal',
-    fontFamily: 'sans', fontSize: 'xs', letterSpacing: '0.12em',
-    textTransform: 'uppercase', color: 'inkVariant', whiteSpace: 'nowrap'
-  },
-  variants: { focus: { true: { color: 'green' } } }
-})
-
-const DASH = '—'
 const seconds = (ms?: number) => ms === undefined ? DASH : (ms / 1000).toFixed(2)
+
+const thRaw = css.raw({ px: { base: '2', md: '3' }, py: '2.5', textAlign: 'right', fontWeight: 'normal', fontSize: 'xs', color: 'inkVariant', whiteSpace: 'nowrap', fontFamily: 'sans' })
+const tdRaw = css.raw({ px: { base: '2', md: '3' }, py: '2.5', textAlign: 'right', whiteSpace: 'nowrap' })
+const th = css(thRaw)
+const td = css(tdRaw)
 
 export type CoachingHistoryProps = {
   solves: SolveRecord[]
   stages: StageRecord[]
   onOpenSolve(solveId: string): void
-  onDrillSlot(slot: string): void
 }
 
-export function CoachingHistory({ solves, stages, onOpenSolve, onDrillSlot }: CoachingHistoryProps) {
+export function CoachingHistory({ solves, stages, onOpenSolve }: CoachingHistoryProps) {
   const ordered = [...solves].sort((left, right) => right.endedAt - left.endedAt)
-  const stagesFor = (solveId: string) => stages.filter((stage) => stage.solveId === solveId)
+  const stagesBySolve = new Map<string, StageRecord[]>()
+  for (const stage of stages) stagesBySolve.set(stage.solveId, [...(stagesBySolve.get(stage.solveId) ?? []), stage])
   const insights = buildInsights(stages)
-  const [openPlan, setOpenPlan] = useState<string>()
-
-  // Penalties must count: a DNF is not a valid time and a +2 is two seconds slower.
-  // Averaging raw durations reported a session average the solver never achieved.
-  const effective = (solve: SolveRecord) =>
-    solve.penalty === 'dnf' ? undefined : (solve.endedAt - solve.startedAt) + (solve.penalty === '+2' ? 2000 : 0)
-  const durations = ordered.map(effective).filter((value): value is number => value !== undefined)
-  const sessionMean = durations.length ? durations.reduce((sum, value) => sum + value, 0) / durations.length : undefined
-
-  // The design colours an F2L cell red when it is worse than usual. That threshold is the
-  // solver's own mean, so a "slow" mark always means slow for them.
-  const f2lValues = ordered
-    .map((solve) => solveSplits(solve.id, stagesFor(solve.id)).f2l)
-    .filter((value): value is number => value !== undefined)
-  const f2lMean = f2lValues.length ? f2lValues.reduce((sum, value) => sum + value, 0) / f2lValues.length : undefined
+  const [shown, setShown] = useState(PAGE_SIZE)
 
   return (
-    <div className={css({ flex: '1', minH: '0', overflowY: 'auto', p: '8', display: 'flex', flexDirection: 'column', gap: '8' })}>
-      {insights.length === 0 ? (
-        <Panel>
-          <div className={css({ position: 'absolute', top: '0', left: '0', w: '4px', h: 'full', bg: 'green' })} />
-          <div className={css({ p: '8' })}>
-            <LabelCaps className={css({ color: 'green' })}>Insights</LabelCaps>
-            <h2 className={css({ mt: '2', fontSize: '2xl', fontWeight: 'semibold', color: 'ink', letterSpacing: '-0.02em' })}>
-              No timed stages to read yet
-            </h2>
-            <p className={css({ mt: '2', fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant' })}>
-              Capture or replay a solve and the coach reads it.
-            </p>
-          </div>
-        </Panel>
-      ) : insights.map((insight, position) => (
-        <Panel key={insight.id}>
-          {/* Only the leading insight carries the accent edge; the rest are context. */}
-          <div className={css({ position: 'absolute', top: '0', left: '0', w: '4px', h: 'full', bg: position === 0 ? 'green' : 'floating' })} />
-          <div className={css({ p: '8', display: 'flex', flexDirection: 'column', gap: '6', lg: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' } })}>
-            <div className={css({ display: 'flex', flexDirection: 'column', gap: '2', maxW: '720px' })}>
-              <div className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
-                <LabelCaps className={css({ color: position === 0 ? 'green' : 'inkVariant' })}>
-                  {position === 0 ? 'Biggest win' : 'Also true'}
-                </LabelCaps>
-                {insight.savingMs !== undefined && (
-                  <span className={css({ px: '2', py: '0.5', borderRadius: 'pill', bg: 'rgba(34,197,94,0.12)', color: 'green', fontFamily: 'mono', fontSize: '2xs', fontWeight: 'bold' })}>
-                    ≈{seconds(insight.savingMs)}s / solve
-                  </span>
-                )}
-              </div>
-              <h2 className={css({ fontSize: '2xl', fontWeight: 'semibold', color: 'ink', letterSpacing: '-0.02em' })}>{insight.headline}</h2>
-              <p className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant', lineHeight: 'relaxed' })}>{insight.evidence}</p>
-              {insight.detail && (
-                <p className={css({ fontSize: 'sm', color: 'inkVariant', lineHeight: 'relaxed' })}>{insight.detail}</p>
-              )}
-            </div>
-
-            {position === 0 && insight.finding && (
-              <button
-                type="button"
-                onClick={() => setOpenPlan((current) => current === insight.id ? undefined : insight.id)}
-                className={css({
-                  // 48px literal: `touch` is a spacing token, and minH reads the sizes
-                  // scale, so the named token emits nothing and the button collapses.
-                  flexShrink: '0', minH: '48px', px: '6', borderRadius: 'card',
-                  bg: 'green', color: 'onGreen', cursor: 'pointer',
-                  fontFamily: 'sans', fontSize: 'xs', fontWeight: 'bold',
-                  letterSpacing: '0.12em', textTransform: 'uppercase',
-                  boxShadow: '0 0 15px rgba(34,197,94,0.15)',
-                  _hover: { bg: 'greenBright' }
-                })}
-              >{openPlan === insight.id ? 'Hide plan' : 'Drill this'}</button>
-            )}
-          </div>
-
-          {openPlan === insight.id && insight.finding && (() => {
-            const plan = buildPrescription(insight.finding)
-            return (
-              <div className={css({ px: '8', pb: '8', borderTopWidth: '1px', borderColor: 'floating', pt: '6' })}>
-                <div className={css({ display: 'flex', alignItems: 'baseline', gap: '3', mb: '4' })}>
-                  <LabelCaps className={css({ color: 'ink' })}>{plan.title}</LabelCaps>
-                  <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>{plan.duration}</span>
-                </div>
-                <ol className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
-                  {plan.blocks.map((block, order) => (
-                    <li key={block.label} className={css({
-                      display: 'flex', flexDirection: 'column', gap: '1',
-                      p: '4', bg: 'surface', borderRadius: 'control',
-                      borderWidth: '1px', borderColor: 'floating',
-                      md: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }
-                    })}>
-                      <div className={css({ display: 'flex', alignItems: 'center', gap: '3' })}>
-                        <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'green' })}>{order + 1}</span>
-                        <span className={css({ color: 'ink' })}>{block.label}</span>
-                      </div>
-                      <div className={css({ display: 'flex', gap: '6', fontFamily: 'mono', fontSize: 'xs' })}>
-                        <span className={css({ color: 'inkVariant' })}>{block.dose}</span>
-                        <span className={css({ color: 'green' })}>{block.target}</span>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-                <div className={css({ mt: '6', display: 'flex', flexDirection: 'column', gap: '3', md: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' } })}>
-                  <p className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>
-                    Passes when {plan.passCondition.metric.replace(/_/g, ' ')} reaches {(plan.passCondition.target / 1000).toFixed(2)}s median over {plan.passCondition.fullSolveSample} solves.
-                  </p>
-                  {/* Blocks 1 and 2 are recognition work, which the trainer already runs. */}
-                  <button
-                    type="button"
-                    onClick={() => onDrillSlot(insight.id)}
-                    className={css({
-                      flexShrink: '0', minH: '48px', px: '6', borderRadius: 'card',
-                      borderWidth: '1px', borderColor: 'green', bg: 'transparent', color: 'green',
-                      cursor: 'pointer', fontFamily: 'sans', fontSize: 'xs', fontWeight: 'bold',
-                      letterSpacing: '0.12em', textTransform: 'uppercase',
-                      _hover: { bg: 'rgba(34,197,94,0.12)' }
-                    })}
-                  >Start block 1 — {plan.blocks[0].label}</button>
-                </div>
-              </div>
-            )
-          })()}
-        </Panel>
-      ))}
-
-      <Panel>
-        <div className={css({ px: '6', py: '4', borderBottomWidth: '1px', borderColor: 'floating', display: 'flex', justifyContent: 'space-between', alignItems: 'center' })}>
-          <LabelCaps className={css({ color: 'inkVariant' })}>Solve history &amp; splits</LabelCaps>
-          <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>
-            Session avg: {seconds(sessionMean)}
-          </span>
+    <div className={pageFrame}>
+      <PageHeader title="Stats" description="Your averages, how each stage is trending, and what to practise next." />
+      {ordered.length === 0 ? (
+        <div className={cx(card, css({ p: { base: '5', md: '8' }, display: 'flex', flexDirection: 'column', gap: '3', alignItems: 'flex-start' }))}>
+          <h2 className={css({ fontSize: 'lg', fontWeight: 'semibold' })}>No solves yet</h2>
+          <p className={css({ color: 'inkVariant', fontSize: 'sm', maxW: '60ch' })}>
+            Do a solve on the Solve screen with your smart cube, or with the keyboard timer, and it shows up here. Stage splits and coaching need a smart cube solve.
+          </p>
+          <a href={routeHref({ section: 'solve' })} className={primaryButton}>Go to Solve</a>
         </div>
-
-        <div className={css({ overflowX: 'auto' })}>
-          <table className={css({ w: 'full', borderCollapse: 'collapse', textAlign: 'left' })}>
-            <thead>
-              <tr className={css({ borderBottomWidth: '1px', borderColor: 'floating', bg: 'surface' })}>
-                <Head className={css({ w: '12' })}>#</Head>
-                <Head>Time</Head>
-                <Head>Date</Head>
-                <Head>Cross</Head>
-                <Head focus>F2L</Head>
-                <Head>OLL</Head>
-                <Head>PLL</Head>
-              </tr>
-            </thead>
-            <tbody className={css({ fontFamily: 'mono', fontSize: 'sm' })}>
-              {ordered.length === 0 && (
-                <tr><Cell colSpan={7} className={css({ py: '8', textAlign: 'center' })}>No solves recorded yet.</Cell></tr>
-              )}
-              {ordered.map((solve, position) => {
-                const splits = solveSplits(solve.id, stagesFor(solve.id))
-                const slow = f2lMean !== undefined && splits.f2l !== undefined && splits.f2l > f2lMean
-                return (
-                  <tr
-                    key={solve.id}
-                    onClick={() => onOpenSolve(solve.id)}
-                    className={css({
-                      borderBottomWidth: '1px', borderColor: 'floating', cursor: 'pointer',
-                      bg: position === 0 ? 'floating' : undefined,
-                      _hover: { bg: 'floating' }
-                    })}
-                  >
-                    <Cell>{ordered.length - position}</Cell>
-                    <Cell tone="time">{solve.penalty === 'dnf' ? 'DNF' : seconds(effective(solve))}</Cell>
-                    <Cell>{new Date(solve.endedAt).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</Cell>
-                    <Cell>{seconds(splits.cross)}</Cell>
-                    <Cell tone={slow ? 'slow' : 'focus'}>{seconds(splits.f2l)}</Cell>
-                    <Cell>{seconds(splits.oll)}</Cell>
-                    <Cell>{seconds(splits.pll)}</Cell>
+      ) : (
+        <>
+          <Averages solves={ordered} />
+          <StageTrend ordered={ordered} stagesBySolve={stagesBySolve} />
+          <Coaching insights={insights} />
+          <Section
+            id="history"
+            title="Solve history"
+            description="Select a solve to open its breakdown."
+            action={<span className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>{ordered.length} solves</span>}
+          >
+            <div className={cx(card, css({ overflowX: 'auto' }))}>
+              <table className={css({ w: 'full', borderCollapse: 'collapse', fontSize: 'sm' })}>
+                <thead>
+                  <tr className={css({ borderBottomWidth: '1px', borderColor: 'floating' })}>
+                    <th scope="col" className={css(thRaw, { textAlign: 'left' })}>#</th>
+                    <th scope="col" className={css(thRaw, { textAlign: 'left' })}>Time</th>
+                    <th scope="col" className={css(thRaw, { textAlign: 'left', display: { base: 'none', md: 'table-cell' } })}>Date</th>
+                    {STAGES.map((stage) => <th key={stage.key} scope="col" className={th}>{stage.label}</th>)}
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      </Panel>
+                </thead>
+                <tbody className={mono}>
+                  {ordered.slice(0, shown).map((solve, position) => {
+                    const splits = solveSplits(solve.id, stagesBySolve.get(solve.id) ?? [])
+                    const number = ordered.length - position
+                    const time = solve.penalty === 'dnf' ? 'DNF' : seconds(effectiveSolveMs(solve))
+                    return (
+                      <tr
+                        key={solve.id}
+                        onClick={() => onOpenSolve(solve.id)}
+                        className={css({ borderBottomWidth: '1px', borderColor: 'floating', cursor: 'pointer', _last: { borderBottomWidth: '0' }, _hover: { bg: 'floating' } })}
+                      >
+                        <td className={css(tdRaw, { textAlign: 'left', color: 'inkVariant' })}>{number}</td>
+                        <td className={css(tdRaw, { textAlign: 'left', py: '0' })}>
+                          <button
+                            type="button"
+                            aria-label={`Open solve ${number}, ${time}${solve.penalty === '+2' ? ' including +2' : ''}`}
+                            onClick={(event) => { event.stopPropagation(); onOpenSolve(solve.id) }}
+                            className={css({
+                              minH: '44px', px: '2', ml: '-2', borderRadius: 'control', cursor: 'pointer', color: 'ink', fontWeight: 'semibold',
+                              _focusVisible: { outline: '2px solid', outlineColor: 'green' }
+                            })}
+                          >{time}{solve.penalty === '+2' && <span className={css({ ml: '1', fontSize: 'xs', color: 'amber' })}>+2</span>}</button>
+                        </td>
+                        <td className={css(tdRaw, { textAlign: 'left', color: 'inkVariant', fontFamily: 'sans', display: { base: 'none', md: 'table-cell' } })}>
+                          {new Date(solve.endedAt).toLocaleString('en-GB', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                        </td>
+                        {STAGES.map((stage) => <td key={stage.key} className={cx(td, css({ color: 'inkVariant' }))}>{seconds(splits[stage.key])}</td>)}
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            {ordered.length > shown && (
+              <button type="button" onClick={() => setShown((count) => count + PAGE_SIZE)} className={cx(secondaryButton, css({ alignSelf: 'flex-start' }))}>
+                Show {Math.min(PAGE_SIZE, ordered.length - shown)} more
+              </button>
+            )}
+          </Section>
+        </>
+      )}
     </div>
   )
 }
 
-export { stageDurationMs }
+function Averages({ solves }: { solves: SolveRecord[] }) {
+  const latest = solves[0]
+  const columns = [
+    { label: 'Single', now: latest ? (latest.penalty === 'dnf' ? 'DNF' : seconds(effectiveSolveMs(latest))) : DASH, best: seconds(bestSingle(solves)) },
+    ...AVERAGES.map((count) => ({ label: `ao${count}`, now: seconds(averageOf(solves, count)), best: seconds(bestAverageOf(solves, count)) }))
+  ]
+  return (
+    <Section id="averages" title="Averages" description="Current is your latest solve or the latest run of solves. Best is your personal best.">
+      <div className={cx(card, css({ overflowX: 'auto' }))}>
+        <table className={css({ display: { base: 'none', md: 'table' }, w: 'full', borderCollapse: 'collapse' })}>
+          <thead>
+            <tr className={css({ borderBottomWidth: '1px', borderColor: 'floating' })}>
+              <td className={th} />
+              {columns.map((column) => <th key={column.label} scope="col" className={th}>{column.label}</th>)}
+            </tr>
+          </thead>
+          <tbody className={mono}>
+            <tr>
+              <th scope="row" className={css(thRaw, { textAlign: 'left' })}>Current</th>
+              {columns.map((column) => <td key={column.label} className={cx(td, css({ fontSize: 'xl', color: column.now === DASH ? 'inkVariant' : 'ink' }))}>{column.now}</td>)}
+            </tr>
+            <tr className={css({ borderTopWidth: '1px', borderColor: 'floating' })}>
+              <th scope="row" className={css(thRaw, { textAlign: 'left' })}>Best</th>
+              {columns.map((column) => <td key={column.label} className={cx(td, css({ fontSize: 'md', color: column.best === DASH ? 'inkVariant' : 'green' }))}>{column.best}</td>)}
+            </tr>
+          </tbody>
+        </table>
+        <table className={css({ display: { base: 'table', md: 'none' }, w: 'full', borderCollapse: 'collapse' })}>
+          <thead>
+            <tr className={css({ borderBottomWidth: '1px', borderColor: 'floating' })}>
+              <td className={th} />
+              <th scope="col" className={th}>Current</th>
+              <th scope="col" className={th}>Best</th>
+            </tr>
+          </thead>
+          <tbody className={mono}>
+            {columns.map((column) => (
+              <tr key={column.label} className={css({ borderTopWidth: '1px', borderColor: 'floating', _first: { borderTopWidth: '0' } })}>
+                <th scope="row" className={css(thRaw, { textAlign: 'left' })}>{column.label}</th>
+                <td className={cx(td, css({ fontSize: 'lg', color: column.now === DASH ? 'inkVariant' : 'ink' }))}>{column.now}</td>
+                <td className={cx(td, css({ fontSize: 'md', color: column.best === DASH ? 'inkVariant' : 'green' }))}>{column.best}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Section>
+  )
+}
+
+function StageTrend({ ordered, stagesBySolve }: { ordered: SolveRecord[]; stagesBySolve: Map<string, StageRecord[]> }) {
+  const points: StagePoint[] = ordered
+    .filter((solve) => (stagesBySolve.get(solve.id)?.some((stage) => stageDurationMs(stage) > 0)) ?? false)
+    .slice(0, TREND_WINDOW)
+    .reverse()
+    .map((solve) => {
+      const splits = solveSplits(solve.id, stagesBySolve.get(solve.id) ?? [])
+      return { solveId: solve.id, values: STAGES.map((stage) => splits[stage.key]) }
+    })
+  return (
+    <Section id="trend" title="Which stage is getting faster?" description={points.length > 1 ? `Time per stage over your last ${points.length} smart cube solves, oldest on the left.` : 'Time per stage over your recent smart cube solves.'}>
+      {points.length < 2 ? (
+        <p className={css({ color: 'inkVariant', fontSize: 'sm' })}>
+          {points.length === 0 ? 'No stage timings yet.' : 'One solve has stage timings.'} The trend needs at least two smart cube solves; keyboard solves have no stages.
+        </p>
+      ) : (
+        <div className={cx(card, css({ p: { base: '4', md: '6' } }))}>
+          <StageTrendChart title="Time per CFOP stage across recent solves" series={STAGES.map(({ label, colour }) => ({ label, colour }))} points={points} />
+        </div>
+      )}
+    </Section>
+  )
+}
+
+function Coaching({ insights }: { insights: Insight[] }) {
+  const [openPlan, setOpenPlan] = useState<string>()
+  return (
+    <Section id="coach" title="What to work on" description="Read from your stage timings. Biggest time saving first.">
+      {insights.length === 0 ? (
+        <p className={css({ color: 'inkVariant', fontSize: 'sm' })}>
+          Nothing to report yet. The coach reads stage timings, so it needs smart cube solves, and it only names a habit once it repeats across solves.
+        </p>
+      ) : (
+        <ol className={css({ display: 'flex', flexDirection: 'column', gap: '3', listStyle: 'none', m: '0', p: '0' })}>
+          {insights.map((insight) => {
+            const trainer = trainerForInsight(insight.id)
+            const plan = insight.finding ? buildPrescription(insight.finding) : undefined
+            return (
+              <li key={insight.id} className={cx(card, css({ p: { base: '4', md: '5' }, display: 'flex', flexDirection: 'column', gap: '3' }))}>
+                <div className={css({ display: 'flex', flexDirection: { base: 'column', md: 'row' }, gap: '4', md: { alignItems: 'flex-start', justifyContent: 'space-between' } })}>
+                  <div className={css({ display: 'flex', flexDirection: 'column', gap: '1.5', minW: '0', maxW: '72ch' })}>
+                    <h3 className={css({ fontSize: 'md', fontWeight: 'semibold' })}>
+                      {plain(insight.headline)}
+                      {insight.savingMs !== undefined && (
+                        <span className={cx(mono, css({ ml: '2', fontSize: 'xs', fontWeight: 'medium', color: 'green', whiteSpace: 'nowrap' }))}>about {seconds(insight.savingMs)}s per solve</span>
+                      )}
+                    </h3>
+                    <p className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant', lineHeight: '1.6' }))}>{plain(insight.evidence)}</p>
+                    {insight.detail && <p className={css({ fontSize: 'sm', color: 'inkVariant', lineHeight: '1.6' })}>{plain(insight.detail)}</p>}
+                  </div>
+                  <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap', flexShrink: '0' })}>
+                    {plan && (
+                      <button type="button" aria-expanded={openPlan === insight.id} onClick={() => setOpenPlan((current) => current === insight.id ? undefined : insight.id)} className={secondaryButton}>
+                        {openPlan === insight.id ? 'Hide plan' : 'Show plan'}
+                      </button>
+                    )}
+                    <a href={routeHref(trainer ? { section: 'train', detail: trainer.id } : { section: 'train' })} className={primaryButton}>
+                      {trainer ? `Train: ${trainer.name}` : 'Browse trainers'}
+                    </a>
+                  </div>
+                </div>
+                {plan && openPlan === insight.id && (
+                  <div className={css({ pt: '3', borderTopWidth: '1px', borderColor: 'floating', display: 'flex', flexDirection: 'column', gap: '3' })}>
+                    <div className={css({ display: 'flex', gap: '3', alignItems: 'baseline', flexWrap: 'wrap' })}>
+                      <h4 className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{plan.title}</h4>
+                      <span className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>{plan.duration}</span>
+                    </div>
+                    <ol className={css({ display: 'flex', flexDirection: 'column', gap: '2', listStyle: 'none', m: '0', p: '0' })}>
+                      {plan.blocks.map((block, order) => (
+                        <li key={block.label} className={css({ display: 'grid', gridTemplateColumns: '1.5rem 1fr', gap: '2', fontSize: 'sm', md: { gridTemplateColumns: '1.5rem 1fr auto auto', gap: '4' } })}>
+                          <span className={cx(mono, css({ color: 'green' }))}>{order + 1}</span>
+                          <span>{block.label}</span>
+                          <span className={cx(mono, css({ color: 'inkVariant', fontSize: 'xs', gridColumn: { base: '2', md: 'auto' } }))}>{block.dose}</span>
+                          <span className={cx(mono, css({ color: 'green', fontSize: 'xs', gridColumn: { base: '2', md: 'auto' } }))}>{block.target}</span>
+                        </li>
+                      ))}
+                    </ol>
+                    <p className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>
+                      Passes when {plan.passCondition.metric.replace(/_/g, ' ')} reaches {(plan.passCondition.target / 1000).toFixed(2)}s median over {plan.passCondition.fullSolveSample} solves.
+                    </p>
+                  </div>
+                )}
+              </li>
+            )
+          })}
+        </ol>
+      )}
+    </Section>
+  )
+}

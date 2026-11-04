@@ -8,6 +8,8 @@ import { repositories } from '../storage/database'
 import type { RecoStage } from '../integrations/reco'
 import { ANALYSIS_VERSION, type AlgorithmRecord, type StageRecord } from '../domain/models'
 import { CubePlayback } from './CubePlayback'
+import { css, cx } from 'styled-system/css'
+import { Section, card, fieldLabel, mono, primaryButton, secondaryButton, textInput } from './ui/Page'
 import { createId } from '../domain/ids'
 import AlgSuggester from '../domain/algSuggester'
 import AlgSpeedEstimator from '../domain/ergonomics'
@@ -65,8 +67,7 @@ export function ReconstructEditor({ solveId = 'manual-reconstruction', initialSc
   const [scramble, setScramble] = useState(suppliedScramble ?? initialScramble)
   const [text, setText] = useState(initialMoves?.length ? automaticLines(initialMoves, initialStages) : initialReconstruction)
   const [method, setMethod] = useState('CFOP')
-  const [orientation, setOrientation] = useState('White / Green')
-  const [message, setMessage] = useState('Editable source telemetry remains untouched.')
+  const [message, setMessage] = useState('')
   const [solving, setSolving] = useState(false)
   const [typedSolution, setTypedSolution] = useState('')
   const [attaching, setAttaching] = useState(false)
@@ -181,66 +182,76 @@ export function ReconstructEditor({ solveId = 'manual-reconstruction', initialSc
 
   const shareUrl = `https://alg.cubing.net/?setup=${encodeURIComponent(scramble)}&alg=${encodeURIComponent(text)}`
 
+  const chip = cx(mono, css({
+    display: 'inline-flex', alignItems: 'baseline', gap: '2', minH: '44px', px: '3', borderRadius: 'control',
+    borderWidth: '1px', borderColor: 'floating', bg: 'container', color: 'ink', fontSize: 'xs', cursor: 'pointer', textAlign: 'left',
+    _hover: { borderColor: 'outline' },
+    _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' }
+  }))
+  const chipName = css({ fontFamily: 'sans', fontWeight: 'semibold', fontSize: 'sm' })
+
   return (
-    <section className="surface-stack">
-      <article className="panel editor-panel">
-        <div className="surface-heading">
-          <div>
-            <span className="eyebrow green">EDIT YOUR SOLVE</span>
-            <h2>Fix the moves we recorded.</h2>
+    <Section id="reconstruct" title="Fix a reconstruction" description="Type or correct the moves of a solve, one stage per line with a // label. Tab accepts the first suggestion.">
+      <div className={css({ display: 'grid', gap: '8', gridTemplateColumns: { base: '1fr', lg: !parsed.error && moves.length > 0 ? 'minmax(0, 7fr) minmax(0, 5fr)' : '1fr' }, alignItems: 'start' })}>
+        <div className={css({ display: 'flex', flexDirection: 'column', gap: '4', minW: '0' })}>
+          {needsAttachment && (
+            <div className={cx(card, css({ p: '4', display: 'flex', flexDirection: 'column', gap: '3' }))}>
+              <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>This solve has no captured move stream. Type the reconstruction you solved it with to unlock stage splits, case recognition and route comparison.</p>
+              <label className={fieldLabel}>Typed solution<textarea aria-label="Typed solution" rows={3} value={typedSolution} onChange={(event) => setTypedSolution(event.target.value)} className={cx(textInput, mono, css({ resize: 'vertical' }))} /></label>
+              <button type="button" className={cx(secondaryButton, css({ alignSelf: 'flex-start' }))} disabled={attaching || !typedSolution.trim()} onClick={() => void attachTypedSolution()}>{attaching ? 'Checking...' : 'Attach reconstruction'}</button>
+              {attachStatus && <p className={css({ fontSize: 'sm', color: 'amber' })} role="status">{attachStatus}</p>}
+            </div>
+          )}
+          <div className={css({ display: 'grid', gap: '3', gridTemplateColumns: { base: '1fr', sm: '10rem minmax(0, 1fr)' } })}>
+            <label className={fieldLabel}>Method
+              <select value={method} onChange={(event) => setMethod(event.target.value)} className={cx(textInput, css({ cursor: 'pointer' }))}><option>CFOP</option><option>Roux</option><option>ZZ</option><option>APB</option></select>
+            </label>
+            <label className={fieldLabel}>Scramble<input value={scramble} onChange={(event) => setScramble(event.target.value)} className={cx(textInput, mono)} /></label>
           </div>
-          <button className="button secondary" disabled={solving || !scramble.trim()} onClick={solveState}>{solving ? 'Solving…' : 'Solve state'}</button>
-        </div>
-        {needsAttachment && (
-          <div className="editor-attach">
-            <p>This solve has no captured move stream. Type the reconstruction you solved it with to unlock stage segmentation, case recognition and route comparison.</p>
-            <label className="editor-field">Typed solution<textarea aria-label="Typed solution" value={typedSolution} onChange={(event) => setTypedSolution(event.target.value)} /></label>
-            <button className="button secondary" disabled={attaching || !typedSolution.trim()} onClick={() => void attachTypedSolution()}>{attaching ? 'Verifying…' : 'Attach reconstruction'}</button>
-            {attachStatus && <p className="editor-message" role="status">{attachStatus}</p>}
-          </div>
-        )}
-        <div className="editor-options">
-          <label>Method<select value={method} onChange={(event) => setMethod(event.target.value)}><option>CFOP</option><option>Roux</option><option>ZZ</option><option>APB</option></select></label>
-          <label>Orientation<select value={orientation} onChange={(event) => setOrientation(event.target.value)}><option>White / Green</option><option>Yellow / Blue</option><option>Color neutral</option></select></label>
-        </div>
-        <label className="editor-field">Scramble<input value={scramble} onChange={(event) => setScramble(event.target.value)} /></label>
-        <label className="editor-field">Reconstruction<textarea value={text} onChange={(event) => setText(event.target.value)} onKeyDown={(event) => {
-          const suggestion = suggestions[0]
-          if (event.key !== 'Tab' || !suggestion) return
-          event.preventDefault()
-          completeActiveLine(suggestion.remaining, suggestion.name)
-        }} /></label>
-        {parsed.error && <p className="import-error" role="alert">{parsed.error}</p>}
-        <div className="autocomplete-row" aria-label="Algorithm suggestions">
-          {suggestions.map((suggestion) => (
-            <button key={suggestion.id} onClick={() => completeActiveLine(suggestion.remaining, suggestion.name)}>
-              <strong>{suggestion.name}</strong><span>{suggestion.remaining}</span>
-            </button>
-          ))}
-        </div>
-        {algAlternatives.length > 0 && (
-          <div className="autocomplete-row" aria-label="Alternative algorithms">
-            {algAlternatives.map((alternative) => (
-              <button key={alternative.id} onClick={() => completeActiveLine(alternative.algorithm.split(/\s+/).slice(activeMoves.length).join(' '), alternative.name)}>
-                <strong>{alternative.name}</strong><span>{alternative.algorithm}</span>
+          <label className={fieldLabel}>Reconstruction<textarea rows={8} value={text} onChange={(event) => setText(event.target.value)} className={cx(textInput, mono, css({ resize: 'vertical', lineHeight: '1.7' }))} onKeyDown={(event) => {
+            const suggestion = suggestions[0]
+            if (event.key !== 'Tab' || !suggestion) return
+            event.preventDefault()
+            completeActiveLine(suggestion.remaining, suggestion.name)
+          }} /></label>
+          {parsed.error && <p className={css({ fontSize: 'sm', color: 'error' })} role="alert">{parsed.error}</p>}
+          <div aria-label="Algorithm suggestions" className={css({ display: 'flex', flexWrap: 'wrap', gap: '2', _empty: { display: 'none' } })}>
+            {suggestions.map((suggestion) => (
+              <button type="button" key={suggestion.id} className={chip} onClick={() => completeActiveLine(suggestion.remaining, suggestion.name)}>
+                <span className={chipName}>{suggestion.name}</span><span className={css({ color: 'inkVariant' })}>{suggestion.remaining}</span>
               </button>
             ))}
           </div>
-        )}
-        {!parsed.error && moves.length > 0 && (
-          <section className="metric-strip" aria-label="Ergonomic assessment">
-            <div><span>Ergonomics</span><strong>{ergonomicsScore}</strong><small>Ao1K speed estimate, lower is better</small></div>
-          </section>
-        )}
-        <div className="editor-actions">
-          <button disabled={!moves.length} onClick={() => void saveRevision()}>Save revision</button>
-          <button disabled={!text.trim()} onClick={() => void navigator.clipboard.writeText(text)}>Copy text</button>
-          <button disabled={!moves.length} onClick={() => void navigator.clipboard.writeText(shareUrl)}>Copy share link</button>
-          {moves.length > 0 && <a href={shareUrl} rel="noreferrer" target="_blank">Open animated export</a>}
+          {algAlternatives.length > 0 && (
+            <div className={css({ display: 'flex', flexDirection: 'column', gap: '2' })}>
+              <span className={css({ fontSize: 'xs', color: 'inkVariant' })}>Close matches</span>
+              <div aria-label="Alternative algorithms" className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
+                {algAlternatives.map((alternative) => (
+                  <button type="button" key={alternative.id} className={chip} onClick={() => completeActiveLine(alternative.algorithm.split(/\s+/).slice(activeMoves.length).join(' '), alternative.name)}>
+                    <span className={chipName}>{alternative.name}</span><span className={css({ color: 'inkVariant' })}>{alternative.algorithm}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {!parsed.error && moves.length > 0 && (
+            <section aria-label="Ergonomic assessment" className={css({ display: 'flex', alignItems: 'baseline', gap: '3', flexWrap: 'wrap' })}>
+              <span className={css({ fontSize: 'sm', color: 'inkVariant' })}>Ergonomics</span>
+              <strong className={cx(mono, css({ fontSize: 'lg' }))}>{ergonomicsScore}</strong>
+              <small className={css({ fontSize: 'xs', color: 'inkVariant' })}>Ao1K speed estimate, lower is better</small>
+            </section>
+          )}
+          <div className={css({ display: 'flex', gap: '2', flexWrap: 'wrap' })}>
+            <button type="button" className={primaryButton} disabled={!moves.length} onClick={() => void saveRevision()}>Save revision</button>
+            <button type="button" className={secondaryButton} disabled={solving || !scramble.trim()} onClick={solveState}>{solving ? 'Solving...' : 'Solve state'}</button>
+            <button type="button" className={secondaryButton} disabled={!text.trim()} onClick={() => void navigator.clipboard.writeText(text).then(() => setMessage('Copied the reconstruction.'))}>Copy text</button>
+            <button type="button" className={secondaryButton} disabled={!moves.length} onClick={() => void navigator.clipboard.writeText(shareUrl).then(() => setMessage('Copied a link to alg.cubing.net.'))}>Copy share link</button>
+            {moves.length > 0 && <a href={shareUrl} rel="noreferrer" target="_blank" className={secondaryButton}>Open in alg.cubing.net</a>}
+          </div>
+          {message && <p role="status" className={css({ fontSize: 'sm', color: 'inkVariant' })}>{message}</p>}
         </div>
-        <p className="editor-message">{method} · {orientation} · {message}</p>
-      </article>
-      {!parsed.error && moves.length > 0 && <article className="panel playback-panel"><CubePlayback title="Editable reconstruction" scramble={scramble} moves={moves} stages={parsed.stages} /></article>}
-    </section>
+        {!parsed.error && moves.length > 0 && <CubePlayback title="Replay" scramble={scramble} moves={moves} stages={parsed.stages} />}
+      </div>
+    </Section>
   )
 }
