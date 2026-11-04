@@ -38,7 +38,7 @@ Binding rules for this app's interface. The tokens live in `panda.config.ts` (th
 
 ## The cube
 
-`Cube3D` (`src/components/solve/Cube3D.tsx`) renders every 3D cube with the three.js renderer in `src/components/cube/CubeRenderer.ts`: rounded black cubies, inset stickers, animated layer turns, optional gyro orientation and piece highlighting. It fills its parent unless given a `size`. Do not add twisty-player cubes; flat case diagrams (`LastLayerDiagram`, `ScramblePreview`) stay 2D on purpose.
+`Cube3D` (`src/components/solve/Cube3D.tsx`) renders every 3D cube with the three.js renderer in `src/components/cube/CubeRenderer.ts`: rounded black cubies, inset stickers, animated layer turns, optional gyro orientation and piece highlighting. It fills its parent unless given a `size`. Each one holds a WebGL context, so case grids use `CasePreview` thumbnails instead, and flat case diagrams (`LastLayerDiagram`, `ScramblePreview`) stay 2D on purpose.
 
 ## Copy
 
