@@ -1,3 +1,4 @@
+import { css } from 'styled-system/css'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { CubeEvent, CubeInputHandle, CubeInputSource } from './inputSource'
 import { bluetoothSource } from './sources'
@@ -147,28 +148,33 @@ export function CubeConnectionIndicator() {
         ? cubeLink.status
         : 'Not connected'
 
+  const ghost = css({
+    px: '3', minH: '9', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', bg: 'transparent',
+    color: 'ink', fontSize: 'sm', whiteSpace: 'nowrap', cursor: 'pointer', _hover: { bg: 'floating' },
+    _disabled: { opacity: '0.5', cursor: 'default' },
+    _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' }
+  })
+
   return (
-    <div className="cube-status">
-      <span className={cubeLink.handle ? 'status-dot' : 'status-dot offline'} />
-      <div>
-        <strong>{label}</strong>
-        <small>{detail}</small>
+    <div className={css({ display: 'flex', alignItems: 'center', gap: '2.5', minW: '0' })}>
+      <span aria-hidden className={css({ w: '2', h: '2', flexShrink: '0', borderRadius: 'pill' })} style={{ background: cubeLink.handle ? '#22c55e' : cubeLink.connecting ? '#f59e0b' : '#71717a' }} />
+      <div className={css({ display: { base: cubeLink.handle || cubeLink.status !== 'No cube connected' ? 'flex' : 'none', md: 'flex' }, flexDirection: 'column', minW: '0', maxW: { base: '7rem', md: '14rem' } })}>
+        <strong className={css({ fontSize: 'xs', fontWeight: 'semibold', truncate: true })} title={label}>{label}</strong>
+        <small className={css({ fontSize: '11px', color: 'inkVariant', truncate: true })} title={detail}>{detail}</small>
       </div>
-      {/* Reset lives here, not buried in Settings: a cube desyncs mid-solve on whatever
-          screen you happen to be on, and this indicator is in the header on every route. */}
-      {(
-        <button
-          className="button ghost"
-          title="Tell the app the cube in your hands is solved"
-          onClick={() => {
-            void resetTrackedCubeToSolved().then(() => cubeLink.setStatus('Tracking restarted from solved'))
-          }}
-        >Reset cube</button>
-      )}
+      <button
+        type="button"
+        className={`${ghost} ${css({ display: { base: cubeLink.handle ? 'inline-flex' : 'none', md: 'inline-flex' }, alignItems: 'center' })}`}
+        title="Tell the app the cube in your hands is solved"
+        onClick={() => {
+          void resetTrackedCubeToSolved().then(() => cubeLink.setStatus('Tracking restarted from solved'))
+        }}
+      >Reset cube</button>
       {cubeLink.handle
-        ? <button className="button ghost" onClick={() => void cubeLink.disconnect()}>Disconnect</button>
+        ? <button type="button" className={ghost} onClick={() => void cubeLink.disconnect()}>Disconnect</button>
         : <button
-            className="button ghost"
+            type="button"
+            className={`${ghost} ${css({ bg: 'green', color: 'onGreen', borderColor: 'green', fontWeight: 'semibold', _hover: { bg: 'greenBright' } })}`}
             disabled={cubeLink.connecting || !supportsWebBluetooth()}
             onClick={() => void connect()}
           >

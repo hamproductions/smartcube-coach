@@ -1,51 +1,7 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { css } from 'styled-system/css'
-import { styled } from 'styled-system/jsx'
 
-// Built from the owner's Stitch export, docs/design/stitch/solve_cockpit_kinetic_logic_aligned.
-// Refinements from docs/design/stitch/solve_cockpit/code.html and
-// docs/design/stitch/timer_solve_dashboard_refined/code.html: solve number above the
-// scramble, best solve emphasised, date separators with older days dimmed.
-// Three-column cockpit: session solves left, timer and cube centre, averages right.
-// Colours, radii and type all come from kinetic_logic/DESIGN.md — do not substitute.
-
-const RAIL = '16rem'
-
-// The rails sit beside the timer on a desktop and stack under it on a phone. Kept as
-// side rails at every width, a 390px viewport rendered three columns of ~130px and the
-// scramble degraded to one move per line.
-const Rail = styled('aside', {
-  base: {
-    w: { base: 'full', lg: RAIL },
-    flexShrink: '0',
-    display: 'flex',
-    flexDirection: 'column',
-    bg: 'container'
-  },
-  variants: {
-    side: {
-      left: { borderRightWidth: { base: '0', lg: '1px' }, borderBottomWidth: { base: '1px', lg: '0' }, borderColor: 'floating' },
-      right: { borderLeftWidth: { base: '0', lg: '1px' }, borderTopWidth: { base: '1px', lg: '0' }, borderColor: 'floating', bg: '#1c1b1d', p: '4' }
-    }
-  }
-})
-
-const Label = styled('span', {
-  base: { fontFamily: 'sans', fontSize: '12px', fontWeight: '700', lineHeight: '16px', color: 'inkVariant' }
-})
-
-const Card = styled('div', {
-  base: {
-    bg: 'container',
-    borderWidth: '1px',
-    borderColor: 'floating',
-    borderRadius: 'card',
-    p: '6'
-  }
-})
-
-// Cross, F2L, OLL, PLL — the export's stage palette, in solve order.
 const STAGE_COLOURS = ['#9333ea', '#4f46e5', '#3b82f6', '#22c55e']
 
 export type SolveRow = { id: string; tps: string; time: string; best?: boolean; selected?: boolean; endedAt?: number }
@@ -64,21 +20,14 @@ export type SolveCockpitProps = {
   solves: SolveRow[]
   averages: AverageRow[]
   sessionName: string
-  /** The coach's read of the stored solves, shown here so the first page answers "what should
-      I work on?" without a detour through another route. */
   insights?: Array<{ id: string; headline: string; evidence: string; detail?: string }>
   onOpenInsights?(): void
   cube: ReactNode
   onConnect(): void
   onSelectSolve(id: string): void
-  /** Real session names; when more than one exists the pill becomes a chooser. */
   onReplay?(json: string): void | Promise<void>
-  /** Replays a capture through the live tracker instead of straight into storage. */
   onReplayLive?(json: string): void | Promise<void>
-  /** True when the hero shows a ready 0.00 rather than a finished result. */
   awaitingSolve?: boolean
-  /** Declares the physical cube solved and restarts tracking from there. */
-  /** Moves still needed to reach the target scrambled state. */
   scrambleProgress?: { done: number; total: number; offTrack: boolean; undo: string[] }
   onNewScramble?(): void
 }
@@ -89,12 +38,6 @@ export function SolveCockpit({
   awaitingSolve, scrambleProgress, onNewScramble
 }: SolveCockpitProps) {
   const moves = scramble.trim() ? scramble.trim().split(/\s+/) : []
-  // Off track means the turns no longer prefix the scramble; the correction is the way back.
-  // Only an off-track state WITH a way back is worth showing: a panel with no moves in it
-  // tells the solver nothing.
-  // Off track is off track whether or not a short way back was found. Requiring moves to
-  // show it meant the panel appeared only when the app had something to print — and when it
-  // had nothing, the route to the fully scrambled cube got printed instead.
   const offTrack = Boolean(scrambleProgress?.offTrack)
   const [trendWindow, setTrendWindow] = useState(12)
   const total = splits.reduce((sum, split) => sum + split.seconds, 0)
@@ -112,95 +55,58 @@ export function SolveCockpit({
 
   return (
     <div className={css({
-      display: 'flex',
-      flexDirection: { base: 'column', lg: 'row' },
-      flex: '1',
-      overflowY: { base: 'auto', lg: 'hidden' },
-      overflowX: 'hidden',
-      minH: '0'
+      flex: { lg: '1' }, minH: { lg: '0' }, display: 'grid',
+      gridTemplateColumns: { base: '1fr', lg: '15rem minmax(0, 1fr) 15rem' },
+      gridTemplateAreas: { base: '"stage" "stats" "times"', lg: '"times stage stats"' }
     })}>
-      <Rail side="left">
-        <div className={css({ p: '4', borderBottomWidth: '1px', borderColor: 'floating' })}>
-          <div className={css({
-            w: 'full', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            px: '3', py: '2', minH: 'touch', bg: 'floating', borderRadius: 'control',
-            borderWidth: '1px', borderColor: '#353437', color: 'ink', fontWeight: 'medium', cursor: 'pointer'
-          })}>{sessionName}</div>
-          {/* Replay controls are developer affordances, not product UI — a solver has no
-              session JSON. They live in Settings > Diagnostics with the simulator. */}
+      <aside aria-label="Session solves" className={css({ gridArea: 'times', minH: { lg: '0' }, display: 'flex', flexDirection: 'column', borderRightWidth: { lg: '1px' }, borderTopWidth: { base: '1px', lg: '0' }, borderColor: 'floating' })}>
+        <div className={css({ px: '5', pt: '5', pb: '3', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' })}>
+          <span className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{sessionName}</span>
+          <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>{solves.length} solves</span>
         </div>
-
-        <div className={css({ flex: '1', overflowY: 'auto', p: '2', fontFamily: 'mono', fontSize: '12px' })}>
-          <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', px: '4', py: '2', color: 'inkVariant', fontWeight: 'semibold', mb: '2' })}>
-            <span>TPS</span>
-            <span className={css({ textAlign: 'right' })}>TIME</span>
-          </div>
-          <div className={css({ display: 'grid', gap: '1' })}>
-            {solves.map((solve, position) => {
-              // A date chip whenever the day changes, and older days dimmed, so the
-              // current session reads as the live one without hiding history.
-              // A timestamp that is missing, zero or not a real date must not render as
-              // "Thu, January 1" — an epoch-0 chip reads as a real day the solve happened.
-              const dayOf = (value: number | undefined) =>
-                value === undefined || !Number.isFinite(value) || value <= 0
-                  ? undefined
-                  : new Date(value).toDateString()
-              const day = dayOf(solve.endedAt)
-              const previousDay = position === 0 ? undefined : dayOf(solves[position - 1].endedAt)
-              const newestDay = dayOf(solves[0]?.endedAt)
-              const startsNewDay = day !== undefined && position > 0 && day !== previousDay
-              return (
-              <div key={solve.id} className={css({ opacity: day !== undefined && newestDay !== undefined && day !== newestDay ? '0.6' : '1' })}>
-              {startsNewDay && (
-                <span className={css({
-                  display: 'inline-block', mt: '4', mb: '2', mx: '4', px: '2', py: '1',
-                  borderRadius: 'control', bg: 'floating', color: 'inkVariant',
-                  fontFamily: 'sans', fontSize: '2xs', fontWeight: 'semibold',
-                  letterSpacing: '0.08em', textTransform: 'uppercase'
-                })}>{new Date(solve.endedAt as number).toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric' })}</span>
-              )}
-              <button
-                onClick={() => onSelectSolve(solve.id)}
-                className={css({
-                  // w:full because these buttons are no longer direct grid items — the
-                  // date-chip wrapper broke the stretch, so the row shrink-wrapped and
-                  // TPS/TIME stopped lining up under their headers.
-                  w: 'full',
-                  display: 'grid', gridTemplateColumns: '1fr 1fr', px: '4', py: '2',
-                  borderRadius: 'control', cursor: 'pointer', textAlign: 'left',
-                  bg: solve.selected ? 'floating' : 'transparent',
-                  borderWidth: '1px', borderColor: solve.selected ? '#353437' : 'transparent',
-                  _hover: { bg: 'floating' }
-                })}
-              >
-                <span className={css({ color: 'inkVariant' })}>{solve.tps}</span>
-                <span className={css({ textAlign: 'right', fontWeight: solve.best ? 'bold' : 'medium', color: solve.best ? 'green' : 'ink' })}>{solve.time}</span>
-              </button>
-              </div>
-            )})}
-          </div>
+        <div className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr', px: '5', pb: '2', fontSize: 'xs', color: 'inkVariant' })}>
+          <span>TPS</span>
+          <span className={css({ textAlign: 'right' })}>Time</span>
         </div>
-      </Rail>
+        <ol className={css({ flex: '1', minH: '0', overflowY: 'auto', listStyle: 'none', m: '0', px: '2', pb: '4', fontFamily: 'mono', fontSize: 'sm', fontVariantNumeric: 'tabular-nums', maxH: { base: '20rem', lg: 'none' } })}>
+          {solves.length === 0 && <li className={css({ px: '3', py: '4', fontFamily: 'sans', color: 'inkVariant', fontSize: 'sm' })}>Your solves appear here.</li>}
+          {solves.map((solve, position) => {
+            const dayOf = (value: number | undefined) => value === undefined || !Number.isFinite(value) || value <= 0 ? undefined : new Date(value).toDateString()
+            const day = dayOf(solve.endedAt)
+            const startsNewDay = day !== undefined && position > 0 && day !== dayOf(solves[position - 1].endedAt)
+            const older = day !== undefined && day !== dayOf(solves[0]?.endedAt)
+            return (
+              <li key={solve.id} className={css({ opacity: older ? '0.6' : '1' })}>
+                {startsNewDay && (
+                  <span className={css({ display: 'block', px: '3', pt: '4', pb: '1', fontFamily: 'sans', fontSize: 'xs', color: 'inkVariant' })}>
+                    {new Date(solve.endedAt as number).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => onSelectSolve(solve.id)}
+                  aria-current={solve.selected ? 'true' : undefined}
+                  className={css({
+                    w: 'full', display: 'grid', gridTemplateColumns: '1fr 1fr', px: '3', py: '1.5', minH: '9',
+                    alignItems: 'center', borderRadius: 'control', cursor: 'pointer', textAlign: 'left',
+                    bg: solve.selected ? 'floating' : 'transparent', _hover: { bg: 'floating' },
+                    _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '-2px' }
+                  })}
+                >
+                  <span className={css({ color: 'inkVariant' })}>{solve.tps}</span>
+                  <span className={css({ textAlign: 'right', fontWeight: solve.best ? 'bold' : 'medium', color: solve.best ? 'green' : 'ink' })}>{solve.time}</span>
+                </button>
+              </li>
+            )
+          })}
+        </ol>
+      </aside>
 
-      {/* On a phone the three columns stack and the page scrolls as one, so this section
-          must size to its content — as a flex:1 child of a column it collapsed to nothing
-          and the scramble, cube and timer disappeared between the two rails. */}
-      <section className={css({
-        flex: { base: 'none', lg: '1' },
-        display: 'flex', flexDirection: 'column', position: 'relative', bg: 'surface',
-        overflowY: { base: 'visible', lg: 'auto' },
-        px: { base: '4', lg: '8' }, py: { base: '8', lg: '10' }
-      })}>
-        <div className={css({ display: 'flex', flexDirection: 'column', alignItems: 'center', w: 'full' })}>
-          {solveNumber !== undefined && <span className={css({ color: 'inkVariant', fontSize: '14px', mb: '4' })}>#{solveNumber}</span>}
-          {/* The move being turned is boxed, so there is no ambiguity mid-scramble. */}
-          <div className={css({ fontFamily: 'mono', fontSize: { base: '24px', xl: '34px' }, fontWeight: '500', letterSpacing: '0.06em', textAlign: 'center', color: 'ink', lineHeight: '1.5', maxW: '56rem', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1' })}>
-            {/* Every move carries its own state: turned, next, or not yet reached — and the
-                whole scramble greys out when you have wandered off it, because the position
-                in the string is meaningless until you undo back onto it. */}
+      <section aria-label="Solve" className={css({ gridArea: 'stage', minH: { lg: '0' }, overflowY: { lg: 'auto' }, display: 'flex', flexDirection: 'column', alignItems: 'center', px: { base: '4', lg: '8' }, pt: { base: '5', lg: '8' }, pb: '10' })}>
+        <div className={css({ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3', w: 'full', maxW: '52rem' })}>
+          {solveNumber !== undefined && <span className={css({ color: 'inkVariant', fontSize: 'sm', fontFamily: 'mono' })}>#{solveNumber}</span>}
+          <p aria-label="Scramble" className={css({ fontFamily: 'mono', fontSize: { base: '20px', md: '26px', xl: '30px' }, fontWeight: '500', letterSpacing: '0.04em', lineHeight: '1.5', textAlign: 'center', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', columnGap: '2' })}>
             {moves.map((move, index) => {
-              // While off track the confirmed prefix stays lit and the rest dims: the moves
-              // before the divergence are still done, so blanking them loses the solver's place.
               const done = index < (scrambleProgress?.done ?? 0)
               const next = !offTrack && index === (scrambleProgress?.done ?? 0)
               const beyond = offTrack && index >= (scrambleProgress?.done ?? 0)
@@ -209,115 +115,45 @@ export function SolveCockpit({
                   key={`${move}-${index}`}
                   data-state={beyond ? 'off-track' : done ? 'done' : next ? 'next' : 'pending'}
                   className={css({
-                    px: '1', mx: '0.5', borderRadius: 'control',
-                    borderWidth: '1px', borderColor: next && !offTrack ? 'green' : 'transparent',
-                    bg: next && !offTrack ? 'rgba(34,197,94,0.16)' : 'transparent',
-                    color: done ? 'inkVariant' : next ? 'green' : 'ink',
-                    opacity: beyond ? '0.35' : done ? '0.45' : '1',
+                    px: '1', borderRadius: 'control', borderWidth: '1px',
+                    borderColor: next ? 'green' : 'transparent', bg: next ? 'rgba(34,197,94,0.14)' : 'transparent',
+                    color: next ? 'green' : 'ink', opacity: beyond ? '0.3' : done ? '0.35' : '1',
                     transition: 'color 120ms, background 120ms, opacity 120ms'
                   })}
                 >{move}</span>
               )
             })}
+          </p>
+          <div aria-live="polite" className={css({ minH: '7', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '2', flexWrap: 'wrap', fontSize: 'sm' })}>
+            {offTrack ? (
+              <>
+                <span className={css({ color: 'error', fontWeight: 'semibold' })}>Off the scramble.</span>
+                {(scrambleProgress?.undo.length ?? 0) > 0 ? (
+                  <>
+                    <span className={css({ color: 'inkVariant' })}>Turn</span>
+                    {scrambleProgress!.undo.map((move, index) => (
+                      <span key={`${move}-${index}`} className={css({ fontFamily: 'mono', px: '1.5', borderRadius: 'control', bg: 'floating', color: 'ink' })}>{move}</span>
+                    ))}
+                    <span className={css({ color: 'inkVariant' })}>to get back.</span>
+                  </>
+                ) : <span className={css({ color: 'inkVariant' })}>Press New scramble and it starts from where your cube is.</span>}
+              </>
+            ) : scrambleProgress && scrambleProgress.total > 0 && scrambleProgress.done < scrambleProgress.total ? (
+              <span className={css({ fontFamily: 'mono', color: 'inkVariant' })}>{scrambleProgress.done} / {scrambleProgress.total}</span>
+            ) : scrambleProgress ? (
+              <span className={css({ color: 'green' })}>Scrambled. Inspect, then start turning.</span>
+            ) : null}
           </div>
         </div>
 
-        {/* Controls sit UNDER the cube, not stacked on top of it. Three overlaid
-            controls buried the one thing this panel exists to show. */}
-        <div className={css({ w: '16rem', h: '16rem', mt: '8', mx: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' })}>
-          {cube}
-        </div>
+        <div className={css({ mt: '2', w: { base: '180px', md: '220px' }, h: { base: '180px', md: '220px' }, display: 'grid', placeItems: 'center' })}>{cube}</div>
 
-        {/* Never gated on a connected cube. The cube is only a source of moves; the app
-            owns the state, so every control works with keyboard, cube or replay alike. */}
-        <div className={css({ mt: '5', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3' })}>
-            <div className={css({ display: 'flex', alignItems: 'center', gap: '3', flexWrap: 'wrap', justifyContent: 'center' })}>
-              {!connected && (
-                <button onClick={onConnect} className={css({
-                  display: 'flex', alignItems: 'center', gap: '2', px: '6', minH: 'touch',
-                  borderRadius: 'control', bg: 'floating', borderWidth: '1px', borderColor: 'rgba(34,197,94,0.3)',
-                  color: 'green', fontWeight: 'medium', cursor: 'pointer'
-                })}>Connect Smart Cube</button>
-              )}
-              {/* The scrambling phase ends when the cube's own state matches the scramble —
-                  there is no gesture or button that declares it done. */}
-              {onNewScramble && (
-                <button
-                  type="button"
-                  onClick={onNewScramble}
-                  className={css({
-                    minH: 'touch', px: '6', borderRadius: 'control',
-                    bg: 'transparent', color: 'ink', borderWidth: '1px', borderColor: 'floating',
-                    cursor: 'pointer', fontFamily: 'sans', fontSize: 'xs', fontWeight: 'bold',
-                    letterSpacing: '0.12em', textTransform: 'uppercase',
-                    _hover: { bg: 'floating' }
-                  })}
-                >New scramble</button>
-              )}
-              {/* Reset lives in the header indicator as "Reset cube" — one concept, one
-                  control, available on every route. */}
-              {/* No "Done scrambling" button: you do not announce that you finished
-                  scrambling, you just start solving. The scrambled state is detected from
-                  the cube's own position — nothing else ends the phase, which is what stops
-                  the timer ever starting on its own. */}
-            </div>
-            <p className={css({ color: 'inkVariant', fontSize: '14px', fontFamily: 'mono' })}>
-              or hold <span className={css({ color: 'amber', fontWeight: 'bold' })}>[SPACE]</span> to start timer
-            </p>
-            {scrambleProgress !== undefined && scrambleProgress.total > 0 && !offTrack && (
-              <div className={css({ w: 'full', maxW: '32rem', display: 'flex', flexDirection: 'column', gap: '1' })}>
-                {/* A bar, not just a count: mid-scramble you want to see how far in you are
-                    without counting tokens. */}
-                <div className={css({ h: '1.5', w: 'full', borderRadius: 'pill', bg: 'floating', overflow: 'hidden' })}>
-                  <div
-                    className={css({ h: 'full', bg: 'green', transition: 'width 140ms' })}
-                    style={{ width: `${Math.round((scrambleProgress.done / scrambleProgress.total) * 100)}%` }}
-                  />
-                </div>
-                <p className={css({ fontFamily: 'mono', fontSize: '12px', color: 'inkVariant', textAlign: 'center' })}>
-                  {scrambleProgress.done === scrambleProgress.total
-                    ? 'scrambled — start solving when ready'
-                    : `${scrambleProgress.done} / ${scrambleProgress.total} scramble moves`}
-                </p>
-              </div>
-            )}
-            {scrambleProgress !== undefined && scrambleProgress.total === 0 && (
-              <p className={css({ fontFamily: 'mono', fontSize: '12px', color: 'inkVariant' })}>
-                scrambled — start solving when ready
-              </p>
-            )}
-            {/* Backtracking: the app knows exactly which turns put you back on the scramble,
-                so it shows them instead of telling you that you are wrong and stopping. */}
-            {offTrack && (
-              <div className={css({
-                w: 'full', maxW: '32rem', px: '4', py: '3', borderRadius: 'control',
-                bg: 'rgba(239,68,68,0.10)', borderWidth: '1px', borderColor: 'rgba(239,68,68,0.35)',
-                display: 'flex', flexDirection: 'column', gap: '1', alignItems: 'center'
-              })}>
-                <span className={css({ fontFamily: 'sans', fontSize: '2xs', fontWeight: 'bold', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'error' })}>
-                  Off the scramble
-                </span>
-                <div className={css({ fontFamily: 'mono', fontSize: '18px', color: 'ink', display: 'flex', flexWrap: 'wrap', gap: '2', justifyContent: 'center' })}>
-                  {(scrambleProgress?.undo ?? []).map((move, index) => (
-                    <span key={`${move}-${index}`} className={css({ px: '1.5', py: '0.5', borderRadius: 'control', bg: 'floating' })}>{move}</span>
-                  ))}
-                </div>
-                <span className={css({ fontFamily: 'mono', fontSize: '11px', color: 'inkVariant' })}>
-                  {(scrambleProgress?.undo.length ?? 0) > 0
-                    ? 'turn these to get back on the scramble'
-                    : 'more than three turns off — start a new scramble'}
-                </span>
-              </div>
-            )}
-        </div>
-
-        <div className={css({ textAlign: 'center', mt: '8', w: 'full' })}>
-          {/* Decimals sit at 70% so the whole seconds read first at a glance. */}
-          <div className={css({ fontFamily: 'mono', fontSize: { base: '72px', lg: '11rem' }, fontWeight: 'bold', lineHeight: '1', letterSpacing: '-0.05em', color: 'green', fontVariantNumeric: 'tabular-nums' })}>
-            {whole}{fraction !== undefined && <span className={css({ opacity: '0.7' })}>.{fraction}</span>}
+        <div className={css({ mt: '2', textAlign: 'center' })}>
+          <div aria-label="Timer" className={css({ fontFamily: 'mono', fontSize: { base: '76px', md: '120px', xl: '150px' }, fontWeight: 'bold', lineHeight: '1', letterSpacing: '-0.04em', color: awaitingSolve ? 'ink' : 'green', fontVariantNumeric: 'tabular-nums' })}>
+            {whole}{fraction !== undefined && <span className={css({ opacity: '0.6' })}>.{fraction}</span>}
           </div>
           {(tps || turns !== undefined || fluency) && (
-            <div className={css({ mt: '4', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4', color: 'inkVariant', fontFamily: 'mono', fontSize: '14px' })}>
+            <div className={css({ mt: '3', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3', color: 'inkVariant', fontFamily: 'mono', fontSize: 'sm' })}>
               {tps && <span>{tps} TPS</span>}
               {turns !== undefined && <><Dot /><span>{turns} turns</span></>}
               {fluency && <><Dot /><span>{fluency} fluency</span></>}
@@ -325,102 +161,97 @@ export function SolveCockpit({
           )}
         </div>
 
+        <div className={css({ mt: '6', display: 'flex', alignItems: 'center', gap: '3', flexWrap: 'wrap', justifyContent: 'center' })}>
+          {!connected && (
+            <button type="button" onClick={onConnect} className={css({ px: '5', minH: '44px', borderRadius: 'control', bg: 'green', color: 'onGreen', fontWeight: 'semibold', cursor: 'pointer', _hover: { bg: 'greenBright' }, _focusVisible: { outline: '2px solid', outlineColor: 'ink', outlineOffset: '2px' } })}>Connect cube</button>
+          )}
+          {onNewScramble && (
+            <button type="button" onClick={onNewScramble} className={css({ px: '5', minH: '44px', borderRadius: 'control', bg: 'transparent', color: 'ink', borderWidth: '1px', borderColor: 'floating', fontWeight: 'medium', cursor: 'pointer', _hover: { bg: 'floating' }, _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' } })}>New scramble</button>
+          )}
+        </div>
+        <p className={css({ mt: '3', color: 'inkVariant', fontSize: 'sm' })}>
+          {connected ? 'Turn the cube to start. The timer stops when it is solved.' : 'No cube? Hold Space to start the timer, any key stops it.'}
+        </p>
+
         {splits.length > 0 && total > 0 && (
-          <div className={css({ alignSelf: 'stretch', maxW: '42rem', w: 'full', mx: 'auto', mt: '16' })}>
-            <Card>
-              <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '4' })}>
-                <h3 className={css({ color: 'ink', fontWeight: 'medium' })}>{awaitingSolve ? 'Last solve · CFOP split' : 'CFOP split'}</h3>
-                <span className={css({ fontFamily: 'mono', fontSize: '12px', color: 'inkVariant' })}>{total.toFixed(2)}s</span>
-              </div>
-              <div className={css({ h: '8', display: 'flex', borderRadius: 'control', overflow: 'hidden', borderWidth: '1px', borderColor: '#353437', fontFamily: 'mono', fontSize: '12px' })}>
-                {splits.map((split, index) => (
-                  <div
-                    key={split.label}
-                    title={`${split.label} ${split.seconds.toFixed(2)}s`}
-                    className={css({ display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'ink', overflow: 'hidden' })}
-                    style={{ width: `${(split.seconds / total) * 100}%`, background: `${STAGE_COLOURS[index % STAGE_COLOURS.length]}cc` }}
-                  >{split.seconds.toFixed(2)}s</div>
-                ))}
-              </div>
-              <div className={css({ display: 'grid', gap: '4', mt: '6' })} style={{ gridTemplateColumns: `repeat(${Math.min(splits.length, 4)}, minmax(0, 1fr))` }}>
-                {splits.map((split, index) => (
-                  <div key={split.label}>
-                    <div className={css({ display: 'flex', alignItems: 'center', gap: '1.5', mb: '1' })}>
-                      <span className={css({ w: '2', h: '2', borderRadius: 'pill' })} style={{ background: STAGE_COLOURS[index % STAGE_COLOURS.length] }} />
-                      <Label>{split.label}</Label>
-                    </div>
-                    <div className={css({ fontFamily: 'mono', fontSize: '14px', color: 'ink' })}>
-                      {split.seconds.toFixed(2)}s{' '}
-                      {split.delta && <span className={css({ fontSize: '12px', color: split.deltaGood ? 'green' : 'error' })}>({split.delta})</span>}
-                    </div>
-                    {split.tps && <div className={css({ fontSize: '12px', color: 'inkVariant', mt: '0.5' })}>{split.tps} TPS</div>}
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
+          <section aria-label="CFOP split" className={css({ w: 'full', maxW: '40rem', mt: '12', display: 'flex', flexDirection: 'column', gap: '4' })}>
+            <div className={css({ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' })}>
+              <h2 className={css({ fontWeight: 'semibold', fontSize: 'sm' })}>{awaitingSolve ? 'Last solve split' : 'Split'}</h2>
+              <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>{total.toFixed(2)}s</span>
+            </div>
+            <div className={css({ h: '2', display: 'flex', borderRadius: 'pill', overflow: 'hidden', gap: '0.5' })}>
+              {splits.map((split, index) => (
+                <div key={split.label} title={`${split.label} ${split.seconds.toFixed(2)}s`} style={{ width: `${(split.seconds / total) * 100}%`, background: STAGE_COLOURS[index % STAGE_COLOURS.length] }} />
+              ))}
+            </div>
+            <div className={css({ display: 'grid', gap: '4' })} style={{ gridTemplateColumns: `repeat(${Math.min(splits.length, 4)}, minmax(0, 1fr))` }}>
+              {splits.map((split, index) => (
+                <div key={split.label} className={css({ display: 'flex', flexDirection: 'column', gap: '0.5' })}>
+                  <span className={css({ display: 'flex', alignItems: 'center', gap: '1.5', fontSize: 'xs', color: 'inkVariant' })}>
+                    <span className={css({ w: '2', h: '2', borderRadius: 'pill' })} style={{ background: STAGE_COLOURS[index % STAGE_COLOURS.length] }} />
+                    {split.label}
+                  </span>
+                  <span className={css({ fontFamily: 'mono', fontSize: 'md' })}>
+                    {split.seconds.toFixed(2)}s{split.delta && <span className={css({ fontSize: 'xs', ml: '1', color: split.deltaGood ? 'green' : 'error' })}>{split.delta}</span>}
+                  </span>
+                  {split.tps && <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>{split.tps} TPS</span>}
+                </div>
+              ))}
+            </div>
+          </section>
         )}
-        {/* The coach's read belongs on the page you land on. It used to live only on
-            Statistics, so the answer to "what should I work on" was a route away. */}
+
         {insights && insights.length > 0 && (
-          <div className={css({ w: 'full', maxW: '720px', mx: 'auto', mt: '6', display: 'flex', flexDirection: 'column', gap: '3' })}>
-            {insights.map((insight, position) => (
-              <Card key={insight.id} className={css({ p: '4', display: 'flex', flexDirection: 'column', gap: '1' })}>
-                <span className={css({ fontFamily: 'sans', fontSize: '2xs', fontWeight: 'bold', letterSpacing: '0.12em', textTransform: 'uppercase', color: position === 0 ? 'green' : 'inkVariant' })}>
-                  {position === 0 ? 'Biggest win' : 'Also true'}
-                </span>
-                <h3 className={css({ color: 'ink', fontWeight: 'medium' })}>{insight.headline}</h3>
-                <p className={css({ fontFamily: 'mono', fontSize: '12px', color: 'inkVariant' })}>{insight.evidence}</p>
-              </Card>
+          <section aria-label="What to work on" className={css({ w: 'full', maxW: '40rem', mt: '10', display: 'flex', flexDirection: 'column', gap: '3' })}>
+            <h2 className={css({ fontWeight: 'semibold', fontSize: 'sm' })}>What to work on</h2>
+            {insights.map((insight) => (
+              <div key={insight.id} className={css({ p: '4', borderRadius: 'card', bg: 'container', borderWidth: '1px', borderColor: 'floating', display: 'flex', flexDirection: 'column', gap: '1' })}>
+                <span className={css({ fontWeight: 'medium' })}>{insight.headline}</span>
+                <span className={css({ fontFamily: 'mono', fontSize: 'xs', color: 'inkVariant' })}>{insight.evidence}</span>
+              </div>
             ))}
             {onOpenInsights && (
-              <button
-                type="button"
-                onClick={onOpenInsights}
-                className={css({
-                  alignSelf: 'flex-start', px: '4', minH: '40px', borderRadius: 'control',
-                  bg: 'transparent', color: 'green', borderWidth: '1px', borderColor: 'floating',
-                  cursor: 'pointer', fontFamily: 'sans', fontSize: '2xs', fontWeight: 'bold',
-                  letterSpacing: '0.12em', textTransform: 'uppercase'
-                })}
-              >Full breakdown</button>
+              <button type="button" onClick={onOpenInsights} className={css({ alignSelf: 'flex-start', px: '4', minH: '10', borderRadius: 'control', bg: 'transparent', color: 'green', borderWidth: '1px', borderColor: 'floating', cursor: 'pointer', fontSize: 'sm', _hover: { bg: 'floating' } })}>Open in Stats</button>
             )}
-          </div>
+          </section>
         )}
       </section>
 
-      <Rail side="right">
-        {/* The export's right rail carries Tournaments and Daily Scramble tiles. This
-            app has neither feature, and a tile that navigates nowhere is a lie about
-            what the product does, so they are not rendered. */}
-        <div className={css({ display: 'grid', gap: '3', fontFamily: 'mono', fontSize: '14px', px: '2' })}>
-          {averages.map((row) => (
-            <div key={row.label} className={css({ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', alignItems: 'center' })}>
-              <div className={css({ color: row.emphasis ? 'green' : 'inkVariant', fontWeight: row.emphasis ? 'medium' : 'normal' })}>{row.label}</div>
-              <div className={css({ textAlign: 'right', color: row.emphasis ? 'green' : 'ink', fontWeight: row.emphasis ? 'bold' : 'normal' })}>{row.now}</div>
-              <div className={css({ textAlign: 'right', color: 'inkVariant' })}>{row.best}</div>
+      <aside aria-label="Averages" className={css({ gridArea: 'stats', minH: { lg: '0' }, overflowY: { lg: 'auto' }, borderLeftWidth: { lg: '1px' }, borderTopWidth: { base: '1px', lg: '0' }, borderColor: 'floating', p: '5', display: 'flex', flexDirection: 'column', gap: '6' })}>
+        <table className={css({ w: 'full', fontFamily: 'mono', fontSize: 'sm', fontVariantNumeric: 'tabular-nums', borderCollapse: 'collapse' })}>
+          <thead>
+            <tr className={css({ color: 'inkVariant', fontFamily: 'sans', fontSize: 'xs' })}>
+              <th className={css({ textAlign: 'left', fontWeight: 'normal', pb: '2' })} />
+              <th className={css({ textAlign: 'right', fontWeight: 'normal', pb: '2' })}>Now</th>
+              <th className={css({ textAlign: 'right', fontWeight: 'normal', pb: '2' })}>Best</th>
+            </tr>
+          </thead>
+          <tbody>
+            {averages.map((row) => (
+              <tr key={row.label}>
+                <th scope="row" className={css({ textAlign: 'left', fontWeight: 'normal', py: '1.5', color: row.emphasis ? 'green' : 'inkVariant' })}>{row.label}</th>
+                <td className={css({ textAlign: 'right', py: '1.5', color: row.emphasis ? 'green' : 'ink', fontWeight: row.emphasis ? 'bold' : 'normal' })}>{row.now}</td>
+                <td className={css({ textAlign: 'right', py: '1.5', color: 'inkVariant' })}>{row.best}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        {trend && (
+          <div className={css({ display: 'flex', flexDirection: 'column', gap: '2' })}>
+            <div className={css({ display: 'flex', alignItems: 'center', justifyContent: 'space-between' })}>
+              <span className={css({ fontSize: 'xs', color: 'inkVariant' })}>Trend</span>
+              <select aria-label="Trend window" value={trendWindow} onChange={(event) => setTrendWindow(Number(event.target.value))} className={css({ bg: 'container', borderWidth: '1px', borderColor: 'floating', borderRadius: 'control', color: 'inkVariant', fontSize: 'xs', fontFamily: 'mono', px: '1.5', py: '0.5' })}>
+                <option value={5}>last 5</option>
+                <option value={12}>last 12</option>
+                <option value={50}>last 50</option>
+              </select>
             </div>
-          ))}
-        </div>
-        {/* Sparkline card closing the rail, with the ao5/ao12 selector from the export. */}
-        <div className={css({ mt: '8', position: 'relative', h: '96px', overflow: 'hidden', borderRadius: 'control', borderWidth: '1px', borderColor: '#353437', bg: 'floating', p: '3' })}>
-          {/* Was a decorative select with no value and no handler: changing it did
-              nothing because the trend was always the last 20 raw times. */}
-          <select
-            aria-label="Trend window"
-            value={trendWindow}
-            onChange={(event) => setTrendWindow(Number(event.target.value))}
-            className={css({ position: 'absolute', top: '2', right: '2', zIndex: '1', bg: 'container', borderWidth: '1px', borderColor: '#353437', borderRadius: 'control', color: 'inkVariant', fontSize: '2xs', fontFamily: 'mono', px: '1.5', py: '0.5' })}
-          >
-            <option value={5}>last 5</option>
-            <option value={12}>last 12</option>
-            <option value={50}>last 50</option>
-          </select>
-          <svg viewBox="0 0 100 40" preserveAspectRatio="none" className={css({ w: 'full', h: 'full', color: 'green', opacity: '0.8' })}>
-            <path d={trend} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
-      </Rail>
+            <svg viewBox="0 0 100 40" preserveAspectRatio="none" role="img" aria-label="Solve times trend" className={css({ w: 'full', h: '20', color: 'green' })}>
+              <path d={trend} fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" vectorEffect="non-scaling-stroke" />
+            </svg>
+          </div>
+        )}
+      </aside>
     </div>
   )
 }

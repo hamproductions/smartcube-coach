@@ -8,7 +8,7 @@ import type { CubeRenderer } from '../cube/CubeRenderer'
 
 const tokens = (alg: string) => alg.trim().split(/\s+/).filter(Boolean)
 
-export function Cube3D({ setupAlg = '', viewRotation = '', size = 256, gyro = false }: { setupAlg?: string; viewRotation?: string; size?: number; gyro?: boolean }) {
+export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false }: { setupAlg?: string; viewRotation?: string; size?: number; gyro?: boolean }) {
   const host = useRef<HTMLDivElement | null>(null)
   const renderer = useRef<CubeRenderer | null>(null)
   const applied = useRef('')
@@ -90,7 +90,7 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size = 256, gyro = fa
       title={gyro ? 'Click to reset gyro: hold white up, green front' : undefined}
       onClick={gyro ? () => { basis.current = null } : undefined}
       className={css({ position: 'relative', flexShrink: 0, maxW: 'full' })}
-      style={{ width: size, height: size }}
+      style={{ width: size ?? '100%', height: size ?? '100%' }}
     />
   )
 }
