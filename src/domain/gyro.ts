@@ -27,8 +27,21 @@ export function gyroSensorQuaternion(quaternion: Quaternion) {
   return normalizeQuaternion({ x: quaternion.x, y: quaternion.z, z: -quaternion.y, w: quaternion.w })
 }
 
-export function gyroDisplayQuaternion(basis: Quaternion, sensor: Quaternion) {
-  return multiply(GYRO_HOME_ORIENTATION, multiply(basis, sensor))
+const ROTATION_AXES: Record<string, [number, number, number]> = { x: [1, 0, 0], y: [0, 1, 0], z: [0, 0, 1] }
+
+export function holdQuaternion(rotation: string): Quaternion {
+  return rotation.trim().split(/\s+/).filter(Boolean).reduce<Quaternion>((total, token) => {
+    const axis = ROTATION_AXES[token[0]]
+    if (!axis) return total
+    const quarters = token.includes('2') ? 2 : token.endsWith("'") ? -1 : 1
+    const half = (-quarters * Math.PI) / 4
+    const step = { x: axis[0] * Math.sin(half), y: axis[1] * Math.sin(half), z: axis[2] * Math.sin(half), w: Math.cos(half) }
+    return multiply(step, total)
+  }, { x: 0, y: 0, z: 0, w: 1 })
+}
+
+export function gyroDisplayQuaternion(basis: Quaternion, sensor: Quaternion, hold: Quaternion = { x: 0, y: 0, z: 0, w: 1 }) {
+  return multiply(GYRO_HOME_ORIENTATION, multiply(hold, multiply(multiply(basis, sensor), conjugateQuaternion(hold))))
 }
 
 export function conjugateQuaternion(quaternion: Quaternion): Quaternion {

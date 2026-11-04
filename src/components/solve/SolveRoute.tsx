@@ -76,6 +76,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
   // and waits for the next emit shows a scramble nobody is on and a cube nobody turned until
   // the solver happens to turn again.
   const [capture, setCapture] = useState<CaptureSnapshot>(() => ensureSharedCapture().snapshot)
+  const [justSolvedMs, setJustSolvedMs] = useState<number>()
   const [timer, setTimer] = useState<KeyboardTimerState>(idleKeyboardTimerState)
   const [useInspection, setUseInspection] = useState(false)
   useEffect(() => { void readPreferences().then((prefs) => setUseInspection(prefs.wcaInspection)).catch(() => undefined) }, [])
@@ -183,7 +184,11 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
     // Re-read on subscribe as well: anything that happened between render and this effect
     // would otherwise be missed entirely.
     setCapture(ensureSharedCapture().snapshot)
-    return subscribeCapture(setCapture)
+    return subscribeCapture((snapshot) => {
+      if (snapshot.status === 'complete' && snapshot.startedAt !== undefined && snapshot.endedAt !== undefined) setJustSolvedMs(snapshot.endedAt - snapshot.startedAt)
+      else if (snapshot.scrambleMoves.length > 0 || snapshot.status === 'solving') setJustSolvedMs(undefined)
+      setCapture(snapshot)
+    })
   }, [])
   // Persistence lives in recordCapture (app-wide); this route only follows the result.
   useEffect(() => subscribeSolveSaved(() => setReload((count) => count + 1)), [])
@@ -314,11 +319,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
           : timer.phase.startsWith('inspection') && timer.inspectionStartedAt !== undefined
         ? Math.max(0, 15 - (performance.now() - timer.inspectionStartedAt) / 1000).toFixed(2)
         : timer.phase === 'idle'
-          // The finished time stays up until you actually start the next scramble. A solve
-          // completes, the app immediately issues a new scramble, and the hero used to snap
-          // to 0.00 — so an 18 second solve was never shown at all. Once the first turn of
-          // the next scramble lands, it clears.
-          ? (selected && capture.scrambleMoves.length === 0 ? (isDnf(selected) ? 'DNF' : secondsOf(selected).toFixed(2)) : '0.00')
+          ? (justSolvedMs !== undefined ? (justSolvedMs / 1000).toFixed(2) : selected && capture.scrambleMoves.length === 0 ? (isDnf(selected) ? 'DNF' : secondsOf(selected).toFixed(2)) : '0.00')
           : timer.phase === 'stopped'
             ? (selected ? (isDnf(selected) ? 'DNF' : secondsOf(selected).toFixed(2)) : '0.00')
             : (keyboardTimerElapsedMs(timer, performance.now()) / 1000).toFixed(2)}
@@ -326,7 +327,7 @@ export function SolveRoute({ onOpenStatistics }: { onOpenStatistics?(): void } =
       tps={selected ? tpsOf(selected) : undefined}
       turns={turns}
       fluency={selectedStages.length > 0 && turns ? `${Math.max(0, 100 - Math.round((pauses / turns) * 100))}%` : undefined}
-      awaitingSolve={capture.status !== 'complete' && selected !== undefined}
+      awaitingSolve={capture.status !== 'complete' && justSolvedMs === undefined && selected !== undefined}
       splits={splits}
       insights={insights}
       onOpenInsights={onOpenStatistics}

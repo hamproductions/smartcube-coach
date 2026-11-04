@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { css } from 'styled-system/css'
 import { holdPermutation } from '../../domain/cubeHold'
 import { remapMoveForPlayer } from '../../domain/cubedex/smartcubeParity'
-import { conjugateQuaternion, gyroDisplayQuaternion, gyroSensorQuaternion, type Quaternion } from '../../domain/gyro'
+import { conjugateQuaternion, gyroDisplayQuaternion, gyroSensorQuaternion, holdQuaternion, type Quaternion } from '../../domain/gyro'
 import { useOptionalCubeConnection } from '../../device/CubeConnection'
 import type { CubeRenderer } from '../cube/CubeRenderer'
 import { onCubeColoursChange, readCubeColours } from '../cube/cubeColours'
@@ -18,6 +18,8 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, h
   const subscribe = gyro ? connection?.subscribe : undefined
   const handle = connection?.handle
   const basis = useRef<Quaternion | null>(null)
+  const holdRef = useRef<Quaternion>(holdQuaternion(viewRotation))
+  holdRef.current = holdQuaternion(viewRotation)
   const highlightKey = highlight?.join(' ') ?? ''
   const highlightRef = useRef(highlightKey)
   highlightRef.current = highlightKey
@@ -92,7 +94,7 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, h
       const sensor = gyroSensorQuaternion(event.quaternion)
       if (!sensor) return
       basis.current ??= conjugateQuaternion(sensor)
-      renderer.current?.setOrientation(gyroDisplayQuaternion(basis.current, sensor))
+      renderer.current?.setOrientation(gyroDisplayQuaternion(basis.current, sensor, holdRef.current))
     })
   }, [subscribe, handle])
 
