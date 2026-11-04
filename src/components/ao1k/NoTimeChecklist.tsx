@@ -89,7 +89,7 @@ export function NoTimeChecklist({ items, location, onChange, makeId }: NoTimeChe
           )
         })}
       </ul>
-      <button type="button" onClick={add} className={css({ alignSelf: 'flex-start', px: '3', minH: '10', borderRadius: 'control', borderWidth: '1px', borderStyle: 'dashed', borderColor: 'outline', color: 'inkVariant', fontSize: 'sm', cursor: 'pointer', _hover: { color: 'ink' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}>Add item</button>
+      <button type="button" onClick={add} className={css({ alignSelf: 'flex-start', px: '3', minH: '11', borderRadius: 'control', borderWidth: '1px', borderStyle: 'dashed', borderColor: 'outline', color: 'inkVariant', fontSize: 'sm', cursor: 'pointer', _hover: { color: 'ink' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}>Add item</button>
     </section>
   )
 }

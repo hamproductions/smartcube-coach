@@ -127,7 +127,7 @@ export function NotimerPractice({ store }: NotimerPracticeProps) {
               type="button"
               aria-pressed={modifier === option}
               onClick={() => updateModifier(option)}
-              className={css({ px: '4', minH: '10', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant', cursor: 'pointer', _hover: { color: 'ink' }, '&[aria-pressed=true]': { bg: 'floating', color: 'ink', borderColor: 'green' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}
+              className={css({ px: '4', minH: '11', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant', cursor: 'pointer', _hover: { color: 'ink' }, '&[aria-pressed=true]': { bg: 'floating', color: 'ink', borderColor: 'green' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}
             >{option}</button>
           ))}
         </div>

@@ -19,11 +19,19 @@ export function useRoutedScramble() {
     const id = ++request.current
     setScramble(null)
     plan.current = null
-    const start = trackedPattern() ?? (await puzzles['3x3x3'].kpuzzle()).defaultPattern()
+    const solved = (await puzzles['3x3x3'].kpuzzle()).defaultPattern()
     const target = await generateScramble()
-    const route = (await isSolvedPattern(start)) ? target : await getScrambleToSolution(new Alg(target).invert().toString(), start)
-    const moves = tokens(route)
-    const prefixes = await scramblePrefixStates(moves, start)
+    let start = trackedPattern() ?? solved
+    let moves: string[] = []
+    let prefixes: KPattern[] = []
+    for (let attempt = 0; attempt < 5; attempt += 1) {
+      const route = (await isSolvedPattern(start)) ? target : await getScrambleToSolution(new Alg(target).invert().toString(), start)
+      moves = tokens(route)
+      prefixes = await scramblePrefixStates(moves, start)
+      const now = trackedPattern() ?? solved
+      if (now.isIdentical(start)) break
+      start = now
+    }
     if (id !== request.current) return
     plan.current = { moves, prefixes, done: 0 }
     setScramble({ moves, done: 0, offTrack: false, complete: moves.length === 0 })

@@ -211,7 +211,7 @@ export function SolveCockpit({
               </div>
             ))}
             {onOpenInsights && (
-              <button type="button" onClick={onOpenInsights} className={css({ alignSelf: 'flex-start', px: '4', minH: '10', borderRadius: 'control', bg: 'transparent', color: 'green', borderWidth: '1px', borderColor: 'floating', cursor: 'pointer', fontSize: 'sm', _hover: { bg: 'floating' } })}>Open in Stats</button>
+              <button type="button" onClick={onOpenInsights} className={css({ alignSelf: 'flex-start', px: '4', minH: '11', borderRadius: 'control', bg: 'transparent', color: 'green', borderWidth: '1px', borderColor: 'floating', cursor: 'pointer', fontSize: 'sm', _hover: { bg: 'floating' } })}>Open in Stats</button>
             )}
           </section>
         )}

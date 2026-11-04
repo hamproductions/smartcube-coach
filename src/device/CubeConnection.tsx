@@ -149,7 +149,7 @@ export function CubeConnectionIndicator() {
         : 'Not connected'
 
   const ghost = css({
-    px: '3', minH: '9', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', bg: 'transparent',
+    px: '3', minH: '11', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', bg: 'transparent',
     color: 'ink', fontSize: 'sm', whiteSpace: 'nowrap', cursor: 'pointer', _hover: { bg: 'floating' },
     _disabled: { opacity: '0.5', cursor: 'default' },
     _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' }

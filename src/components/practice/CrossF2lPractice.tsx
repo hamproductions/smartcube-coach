@@ -108,7 +108,7 @@ export function CrossF2lPractice() {
     const offReset = subscribeTrackerReset(() => { setDisplayAlg(''); dispatch({ type: 'restart' }); void generate() })
     const offMoves = subscribeResolvedMoves((resolved) => {
       const last = resolved.rawMoves[resolved.rawMoves.length - 1]
-      const move: PracticeMove = { move: resolved.move, cube: last?.cubeTimestamp ?? null, wall: last?.localTimestamp ?? Date.now() }
+      const move: PracticeMove = { move: resolved.move, cube: last?.cubeTimestamp ?? null, wall: Date.now() }
       const live = stateRef.current.phase === 'ready' || stateRef.current.phase === 'solving'
       const reached = live ? goalReached(resolved.pattern, goalRef.current) : undefined
       setNotice(undefined)

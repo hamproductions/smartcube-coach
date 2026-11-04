@@ -7,7 +7,7 @@ import { Button } from './ui/Button'
 const PRESETS = [1, 1.5, 2, 2.5, 3, 4, 5, 6].map((tps) => tps * 60)
 
 const chip = css({
-  display: 'inline-flex', alignItems: 'baseline', gap: '1', px: '3', minH: '10', borderRadius: 'control', flexShrink: '0',
+  display: 'inline-flex', alignItems: 'center', gap: '1', px: '3', minH: '11', borderRadius: 'control', flexShrink: '0',
   borderWidth: '1px', borderColor: 'floating', bg: 'transparent', color: 'inkVariant', cursor: 'pointer', fontFamily: 'mono', fontSize: 'sm',
   _hover: { color: 'ink', borderColor: 'outline' }, _focusVisible: { outline: '2px solid', outlineColor: 'green', outlineOffset: '2px' },
   '&[aria-pressed=true]': { bg: 'floating', color: 'ink', borderColor: 'green' }
