@@ -7,7 +7,7 @@
     "dev": "bun scripts/dev.ts",
     "dev:api": "bun --watch server/index.ts",
     "dev:web": "vite --host 0.0.0.0",
-    "build": "panda codegen && tsc -b && vite build",
+    "build": "NODE_ENV=production panda codegen && tsc -b && vite build",
     "start": "NODE_ENV=production bun server/index.ts",
     "test": "vitest run --pool=threads --maxWorkers=2",
     "test:watch": "vitest",
