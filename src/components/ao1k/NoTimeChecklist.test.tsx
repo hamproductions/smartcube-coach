@@ -37,26 +37,27 @@ describe('NoTimeChecklist', () => {
     const checkbox = screen.getByRole('checkbox')
     expect(checkbox).not.toBeChecked()
 
-    await user.click(screen.getByRole('button', { name: 'Toggle Breathe' }))
+    await user.click(screen.getByRole('checkbox', { name: 'Toggle Breathe' }))
     expect(screen.getByRole('checkbox')).toBeChecked()
   })
 
-  it('adds a new blank item at this location when "+ Add item" is clicked', async () => {
+  it('adds a new blank item at this location when Add item is clicked', async () => {
     const user = userEvent.setup()
     render(<Harness initial={[]} />)
 
-    await user.click(screen.getByRole('button', { name: '+ Add item' }))
+    await user.click(screen.getByRole('button', { name: 'Add item' }))
+    await user.keyboard('Breathe{Enter}')
     expect(screen.getAllByRole('checkbox')).toHaveLength(1)
   })
 
-  it('calls onChange with the item removed after confirming delete', async () => {
+  it('calls onChange with the item removed after confirming delete inline', async () => {
     const items: ChecklistItem[] = [{ id: 'a', checked: false, text: 'Breathe', templateId: 't1', location: 'pre' }]
     const onChange = vi.fn()
-    vi.spyOn(window, 'confirm').mockReturnValue(true)
     const user = userEvent.setup()
 
     render(<NoTimeChecklist items={items} location="pre" onChange={onChange} makeId={() => 'x'} />)
     await user.click(screen.getByRole('button', { name: 'Delete item' }))
+    await user.click(screen.getByRole('button', { name: 'Yes, delete' }))
 
     expect(onChange).toHaveBeenCalledWith([])
   })

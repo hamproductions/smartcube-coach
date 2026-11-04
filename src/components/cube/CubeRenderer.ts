@@ -203,7 +203,9 @@ export class CubeRenderer {
     cancelAnimationFrame(this.frame)
     for (const geometry of this.geometries) geometry.dispose()
     for (const material of Object.values(this.materials)) material.dispose()
+    this.scene.environment?.dispose()
     this.renderer.dispose()
+    this.renderer.forceContextLoss()
   }
 
   private drainQueue() {

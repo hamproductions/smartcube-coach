@@ -1,31 +1,7 @@
-/**
- * Ported from Ao1K/Ao1K_site (https://github.com/Ao1K/Ao1K_site).
- * Source: app/notimer/page.tsx (mountCards, addOrUpdateSolve, createCardData,
- * handleScrollDown/Up, saveLatestChecks, addLatestSolve, getOriginalSolveID).
- *
- * MIT License
- * Copyright (c) 2025 Ao1K
- *
- * Adaptation notes: the original is an infinite-scroll stack of solve
- * "cards" the user snaps between (app/notimer/page.tsx: solveCards,
- * handleScroll, shiftActiveCardToLower/Upper). This project has no
- * equivalent scroll-carousel primitive and the task asked specifically
- * for the checklist model and its persistence shape, not the scroll
- * shell, so this port keeps the same one-active-solve state machine
- * (current solve inherits the previous solve's checklist unchecked,
- * checklist commits persist per solve, a new solve gets a fresh
- * scramble) behind plain Prev/Next controls instead of scroll snapping.
- * `randomScrambleForEvent` (Ao1K's scramble source) is replaced with
- * this project's own `generateScramble()` (src/domain/scramble.ts),
- * which already wraps the same `cubing/scramble` call.
- *
- * This component takes a NotimerChecklistStore (see
- * src/domain/ao1k/notimerChecklist.ts) from its caller — it has no
- * default because persisting practice solves needs new IndexedDB
- * object stores this module does not own (see the storage-need comment
- * in notimerChecklist.ts).
- */
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { css } from 'styled-system/css'
+import { Cube3D } from '../solve/Cube3D'
+import { Button } from '../ui/Button'
 import { generateScramble } from '../../domain/scramble'
 import {
   loadOrDeriveChecklist,
@@ -65,8 +41,6 @@ export function NotimerPractice({ store }: NotimerPracticeProps) {
     const mount = async () => {
       const lastSolve = await store.getLastSolve()
       const active = lastSolve ?? (await createFreshSolve(store, -1))
-      // derive before persisting a freshly-created solve, so getLastSolve()
-      // inside loadOrDeriveChecklist still resolves to the true previous solve
       const items = await loadOrDeriveChecklist(store, active.id)
       if (!lastSolve) await store.putSolve(active)
       if (cancelled) return
@@ -87,18 +61,28 @@ export function NotimerPractice({ store }: NotimerPracticeProps) {
     await persistChecklist(store, solve.id, nextChecklist)
   }
 
-  const goToNext = async () => {
+  const goToNext = useCallback(async () => {
     if (!solve) return
     const existingNext = await store.getNextSolve(solve.sequence)
     const nextSolve = existingNext ?? (await createFreshSolve(store, solve.sequence))
-    // derive before persisting a freshly-created solve, so getLastSolve()
-    // inside loadOrDeriveChecklist still resolves to the true previous solve
     const items = await loadOrDeriveChecklist(store, nextSolve.id)
     if (!existingNext) await store.putSolve(nextSolve)
     setSolve(nextSolve)
     setModifier(nextSolve.solveModifier)
     setChecklist(items)
-  }
+  }, [solve, store])
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const target = event.target instanceof HTMLElement ? event.target : null
+      if (target && /^(INPUT|TEXTAREA|SELECT|BUTTON|A)$/.test(target.tagName)) return
+      if (event.code !== 'Space' && event.key !== 'Enter') return
+      event.preventDefault()
+      void goToNext()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [goToNext])
 
   const goToPrevious = async () => {
     if (!solve) return
@@ -118,37 +102,35 @@ export function NotimerPractice({ store }: NotimerPracticeProps) {
     await store.putSolve(updated)
   }
 
-  if (!isLoaded || !solve) return <div className="ao1k-notimer-practice">Loading practice session…</div>
+  if (!isLoaded || !solve) return <p className={css({ color: 'inkVariant', fontSize: 'sm' })}>Loading your checklist…</p>
 
   return (
-    <div className="ao1k-notimer-practice">
+    <div className={css({ display: 'grid', gap: '8', gridTemplateColumns: { base: '1fr', lg: 'minmax(0, 1fr) minmax(0, 1.2fr) minmax(0, 1fr)' }, alignItems: 'start' })}>
       <NoTimeChecklist items={checklist} location="pre" onChange={commitCurrent} makeId={store.nextId} />
 
-      <div className="ao1k-notimer-practice__scramble">{solve.scramble}</div>
+      <section aria-label="Solve" className={css({ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4', order: { base: '-1', lg: '0' } })}>
+        <span className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant' })}>Solve {solve.sequence + 1}</span>
+        <p aria-label="Scramble" className={css({ fontFamily: 'mono', fontSize: { base: '18px', md: '22px' }, lineHeight: '1.5', textAlign: 'center' })}>{solve.scramble}</p>
+        <div className={css({ w: '14rem', h: '14rem' })}><Cube3D setupAlg={solve.scramble} /></div>
+        <p className={css({ fontSize: 'sm', color: 'inkVariant', textAlign: 'center', maxW: '28rem' })}>Solve slowly with no timer. Tick the list before you start and after you finish.</p>
+        <div role="group" aria-label="Result" className={css({ display: 'flex', gap: '2' })}>
+          {(['OK', '+2', 'DNF'] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              aria-pressed={modifier === option}
+              onClick={() => updateModifier(option)}
+              className={css({ px: '4', minH: '10', borderRadius: 'control', borderWidth: '1px', borderColor: 'floating', fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant', cursor: 'pointer', _hover: { color: 'ink' }, '&[aria-pressed=true]': { bg: 'floating', color: 'ink', borderColor: 'green' }, _focusVisible: { outline: '2px solid', outlineColor: 'green' } })}
+            >{option}</button>
+          ))}
+        </div>
+        <div className={css({ display: 'flex', gap: '2' })}>
+          <Button variant="outline" disabled={solve.sequence === 0} onClick={() => void goToPrevious()}>Previous solve</Button>
+          <Button variant="solid" onClick={() => void goToNext()}>Next solve <kbd className={css({ fontFamily: 'mono', fontSize: 'xs', opacity: '0.7' })}>Space</kbd></Button>
+        </div>
+      </section>
 
       <NoTimeChecklist items={checklist} location="post" onChange={commitCurrent} makeId={store.nextId} />
-
-      <div className="ao1k-notimer-practice__modifier">
-        {(['OK', '+2', 'DNF'] as const).map((option) => (
-          <button
-            key={option}
-            type="button"
-            aria-pressed={modifier === option}
-            onClick={() => updateModifier(option)}
-          >
-            {option}
-          </button>
-        ))}
-      </div>
-
-      <div className="ao1k-notimer-practice__nav">
-        <button type="button" onClick={() => void goToPrevious()}>
-          ← Previous solve
-        </button>
-        <button type="button" onClick={() => void goToNext()}>
-          Next solve →
-        </button>
-      </div>
     </div>
   )
 }
