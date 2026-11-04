@@ -78,7 +78,7 @@ describe('TrainerHub grading', () => {
     expect(screen.getByRole('heading', { name: 'Recognize the case' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Turn any move to advance playback.' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Controller playback' })).toBeInTheDocument()
-    expect(document.querySelector('twisty-player')).toBeInTheDocument()
+    expect(document.querySelector('[data-testid=cube-3d]')).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'Recognized' }))
     const heading = screen.getByRole('heading', { name: /execution$/ }).textContent ?? ''
     const presentedCase = heading.replace(/ execution$/, '')
@@ -119,8 +119,8 @@ describe('TrainerHub grading', () => {
     // The drill renders two players: the case preview (static) first, then the controller
     // playback. Playback is the one this asserts on, so take the last, not the first.
     const setupAlg = () => {
-      const players = document.querySelectorAll('twisty-player')
-      return players[players.length - 1]?.getAttribute('experimental-setup-alg')
+      const players = document.querySelectorAll('[data-testid=cube-3d]')
+      return players[players.length - 1]?.getAttribute('data-setup-alg')
     }
     const atRest = setupAlg()
     await act(async () => emitMove?.('F'))
@@ -241,7 +241,7 @@ describe('TrainerHub grading', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Start real-cube drill' })).toBeEnabled(), { timeout: 15_000 })
     await user.click(screen.getByRole('button', { name: 'Start real-cube drill' }))
 
-    await waitFor(() => expect(screen.getByRole('heading', { level: 3 }).textContent).toBe('Basic right insert'), { timeout: 5_000 })
+    await waitFor(() => expect(screen.getAllByRole('heading', { level: 3 })[0].textContent).toBe('Basic right insert'), { timeout: 5_000 })
   }, 30_000)
 
   it('advances to a different case after completing one, driven by the drill engine queue', async () => {
@@ -254,7 +254,7 @@ describe('TrainerHub grading', () => {
     await user.click(await screen.findByRole('button', { name: 'Start real-cube drill' }))
     await waitFor(() => expect(screen.getByText('Recognize…')).toBeInTheDocument(), { timeout: 3_000 })
 
-    const firstCaseName = screen.getByRole('heading', { level: 3 }).textContent ?? ''
+    const firstCaseName = screen.getAllByRole('heading', { level: 3 })[0].textContent ?? ''
     const firstRecord = (await repositories.algorithms.all()).find((item) => item.name === firstCaseName)
     expect(firstRecord).toBeDefined()
     const firstMoves = new Alg(firstRecord!.setup).invert().toString().split(/\s+/).filter(Boolean)
@@ -262,7 +262,7 @@ describe('TrainerHub grading', () => {
 
     await waitFor(() => expect(screen.getByText('Case solved. Next case…')).toBeInTheDocument(), { timeout: 3_000 })
     await waitFor(() => expect(screen.getByText('Recognize…')).toBeInTheDocument(), { timeout: 3_000 })
-    const secondCaseName = screen.getByRole('heading', { level: 3 }).textContent ?? ''
+    const secondCaseName = screen.getAllByRole('heading', { level: 3 })[0].textContent ?? ''
     expect(secondCaseName).not.toBe('')
   }, 30_000)
 
@@ -410,7 +410,7 @@ describe('TrainerHub grading', () => {
     await screen.findByRole('heading', { name: 'What case is this?' }, { timeout: 15_000 })
     await waitFor(() => expect(screen.getByText('Front').closest('div')).toHaveTextContent(/^Front[URFDLB]( [URFDLB]){2}$/), { timeout: 15_000 })
     expect(screen.getByText('Right').closest('div')).toHaveTextContent(/^Right[URFDLB]( [URFDLB]){2}$/)
-    expect(document.querySelector('twisty-player')).not.toBeInTheDocument()
+    expect(document.querySelector('[data-testid=cube-3d]')).not.toBeInTheDocument()
 
     await user.type(screen.getByRole('textbox', { name: 'Recognition answer' }), 'not a real case name')
     await user.click(screen.getByRole('button', { name: 'Submit recognition' }))
@@ -621,7 +621,7 @@ describe('real-cube F2L drill engine', () => {
     await user.click(await screen.findByRole('button', { name: 'Start real-cube drill' }))
     await waitFor(() => expect(screen.getByText('Recognize…')).toBeInTheDocument(), { timeout: 3_000 })
 
-    const caseName = screen.getByRole('heading', { level: 3 }).textContent ?? ''
+    const caseName = screen.getAllByRole('heading', { level: 3 })[0].textContent ?? ''
     const record = (await repositories.algorithms.all()).find((item) => item.name === caseName)
     expect(record).toBeDefined()
     const solveMoves = new Alg(record!.setup).invert().toString().split(/\s+/).filter(Boolean)
@@ -645,7 +645,7 @@ describe('real-cube F2L drill engine', () => {
     expect(screen.getByText('Gave up. Redo or resume when ready.')).toBeInTheDocument()
 
     const attemptsBefore = (await repositories.attempts.all()).length
-    const caseName = screen.getByRole('heading', { level: 3 }).textContent ?? ''
+    const caseName = screen.getAllByRole('heading', { level: 3 })[0].textContent ?? ''
     const record = (await repositories.algorithms.all()).find((item) => item.name === caseName)
     expect(record).toBeDefined()
     const solveMoves = new Alg(record!.setup).invert().toString().split(/\s+/).filter(Boolean)

@@ -95,6 +95,8 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, h
     <div
       ref={host}
       data-testid="cube-3d"
+      data-setup-alg={setupAlg}
+      data-view-rotation={viewRotation}
       title={gyro ? 'Click to reset gyro: hold white up, green front' : undefined}
       onClick={gyro ? () => { basis.current = null } : undefined}
       className={css({ position: 'relative', flexShrink: 0, maxW: 'full' })}
