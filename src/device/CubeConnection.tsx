@@ -158,13 +158,13 @@ export function CubeConnectionIndicator() {
   return (
     <div className={css({ display: 'flex', alignItems: 'center', gap: '2.5', minW: '0' })}>
       <span aria-hidden className={css({ w: '2', h: '2', flexShrink: '0', borderRadius: 'pill' })} style={{ background: cubeLink.handle ? '#22c55e' : cubeLink.connecting ? '#f59e0b' : '#71717a' }} />
-      <div className={css({ display: { base: cubeLink.handle || cubeLink.status !== 'No cube connected' ? 'flex' : 'none', md: 'flex' }, flexDirection: 'column', minW: '0', maxW: { base: '7rem', md: '14rem' } })}>
+      <div className={css({ display: { base: cubeLink.handle || cubeLink.status !== 'No cube connected' ? 'flex' : 'none', md: 'flex' }, flexDirection: 'column', minW: '0', maxW: { base: '10rem', md: '14rem' } })}>
         <strong className={css({ fontSize: 'xs', fontWeight: 'semibold', truncate: true })} title={label}>{label}</strong>
         <small className={css({ fontSize: '11px', color: 'inkVariant', truncate: true })} title={detail}>{detail}</small>
       </div>
       <button
         type="button"
-        className={`${ghost} ${css({ display: { base: cubeLink.handle ? 'inline-flex' : 'none', md: 'inline-flex' }, alignItems: 'center' })}`}
+        className={`${ghost} ${css({ display: { base: 'none', md: 'inline-flex' }, alignItems: 'center' })}`}
         title="Tell the app the cube in your hands is solved"
         onClick={() => {
           void resetTrackedCubeToSolved().then(() => cubeLink.setStatus('Tracking restarted from solved'))

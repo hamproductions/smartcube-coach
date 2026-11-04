@@ -36,11 +36,11 @@ export function AppShell({ active, status, children }: { active: Section; status
         h: '14', px: { base: '4', md: '6' },
         borderBottomWidth: '1px', borderColor: 'floating', bg: 'surface'
       })}>
-        <a href={routeHref({ section: 'solve' })} className={css({ display: 'flex', alignItems: 'center', gap: '2.5', color: 'ink', textDecoration: 'none', flexShrink: '0' })}>
+        <a href={routeHref({ section: 'solve' })} aria-label="Smart Cube Coach, solve" className={css({ display: 'flex', alignItems: 'center', gap: '2.5', color: 'ink', textDecoration: 'none', flexShrink: '0' })}>
           <span className={css({ w: '7', h: '7', borderRadius: 'control', bg: 'green', color: 'onGreen', display: 'grid', placeItems: 'center' })}>
             <Icon d={IC.cube} size={16} strokeWidth={2} />
           </span>
-          <span className={css({ fontWeight: 'semibold', fontSize: '15px', letterSpacing: '-0.01em' })}>Smart Cube Coach</span>
+          <span className={css({ display: { base: 'none', sm: 'inline' }, fontWeight: 'semibold', fontSize: '15px', letterSpacing: '-0.01em' })}>Smart Cube Coach</span>
         </a>
         <nav aria-label="Primary" className={css({ display: { base: 'none', md: 'flex' }, gap: '1', mx: 'auto' })}>
           {NAV.map((item) => (
