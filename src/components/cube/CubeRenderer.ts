@@ -15,7 +15,7 @@ export const DEFAULT_CUBE_COLOURS: CubeColours = {
 
 type Axis = 'x' | 'y' | 'z'
 type Turn = { axis: Axis; layers: number[]; quarter: number }
-type Cubie = { mesh: THREE.Group; home: THREE.Vector3 }
+type Cubie = { mesh: THREE.Group; home: THREE.Vector3; stickers: Array<{ mesh: THREE.Mesh; face: keyof CubeColours }> }
 type Animation = { turn: Turn; pivot: THREE.Group; cubies: Cubie[]; start: number; duration: number }
 
 const FACE_TURNS: Record<string, { axis: Axis; layers: number[]; sign: number }> = {
@@ -73,6 +73,20 @@ const STICKER_FACES: Array<{ face: keyof CubeColours; normal: THREE.Vector3; tes
   { face: 'B', normal: new THREE.Vector3(0, 0, -1), test: (p) => p.z === -1 }
 ]
 
+const PIECE_AXES: Record<string, [Axis, number]> = { U: ['y', 1], D: ['y', -1], R: ['x', 1], L: ['x', -1], F: ['z', 1], B: ['z', -1] }
+
+export function pieceHome(name: string) {
+  const letters = name.trim().toUpperCase().split('')
+  if (letters.length < 2 || letters.length > 3) return undefined
+  const home = new THREE.Vector3()
+  for (const letter of letters) {
+    const axis = PIECE_AXES[letter]
+    if (!axis) return undefined
+    home[axis[0]] = axis[1]
+  }
+  return home
+}
+
 export class CubeRenderer {
   readonly canvas: HTMLCanvasElement
   private readonly renderer: THREE.WebGLRenderer
@@ -88,6 +102,7 @@ export class CubeRenderer {
   private orientation = new THREE.Quaternion()
   private orientationTarget: THREE.Quaternion | null = null
   private readonly materials: Record<keyof CubeColours, THREE.MeshStandardMaterial>
+  private readonly dimmed: Record<keyof CubeColours, THREE.MeshStandardMaterial>
   private readonly geometries: THREE.BufferGeometry[] = []
 
   constructor(colours: CubeColours = DEFAULT_CUBE_COLOURS) {
@@ -117,6 +132,9 @@ export class CubeRenderer {
     this.materials = Object.fromEntries(
       (Object.keys(colours) as Array<keyof CubeColours>).map((face) => [face, new THREE.MeshStandardMaterial({ color: colours[face], roughness: 0.32, metalness: 0 })])
     ) as Record<keyof CubeColours, THREE.MeshStandardMaterial>
+    this.dimmed = Object.fromEntries(
+      (Object.keys(colours) as Array<keyof CubeColours>).map((face) => [face, new THREE.MeshStandardMaterial({ color: new THREE.Color(colours[face]).multiplyScalar(0.22), roughness: 0.6, metalness: 0 })])
+    ) as Record<keyof CubeColours, THREE.MeshStandardMaterial>
 
     this.root.add(this.puzzle)
     this.scene.add(this.root)
@@ -133,21 +151,35 @@ export class CubeRenderer {
       const home = new THREE.Vector3(x, y, z)
       const mesh = new THREE.Group()
       mesh.add(new THREE.Mesh(body, plastic))
+      const stickers: Cubie['stickers'] = []
       for (const side of STICKER_FACES) {
         if (!side.test(home)) continue
         const face = new THREE.Mesh(sticker, this.materials[side.face])
         face.position.copy(side.normal).multiplyScalar(0.491)
         face.lookAt(side.normal.clone().multiplyScalar(2))
         mesh.add(face)
+        stickers.push({ mesh: face, face: side.face })
       }
       mesh.position.copy(home)
       this.puzzle.add(mesh)
-      this.cubies.push({ mesh, home })
+      this.cubies.push({ mesh, home, stickers })
     }
   }
 
   setColours(colours: CubeColours) {
-    for (const face of Object.keys(colours) as Array<keyof CubeColours>) this.materials[face].color.set(colours[face])
+    for (const face of Object.keys(colours) as Array<keyof CubeColours>) {
+      this.materials[face].color.set(colours[face])
+      this.dimmed[face].color.set(colours[face]).multiplyScalar(0.22)
+    }
+    this.dirty = true
+  }
+
+  highlight(pieces: string[] | null) {
+    const homes = pieces?.map(pieceHome).filter((home): home is THREE.Vector3 => home !== undefined) ?? []
+    for (const cubie of this.cubies) {
+      const lit = homes.length === 0 || homes.some((home) => home.equals(cubie.home))
+      for (const sticker of cubie.stickers) sticker.mesh.material = lit ? this.materials[sticker.face] : this.dimmed[sticker.face]
+    }
     this.dirty = true
   }
 
@@ -202,7 +234,7 @@ export class CubeRenderer {
   dispose() {
     cancelAnimationFrame(this.frame)
     for (const geometry of this.geometries) geometry.dispose()
-    for (const material of Object.values(this.materials)) material.dispose()
+    for (const material of [...Object.values(this.materials), ...Object.values(this.dimmed)]) material.dispose()
     this.scene.environment?.dispose()
     this.renderer.dispose()
     this.renderer.forceContextLoss()

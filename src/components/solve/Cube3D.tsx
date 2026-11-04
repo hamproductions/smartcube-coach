@@ -8,7 +8,7 @@ import type { CubeRenderer } from '../cube/CubeRenderer'
 
 const tokens = (alg: string) => alg.trim().split(/\s+/).filter(Boolean)
 
-export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false }: { setupAlg?: string; viewRotation?: string; size?: number; gyro?: boolean }) {
+export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false, highlight }: { setupAlg?: string; viewRotation?: string; size?: number; gyro?: boolean; highlight?: string[] }) {
   const host = useRef<HTMLDivElement | null>(null)
   const renderer = useRef<CubeRenderer | null>(null)
   const applied = useRef('')
@@ -17,6 +17,9 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false }:
   const subscribe = gyro ? connection?.subscribe : undefined
   const handle = connection?.handle
   const basis = useRef<Quaternion | null>(null)
+  const highlightKey = highlight?.join(' ') ?? ''
+  const highlightRef = useRef(highlightKey)
+  highlightRef.current = highlightKey
 
   const sync = () => {
     const cube = renderer.current
@@ -59,6 +62,7 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false }:
       cube.resize(element.clientWidth, element.clientHeight)
       applied.current = ''
       sync()
+      cube.highlight(highlightRef.current ? highlightRef.current.split(' ') : null)
       cube.start()
     })
     return () => {
@@ -69,6 +73,10 @@ export function Cube3D({ setupAlg = '', viewRotation = '', size, gyro = false }:
       renderer.current = null
     }
   }, [])
+
+  useEffect(() => {
+    renderer.current?.highlight(highlightKey ? highlightKey.split(' ') : null)
+  }, [highlightKey])
 
   useEffect(() => {
     basis.current = null
