@@ -14,6 +14,12 @@ export default defineConfig({
 
   theme: {
     extend: {
+      keyframes: {
+        pacerPulse: {
+          '0%': { transform: 'scale(0.94)', opacity: '1' },
+          '100%': { transform: 'scale(1.08)', opacity: '0.35' }
+        }
+      },
       breakpoints: {
         sm: '640px',
         md: '768px',

@@ -230,7 +230,7 @@ export function CrossF2lPractice() {
             <button type="button" className={chip} aria-pressed={goal.face === 'any'} onClick={() => chooseGoal({ ...goal, face: 'any' })}>Any colour</button>
             {faces.map((face: Face) => (
               <button key={face} type="button" className={chip} aria-pressed={goal.face === face} onClick={() => chooseGoal({ ...goal, face })} title={`Cross on the ${face} face`}>
-                <span aria-hidden className={css({ w: '3', h: '3', borderRadius: 'full', borderWidth: '1px', borderColor: 'outline' })} style={{ background: HEX[scheme[face]] }} />
+                <span aria-hidden className={css({ w: '3', h: '3', borderRadius: 'pill', borderWidth: '1px', borderColor: 'outline' })} style={{ background: HEX[scheme[face]] }} />
                 {colourName(scheme[face])}
               </button>
             ))}

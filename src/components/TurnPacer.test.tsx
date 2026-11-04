@@ -34,7 +34,7 @@ describe('TurnPacer', () => {
 
     expect(screen.getByText(/1000 ms apart/)).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: /120/ }))
+    await user.click(screen.getByRole('button', { name: /^120/ }))
     expect(screen.getByText(/500 ms apart/)).toBeInTheDocument()
   })
 
@@ -42,21 +42,21 @@ describe('TurnPacer', () => {
     const user = userEvent.setup()
     render(<TurnPacer />)
 
-    expect(screen.getByRole('button', { name: /60/ })).toHaveAttribute('aria-pressed', 'true')
-    await user.click(screen.getByRole('button', { name: /80/ }))
-    expect(screen.getByRole('button', { name: /80/ })).toHaveAttribute('aria-pressed', 'true')
-    expect(screen.getByRole('button', { name: /60/ })).toHaveAttribute('aria-pressed', 'false')
+    expect(screen.getByRole('button', { name: /^60/ })).toHaveAttribute('aria-pressed', 'true')
+    await user.click(screen.getByRole('button', { name: /^80/ }))
+    expect(screen.getByRole('button', { name: /^80/ })).toHaveAttribute('aria-pressed', 'true')
+    expect(screen.getByRole('button', { name: /^60/ })).toHaveAttribute('aria-pressed', 'false')
   })
 
   it('toggles between starting and stopping the pacer', async () => {
     const user = userEvent.setup()
     render(<TurnPacer />)
 
-    await user.click(screen.getByRole('button', { name: 'Start pacer' }))
-    expect(screen.getByRole('button', { name: 'Stop pacer' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /^Start pacer/ }))
+    expect(screen.getByRole('button', { name: /^Stop pacer/ })).toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: 'Stop pacer' }))
-    expect(screen.getByRole('button', { name: 'Start pacer' })).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: /^Stop pacer/ }))
+    expect(screen.getByRole('button', { name: /^Start pacer/ })).toBeInTheDocument()
   })
 
   it('stays silent until the user starts it', () => {
