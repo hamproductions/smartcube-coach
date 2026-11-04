@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { css } from 'styled-system/css'
 import { Cube3D } from '../../solve/Cube3D'
+import { useOptionalCubeConnection } from '../../../device/CubeConnection'
+import { CubeScramble } from '../CubeScramble'
 import { generateBldDrill } from '../../../domain/bld'
 import { repositories } from '../../../storage/database'
 import { buildAttempts } from './attempts'
@@ -24,6 +26,7 @@ function isTyping(target: EventTarget | null) {
 }
 
 export function MemoTrainer() {
+  const cubeLink = useOptionalCubeConnection()
   const [config, setConfig] = useState<BldConfig>(DEFAULT_CONFIG)
   const [round, setRound] = useState(readRound)
   const [startedAt, setStartedAt] = useState(() => performance.now())
@@ -142,14 +145,17 @@ export function MemoTrainer() {
     reset()
   }
 
+  const connected = Boolean(cubeLink?.handle)
   return (
     <div className={css({ display: 'flex', flexDirection: 'column', gap: '6' })}>
       <Settings config={config} open={settingsOpen} onToggle={toggleSettings} onApply={applyConfig} />
       <div className={css({ display: 'grid', columnGap: '10', rowGap: '6', gridTemplateColumns: { base: '1fr', lg: 'minmax(0, 1fr) 28rem', xl: 'minmax(0, 1fr) 32rem' }, gridTemplateAreas: { base: '"scramble" "answer" "session"', lg: '"scramble answer" "session answer"' }, gridTemplateRows: { lg: 'auto 1fr' }, alignItems: 'start' })}>
         <section aria-label="Scramble" className={css({ gridArea: 'scramble', display: 'flex', flexDirection: 'column', gap: '4', minW: '0' })}>
           <div className={css({ display: 'grid', gap: '2' })}>
-            <span className={labelClass}>Scramble, white top and green front</span>
-            <p data-testid="bld-scramble" className={css({ fontFamily: 'mono', fontSize: { base: 'lg', md: '2xl' }, lineHeight: '1.5', letterSpacing: '0.04em', wordSpacing: '0.2em', overflowWrap: 'anywhere' })}>{drill.scramble}</p>
+            <span className={labelClass}>{connected ? 'Scramble your cube to memo from it, white top and green front' : 'Scramble, white top and green front'}</span>
+            {connected
+              ? <div data-testid="bld-scramble"><CubeScramble target={drill.scramble} /></div>
+              : <p data-testid="bld-scramble" className={css({ fontFamily: 'mono', fontSize: { base: 'lg', md: '2xl' }, lineHeight: '1.5', letterSpacing: '0.04em', wordSpacing: '0.2em', overflowWrap: 'anywhere' })}>{drill.scramble}</p>}
           </div>
           <div className={css({ display: 'grid', gap: '3', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', w: 'full', maxW: '42rem' })}>
             <figure className={css({ display: 'grid', gap: '1', m: '0', minW: '0' })}>

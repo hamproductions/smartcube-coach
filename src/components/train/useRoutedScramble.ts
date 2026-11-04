@@ -15,12 +15,12 @@ export function useRoutedScramble() {
   const plan = useRef<{ moves: string[]; prefixes: KPattern[]; done: number } | null>(null)
   const request = useRef(0)
 
-  const generate = useCallback(async () => {
+  const generate = useCallback(async (given?: string) => {
     const id = ++request.current
     setScramble(null)
     plan.current = null
     const solved = (await puzzles['3x3x3'].kpuzzle()).defaultPattern()
-    const target = await generateScramble()
+    const target = given ?? await generateScramble()
     let start = trackedPattern() ?? solved
     let moves: string[] = []
     let prefixes: KPattern[] = []

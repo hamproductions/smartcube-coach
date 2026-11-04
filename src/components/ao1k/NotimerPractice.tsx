@@ -14,6 +14,8 @@ import {
   type NotimerSolveRecord
 } from '../../domain/ao1k/notimerChecklist'
 import { NoTimeChecklist } from './NoTimeChecklist'
+import { useOptionalCubeConnection } from '../../device/CubeConnection'
+import { CubeScramble } from '../train/CubeScramble'
 
 export type NotimerPracticeProps = {
   store: NotimerChecklistStore
@@ -38,6 +40,7 @@ export function NotimerPractice({ store }: NotimerPracticeProps) {
   const [modifier, setModifier] = useState<NotimerSolveModifier>('OK')
   const [isLoaded, setIsLoaded] = useState(false)
   const [rotation, setRotation] = useState(viewRotationForHold(defaultPreferences.diagramTopColor, defaultPreferences.diagramFrontColor))
+  const connected = Boolean(useOptionalCubeConnection()?.handle)
 
   useEffect(() => {
     void readPreferences().then((prefs) => setRotation(viewRotationForHold(prefs.diagramTopColor, prefs.diagramFrontColor))).catch(() => undefined)
@@ -117,8 +120,10 @@ export function NotimerPractice({ store }: NotimerPracticeProps) {
 
       <section aria-label="Solve" className={css({ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4', order: { base: '-1', lg: '0' } })}>
         <span className={css({ fontFamily: 'mono', fontSize: 'sm', color: 'inkVariant' })}>Solve {solve.sequence + 1}</span>
-        <p aria-label="Scramble" className={css({ fontFamily: 'mono', fontSize: { base: '18px', md: '22px' }, lineHeight: '1.5', textAlign: 'center' })}>{solve.scramble}</p>
-        <div className={css({ w: '14rem', h: '14rem' })}><Cube3D setupAlg={solve.scramble} viewRotation={rotation} /></div>
+        {connected
+          ? <CubeScramble target={solve.scramble} />
+          : <p aria-label="Scramble" className={css({ fontFamily: 'mono', fontSize: { base: '18px', md: '22px' }, lineHeight: '1.5', textAlign: 'center' })}>{solve.scramble}</p>}
+        {!connected && <div className={css({ w: '14rem', h: '14rem' })}><Cube3D setupAlg={solve.scramble} viewRotation={rotation} /></div>}
         <p className={css({ fontSize: 'sm', color: 'inkVariant', textAlign: 'center', maxW: '28rem' })}>Solve slowly with no timer. Tick the list before you start and after you finish.</p>
         <div role="group" aria-label="Result" className={css({ display: 'flex', gap: '2' })}>
           {(['OK', '+2', 'DNF'] as const).map((option) => (
