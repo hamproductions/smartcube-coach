@@ -1,16 +1,14 @@
 import { css } from 'styled-system/css'
 import { routeHref } from '../../app/route'
 import { TRAINERS, TRAINER_STAGES } from './trainers'
+import { PageHeader, pageFrame } from '../ui/Page'
 
 const CUBE_LABEL = { required: 'Smart cube', optional: 'Smart cube or keyboard', none: 'No cube needed' } as const
 
 export function TrainHub() {
   return (
-    <div className={css({ w: 'full', maxW: '1180px', mx: 'auto', px: { base: '4', md: '8' }, py: { base: '6', md: '10' }, display: 'flex', flexDirection: 'column', gap: '10' })}>
-      <header className={css({ display: 'flex', flexDirection: 'column', gap: '2' })}>
-        <h1 className={css({ fontSize: { base: '2xl', md: '3xl' }, fontWeight: 'semibold', letterSpacing: '-0.02em' })}>Train</h1>
-        <p className={css({ color: 'inkVariant', maxW: '60ch' })}>Pick the part of the solve you want faster. Each trainer does one thing.</p>
-      </header>
+    <div className={pageFrame}>
+      <PageHeader title="Train" description="Pick the part of the solve you want faster. Each trainer does one thing." />
       {TRAINER_STAGES.map((stage) => (
         <section key={stage} aria-labelledby={`stage-${stage}`} className={css({ display: 'grid', gap: '4', md: { gridTemplateColumns: '180px 1fr' } })}>
           <h2 id={`stage-${stage}`} className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'inkVariant', pt: '3' })}>{stage}</h2>

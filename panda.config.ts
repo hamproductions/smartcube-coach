@@ -189,6 +189,7 @@ export default defineConfig({
   },
 
   globalCss: {
+    html: { colorScheme: 'dark' },
     'html, body': {
       bg: 'surface',
       color: 'ink',
