@@ -72,7 +72,10 @@ export function CoachingHistory({ solves, stages, onOpenSolve }: CoachingHistory
       ) : (
         <>
           <Averages solves={ordered} />
+          <SolveTimes ordered={ordered} stagesBySolve={stagesBySolve} />
+          <CfopSplit ordered={ordered} stagesBySolve={stagesBySolve} />
           <StageTrend ordered={ordered} stagesBySolve={stagesBySolve} />
+          <TurnSpeed ordered={ordered} stagesBySolve={stagesBySolve} />
           <Coaching insights={insights} />
           <Section
             id="history"
@@ -180,6 +183,93 @@ function Averages({ solves }: { solves: SolveRecord[] }) {
             ))}
           </tbody>
         </table>
+      </div>
+    </Section>
+  )
+}
+
+function measuredSolves(ordered: SolveRecord[], stagesBySolve: Map<string, StageRecord[]>) {
+  return ordered.filter((solve) => solve.penalty !== 'dnf' && (stagesBySolve.get(solve.id)?.some((stage) => stageDurationMs(stage) > 0) ?? false))
+}
+
+const sum = (values: Array<number | undefined>) => values.reduce<number>((total, value) => total + (value ?? 0), 0)
+
+function SolveTimes({ ordered, stagesBySolve }: { ordered: SolveRecord[]; stagesBySolve: Map<string, StageRecord[]> }) {
+  const points: StagePoint[] = measuredSolves(ordered, stagesBySolve).slice(0, TREND_WINDOW).reverse().map((solve) => {
+    const own = stagesBySolve.get(solve.id) ?? []
+    return { solveId: solve.id, values: [effectiveSolveMs(solve), sum(own.map((stage) => stage.recognitionMs)), sum(own.map((stage) => stage.executionMs))] }
+  })
+  if (points.length < 2) return null
+  return (
+    <Section id="solve-times" title="Solve times" description={`Total time split into looking and turning, over your last ${points.length} smart cube solves.`}>
+      <div className={cx(card, css({ p: { base: '4', md: '6' } }))}>
+        <StageTrendChart title="Total, recognition and execution time per solve" series={[{ label: 'Total', colour: '#22c55e' }, { label: 'Recognition', colour: '#5b8bd6' }, { label: 'Execution', colour: '#e0663a' }]} points={points} />
+      </div>
+    </Section>
+  )
+}
+
+function CfopSplit({ ordered, stagesBySolve }: { ordered: SolveRecord[]; stagesBySolve: Map<string, StageRecord[]> }) {
+  const recent = measuredSolves(ordered, stagesBySolve).slice(0, TREND_WINDOW)
+  if (recent.length < 3) return null
+  const splits = recent.map((solve) => ({ total: effectiveSolveMs(solve) ?? 0, splits: solveSplits(solve.id, stagesBySolve.get(solve.id) ?? []) }))
+  const fastest = [...splits].sort((left, right) => left.total - right.total).slice(0, Math.max(1, Math.ceil(splits.length / 5)))
+  const average = (rows: typeof splits, key: typeof STAGES[number]['key']) => {
+    const values = rows.map((row) => row.splits[key]).filter((value): value is number => value !== undefined)
+    return values.length ? values.reduce((total, value) => total + value, 0) / values.length : undefined
+  }
+  const rows = STAGES.map((stage) => ({ ...stage, mine: average(splits, stage.key), goal: average(fastest, stage.key) }))
+  const total = sum(rows.map((row) => row.mine))
+  return (
+    <Section id="split" title="Average CFOP split" description={`Your average over the last ${recent.length} smart cube solves. Goal is the same stage in your fastest ${fastest.length} of them.`}>
+      <div className={cx(card, css({ p: { base: '4', md: '6' }, display: 'flex', flexDirection: 'column', gap: '5' }))}>
+        <div aria-hidden className={css({ display: 'flex', h: '3', borderRadius: 'pill', overflow: 'hidden', gap: '0.5' })}>
+          {rows.map((row) => <span key={row.key} style={{ flexGrow: row.mine ?? 0, background: row.colour }} />)}
+        </div>
+        <ul className={css({ display: 'grid', gap: '3', gridTemplateColumns: { base: 'repeat(2, minmax(0, 1fr))', md: 'repeat(4, minmax(0, 1fr))' }, listStyle: 'none', m: '0', p: '0' })}>
+          {rows.map((row) => {
+            const delta = row.mine !== undefined && row.goal !== undefined ? row.mine - row.goal : undefined
+            return (
+              <li key={row.key} className={css({ bg: 'surface', borderRadius: 'control', p: '4', display: 'flex', flexDirection: 'column', gap: '1.5' })}>
+                <span className={css({ display: 'flex', alignItems: 'center', gap: '1.5', fontSize: 'xs', color: 'inkVariant' })}>
+                  <span aria-hidden className={css({ w: '2.5', h: '2.5', borderRadius: 'pill' })} style={{ background: row.colour }} />
+                  {row.label}{row.mine !== undefined && total > 0 ? ` · ${Math.round((row.mine / total) * 100)}%` : ''}
+                </span>
+                <span className={cx(mono, css({ fontSize: '2xl', fontWeight: 'semibold' }))}>{seconds(row.mine)}</span>
+                <span className={cx(mono, css({ fontSize: 'xs', color: 'inkVariant' }))}>
+                  Goal {seconds(row.goal)}
+                  {delta !== undefined && <span className={css({ ml: '1.5', color: delta > 50 ? 'error' : 'green' })}>{delta > 50 ? `+${seconds(delta)}` : 'on goal'}</span>}
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+        {(() => {
+          const worst = [...rows].filter((row) => row.mine !== undefined && row.goal !== undefined).sort((left, right) => (right.mine! - right.goal!) - (left.mine! - left.goal!))[0]
+          return worst && worst.mine! - worst.goal! > 50 ? (
+            <p className={css({ fontSize: 'sm', color: 'inkVariant' })}>
+              <strong className={css({ color: 'ink' })}>{worst.label}</strong> has the biggest gap: your fast solves do it {seconds(worst.mine! - worst.goal!)}s quicker than your average. That is where steady practice pays most.
+            </p>
+          ) : null
+        })()}
+      </div>
+    </Section>
+  )
+}
+
+function TurnSpeed({ ordered, stagesBySolve }: { ordered: SolveRecord[]; stagesBySolve: Map<string, StageRecord[]> }) {
+  const points: StagePoint[] = measuredSolves(ordered, stagesBySolve).slice(0, TREND_WINDOW).reverse().map((solve) => {
+    const own = stagesBySolve.get(solve.id) ?? []
+    const turns = sum(own.map((stage) => stage.moveCount))
+    const execution = sum(own.map((stage) => stage.executionMs))
+    const time = effectiveSolveMs(solve) ?? 0
+    return { solveId: solve.id, values: [time > 0 ? (turns / (time / 1000)) * 1000 : undefined, execution > 0 ? (turns / (execution / 1000)) * 1000 : undefined] }
+  })
+  if (points.length < 2) return null
+  return (
+    <Section id="tps" title="Turn speed" description="Turns per second over the whole solve, and while actually turning (pauses and recognition removed).">
+      <div className={cx(card, css({ p: { base: '4', md: '6' } }))}>
+        <StageTrendChart title="Turns per second per solve" suffix=" tps" higherIsBetter series={[{ label: 'Overall', colour: '#22c55e' }, { label: 'While turning', colour: '#e0663a' }]} points={points} />
       </div>
     </Section>
   )

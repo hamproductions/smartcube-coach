@@ -29,7 +29,7 @@ export function recentChange(values: Array<number | undefined>) {
   return { recent: mean(recent), count: recent.length, delta: before.length === 5 && recent.length === 5 ? mean(recent) - mean(before) : undefined }
 }
 
-export function StageTrendChart({ title, series, points }: { title: string; series: StageSeries[]; points: StagePoint[] }) {
+export function StageTrendChart({ title, series, points, suffix = 's', higherIsBetter = false }: { title: string; series: StageSeries[]; points: StagePoint[]; suffix?: string; higherIsBetter?: boolean }) {
   const host = useRef<HTMLDivElement>(null)
   const [width, setWidth] = useState(600)
   const titleId = useId()
@@ -67,8 +67,8 @@ export function StageTrendChart({ title, series, points }: { title: string; seri
   const description = series.map((entry, index) => {
     const change = changes[index]
     if (!change) return `${entry.label}: no timings`
-    const trend = change.delta === undefined ? '' : change.delta < 0 ? `, ${secs(-change.delta)}s faster than the 5 before` : `, ${secs(change.delta)}s slower than the 5 before`
-    return `${entry.label} averages ${secs(change.recent)}s over the last ${change.count}${trend}`
+    const trend = change.delta === undefined ? '' : `, ${secs(Math.abs(change.delta))}${suffix} ${change.delta < 0 ? 'lower' : 'higher'} than the 5 before`
+    return `${entry.label} averages ${secs(change.recent)}${suffix} over the last ${change.count}${trend}`
   }).join('. ')
 
   return (
@@ -83,9 +83,9 @@ export function StageTrendChart({ title, series, points }: { title: string; seri
                 {entry.label}{changes[index] ? `, last ${changes[index]!.count}` : ''}
               </span>
               <span className={css({ fontFamily: 'mono', fontVariantNumeric: 'tabular-nums', fontSize: 'lg' })}>
-                {change ? `${secs(change.recent)}s` : DASH}
-                {change?.delta !== undefined && (
-                  <span className={change.delta <= 0 ? css({ ml: '1.5', fontSize: 'xs', color: 'green' }) : css({ ml: '1.5', fontSize: 'xs', color: 'error' })}>
+                {change ? `${secs(change.recent)}${suffix}` : DASH}
+                {change?.delta !== undefined && Math.abs(change.delta) >= 5 && (
+                  <span className={(change.delta <= 0) !== higherIsBetter ? css({ ml: '1.5', fontSize: 'xs', color: 'green' }) : css({ ml: '1.5', fontSize: 'xs', color: 'error' })}>
                     {change.delta <= 0 ? '-' : '+'}{secs(Math.abs(change.delta))}
                   </span>
                 )}
@@ -101,7 +101,7 @@ export function StageTrendChart({ title, series, points }: { title: string; seri
           {Array.from({ length: ticks + 1 }, (_, tick) => (
             <g key={tick}>
               <line x1={PAD.left} x2={width - PAD.right} y1={y(tick * step)} y2={y(tick * step)} strokeWidth={1} className={css({ stroke: 'floating' })} />
-              <text x={PAD.left - 8} y={y(tick * step)} dy="0.32em" textAnchor="end" fontSize={11} className={axisText}>{(tick * step / 1000).toFixed(0)}s</text>
+              <text x={PAD.left - 8} y={y(tick * step)} dy="0.32em" textAnchor="end" fontSize={11} className={axisText}>{(tick * step / 1000).toFixed(0)}{suffix}</text>
             </g>
           ))}
           <text x={PAD.left} y={HEIGHT - 6} fontSize={11} className={axisLabel}>older</text>
