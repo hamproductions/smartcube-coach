@@ -6,7 +6,7 @@ import { defaultLetterScheme, generateBldDrill, normalizeLetterScheme, validateC
 import { generateColorInference, gradeColorInference } from '../domain/cognitive'
 import { generateEdgeOrientationPrompt, generateEdgeTrackingPrompt, generatePairTrackingPrompt, gradeEdgeOrientation, gradeEdgeTracking, gradePairTracking } from '../domain/tracking'
 import { crossPlanSucceeds, generateCrossInspectionPrompt } from '../domain/inspection'
-import { generateFreePairPrompt, gradeFreePair } from '../domain/freePair'
+import { generateFreePairPrompt, gradeFreePair, type FreePairMode } from '../domain/freePair'
 import { createRemoteControllerAttempt, type RemoteControllerSnapshot } from '../domain/remoteController'
 import { buildF2lCases } from '../domain/f2lCases'
 import { cmllCases, collCases, eollCases, toAlgorithmRecord } from '../domain/algorithmCatalogue'
@@ -60,6 +60,7 @@ import { ActiveDrill } from './training/ActiveDrill'
 import { ShapeFilterDialog } from './training/ShapeFilterDialog'
 import { TimeAttackGauntlet } from './training/TimeAttackGauntlet'
 import { CaseCard } from './ui/CaseCard'
+import { Button } from './ui/Button'
 import { TrainerToolbar } from './train/TrainerToolbar'
 import { RemoteTrainerController, type RemoteControllerConnect } from './RemoteTrainerController'
 import { createId } from '../domain/ids'
@@ -156,7 +157,9 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
   const [pairResult, setPairResult] = useState('')
   const [pairRound, setPairRound] = useState(1)
   const [pairStartedAt, setPairStartedAt] = useState(() => performance.now())
-  const [freePairAnswer, setFreePairAnswer] = useState('')
+  const [freePairAnswer, setFreePairAnswer] = useState<number | null>(null)
+  const [freePairMode, setFreePairMode] = useState<FreePairMode>('normal')
+  const [freePairCube, setFreePairCube] = useState(false)
   const [freePairResult, setFreePairResult] = useState('')
   const [freePairRound, setFreePairRound] = useState(1)
   const [freePairStartedAt, setFreePairStartedAt] = useState(() => performance.now())
@@ -421,7 +424,7 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
   const colorPrompt = useMemo(() => generateColorInference(`color-${String(colorRound).padStart(3, '0')}`), [colorRound])
   const trackingPrompt = useMemo(() => generateEdgeTrackingPrompt(`tracking-${String(trackingRound).padStart(3, '0')}`), [trackingRound])
   const pairPrompt = useMemo(() => generatePairTrackingPrompt(`pair-${String(pairRound).padStart(3, '0')}`), [pairRound])
-  const freePairPrompt = useMemo(() => generateFreePairPrompt(`free-pair-${String(freePairRound).padStart(3, '0')}`), [freePairRound])
+  const freePairPrompt = useMemo(() => generateFreePairPrompt(`free-pair-${String(freePairRound).padStart(3, '0')}`, freePairMode), [freePairRound, freePairMode])
   const orientationPrompt = useMemo(() => generateEdgeOrientationPrompt(`orientation-${String(orientationRound).padStart(3, '0')}`), [orientationRound])
   const crossPrompt = useMemo(() => generateCrossInspectionPrompt(`cross-${String(crossRound).padStart(3, '0')}`), [crossRound])
 
@@ -1087,12 +1090,26 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
   }
 
   const finishFreePair = async () => {
+    if (!freePairPrompt || freePairAnswer === null) return
     const endedAt = performance.now(), success = gradeFreePair(freePairPrompt, freePairAnswer)
-    const attempt: TrainerAttempt = { id: createId(), sessionId: `trainer-${new Date().toISOString().slice(0, 10)}`, caseId: 'free-pair-dfr-fr', caseVersion: 1, family: 'free-pair', protocol: 'multiple-choice', curriculumMode: 'drill', setup: { seed: freePairPrompt.seed, generatorId: 'free-pair-state', generatorVersion: '1', caseId: 'free-pair-dfr-fr', scramble: freePairPrompt.setup, constraintHash: freePairPrompt.options.join(':') }, input: 'keyboard', startedAt: freePairStartedAt, endedAt, phaseEvents: [{ phase: 'prompt', at: freePairStartedAt, source: 'system' }, { phase: 'grading', at: endedAt, source: 'user' }], totalMs: endedAt - freePairStartedAt, outcome: success ? 'success' : 'incorrect', answer: freePairAnswer, expectedAnswer: freePairPrompt.answer, answerCorrect: success, hintEvents: [], wrongMoves: 0, divergenceCount: 0, correctionMoveCount: 0, rawEventIds: [], targetSatisfied: success, dataQuality: { completeMoveStream: true, setupVerifiedByState: true, packetLossSuspected: false, timingUsable: true, notes: ['State predicate preserves DFR-FR pair'] }, schemaVersion: 1 }
+    const caseId = `free-pair-${freePairPrompt.caseName.toLowerCase()}-${freePairPrompt.slot.toLowerCase()}`
+    const working = freePairPrompt.options.filter((_, index) => gradeFreePair(freePairPrompt, index))
+    const attempt: TrainerAttempt = { id: createId(), sessionId: `trainer-${new Date().toISOString().slice(0, 10)}`, caseId, caseVersion: 1, family: 'free-pair', protocol: 'multiple-choice', curriculumMode: 'drill', setup: { seed: freePairPrompt.seed, generatorId: 'solved-no-free-pair', generatorVersion: '2', caseId, scramble: freePairPrompt.setup, constraintHash: freePairPrompt.options.join(':') }, input: 'keyboard', startedAt: freePairStartedAt, endedAt, phaseEvents: [{ phase: 'prompt', at: freePairStartedAt, source: 'system' }, { phase: 'grading', at: endedAt, source: 'user' }], totalMs: endedAt - freePairStartedAt, outcome: success ? 'success' : 'incorrect', answer: freePairPrompt.options[freePairAnswer], expectedAnswer: working.join(' | '), answerCorrect: success, hintEvents: [], wrongMoves: 0, divergenceCount: 0, correctionMoveCount: 0, rawEventIds: [], targetSatisfied: success, dataQuality: { completeMoveStream: true, setupVerifiedByState: true, packetLossSuspected: false, timingUsable: true, notes: [`solved.no free-pair rule, ${freePairPrompt.mode} mode`] }, schemaVersion: 1 }
     await repositories.attempts.put(attempt)
     setAttempts((items) => [...items, attempt])
-    setFreePairResult(success ? 'Correct free-pair choice.' : `Correct option: ${freePairPrompt.answer}.`)
-    setFreePairAnswer(''); setFreePairStartedAt(performance.now()); setFreePairRound((round) => round + 1)
+    const twoGenOnly = freePairPrompt.mode === '2gen' && !success ? freePairPrompt.normalFinishes[freePairAnswer] : null
+    const verdict = success
+      ? `Correct. ${freePairPrompt.options[freePairAnswer]} leaves the ${freePairPrompt.slot} pair free: finish with ${freePairPrompt.finishes[freePairAnswer]}.`
+      : twoGenOnly
+        ? `Wrong. Free in normal mode with ${twoGenOnly}, but 2gen rejects that finish.`
+        : `Wrong. The ${freePairPrompt.slot} pair is not free after ${freePairPrompt.options[freePairAnswer]}.`
+    setFreePairResult(`${verdict} Working: ${working.join(' · ')}.`)
+    setFreePairAnswer(null); setFreePairStartedAt(performance.now()); setFreePairRound((round) => round + 1)
+  }
+
+  const switchFreePairMode = () => {
+    setFreePairMode((mode) => (mode === 'normal' ? '2gen' : 'normal'))
+    setFreePairAnswer(null); setFreePairResult(''); setFreePairStartedAt(performance.now())
   }
 
   const finishCrossInspection = async () => {
@@ -1681,13 +1698,26 @@ export function TrainerHub({ controllerConnect, source, focusPanel }: { controll
       </article>
 
       <article className="panel trainer-panel">
-        <div className="surface-heading"><div><span className="eyebrow green">KEEP THE PAIR</span><h2>Turn without breaking the solved pair.</h2></div></div>
-        <p>Setup: {freePairPrompt.setup}. Which option preserves the pair?</p>
-        <div className="choice-row">
-          <button className={`button ${freePairAnswer === 'A' ? 'primary' : 'ghost'}`} aria-pressed={freePairAnswer === 'A'} onClick={() => setFreePairAnswer('A')}>A · {freePairPrompt.options[0]}</button>
-          <button className={`button ${freePairAnswer === 'B' ? 'primary' : 'ghost'}`} aria-pressed={freePairAnswer === 'B'} onClick={() => setFreePairAnswer('B')}>B · {freePairPrompt.options[1]}</button>
-          <button className="button secondary" disabled={!freePairAnswer} onClick={() => void finishFreePair()}>Check free pair</button>
+        <div className="surface-heading"><div><span className="eyebrow green">FREE PAIR</span><h2>Solve front right and leave another pair free.</h2></div></div>
+        <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
+          <Button size="sm" variant={freePairMode === '2gen' ? 'solid' : 'outline'} aria-pressed={freePairMode === '2gen'} onClick={switchFreePairMode}>2gen mode</Button>
+          <Button size="sm" variant={freePairCube ? 'solid' : 'outline'} aria-pressed={freePairCube} onClick={() => setFreePairCube((shown) => !shown)}>Show cube</Button>
+          <Button size="sm" variant="ghost" onClick={() => { setFreePairAnswer(null); setFreePairStartedAt(performance.now()); setFreePairRound((round) => round + 1) }}>New position</Button>
         </div>
+        {freePairPrompt ? (
+          <>
+            <p>{freePairPrompt.caseName}. Setup: {freePairPrompt.setup}</p>
+            {freePairCube && <CubePlayback key={`${freePairPrompt.seed}-${freePairPrompt.mode}`} live title="Free pair position" scramble={freePairPrompt.setup} setupAlg={`z2 ${freePairPrompt.setup}`} moves={[]} stages={[]} />}
+            <div className={css({ display: 'flex', flexWrap: 'wrap', gap: '2' })}>
+              {freePairPrompt.options.map((option, index) => (
+                <Button key={`${index}-${option}`} size="sm" variant={freePairAnswer === index ? 'solid' : 'outline'} aria-pressed={freePairAnswer === index} onClick={() => setFreePairAnswer(index)}>{index + 1} · {option}</Button>
+              ))}
+            </div>
+            <div className={css({ display: 'flex', mt: '2' })}>
+              <Button variant="outline" disabled={freePairAnswer === null} onClick={() => void finishFreePair()}>Check free pair</Button>
+            </div>
+          </>
+        ) : <p>No position found for this seed. Pick a new position.</p>}
         {freePairResult && <p>{freePairResult}</p>}
       </article>
 

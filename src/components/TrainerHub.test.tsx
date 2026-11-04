@@ -314,11 +314,30 @@ describe('TrainerHub grading', () => {
     render(<CubeConnectionProvider><TrainerHub /></CubeConnectionProvider>)
 
     const prompt = generateFreePairPrompt('free-pair-001')
-    const index = prompt.answer === 'A' ? 0 : 1
-    await user.click(screen.getByRole('button', { name: `${prompt.answer} · ${prompt.options[index]}` }))
+    if (!prompt) throw new Error('free-pair-001 produced no position')
+    const index = prompt.finishes.findIndex((finish) => finish !== null)
+    await user.click(screen.getByRole('button', { name: `${index + 1} · ${prompt.options[index]}` }))
     await user.click(screen.getByRole('button', { name: 'Check free pair' }))
 
-    await waitFor(async () => expect((await repositories.attempts.all()).some((attempt) => attempt.family === 'free-pair' && attempt.answerCorrect)).toBe(true))
+    await waitFor(async () => expect((await repositories.attempts.all()).some((attempt) => attempt.family === 'free-pair' && attempt.answerCorrect && attempt.caseId === `free-pair-${prompt.caseName.toLowerCase()}-${prompt.slot.toLowerCase()}`)).toBe(true))
+    expect(screen.getByText(new RegExp(`^Correct\\. .* leaves the ${prompt.slot} pair free`))).toBeInTheDocument()
+  })
+
+  it('explains a 2gen rejection of a pair that is free in normal mode', async () => {
+    const user = userEvent.setup()
+    render(<CubeConnectionProvider><TrainerHub /></CubeConnectionProvider>)
+
+    await user.click(screen.getByRole('button', { name: '2gen mode' }))
+    await user.click(screen.getByRole('button', { name: 'New position' }))
+    const prompt = generateFreePairPrompt('free-pair-002', '2gen')
+    if (!prompt) throw new Error('free-pair-002 produced no 2gen position')
+    const index = prompt.options.findIndex((_, option) => prompt.finishes[option] === null && prompt.normalFinishes[option] !== null)
+    expect(index).toBeGreaterThanOrEqual(0)
+    await user.click(screen.getByRole('button', { name: `${index + 1} · ${prompt.options[index]}` }))
+    await user.click(screen.getByRole('button', { name: 'Check free pair' }))
+
+    expect(await screen.findByText(new RegExp(`^Wrong\\. Free in normal mode with .*, but 2gen rejects that finish\\.`))).toBeInTheDocument()
+    await waitFor(async () => expect((await repositories.attempts.all()).some((attempt) => attempt.family === 'free-pair' && !attempt.answerCorrect && attempt.dataQuality.notes.includes('solved.no free-pair rule, 2gen mode'))).toBe(true))
   })
 
   it('persists any state-valid cross plan as an inspection attempt', async () => {

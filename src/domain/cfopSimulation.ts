@@ -38,7 +38,7 @@ const pairPool = [
   "L' U L U' L' U L"
 ]
 
-function seededRandom(seed: string) {
+export function seededRandom(seed: string) {
   let hash = 2_166_136_261
   for (const character of seed) {
     hash ^= character.charCodeAt(0)
