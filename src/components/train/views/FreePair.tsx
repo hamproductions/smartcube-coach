@@ -1,5 +1,5 @@
-import { TrainerHub } from '../../TrainerHub'
+import { FreePairDrill } from '../f2l/FreePairDrill'
 
 export function FreePairTrainer() {
-  return <TrainerHub trainer="free-pair" />
+  return <FreePairDrill />
 }

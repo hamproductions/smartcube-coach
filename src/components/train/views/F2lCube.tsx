@@ -1,5 +1,5 @@
-import { TrainerHub } from '../../TrainerHub'
+import { F2lCubeDrill } from '../f2l/F2lCubeDrill'
 
 export function F2lCubeTrainer() {
-  return <TrainerHub trainer="f2l-cube" />
+  return <F2lCubeDrill />
 }
