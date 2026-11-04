@@ -52,3 +52,7 @@ export async function analyseSolve(scramble: string, events: TimestampedMove[], 
     return segmentCfop(scramble, events, solveId)
   }
 }
+
+export function warmAnalysis() {
+  void analyseSolve('R', [{ move: "R'", timestamp: 0 }], 'warm-up').catch(() => undefined)
+}

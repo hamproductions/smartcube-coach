@@ -60,6 +60,7 @@ export function SolveCockpit({
       gridTemplateColumns: { base: '1fr', lg: '15rem minmax(0, 1fr) 15rem' },
       gridTemplateAreas: { base: '"stage" "stats" "times"', lg: '"times stage stats"' }
     })}>
+      <h1 className={css({ srOnly: true })}>Solve</h1>
       <aside aria-label="Session solves" className={css({ gridArea: 'times', minH: { lg: '0' }, display: 'flex', flexDirection: 'column', borderRightWidth: { lg: '1px' }, borderTopWidth: { base: '1px', lg: '0' }, borderColor: 'floating' })}>
         <div className={css({ px: '5', pt: '5', pb: '3', display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' })}>
           <span className={css({ fontSize: 'sm', fontWeight: 'semibold' })}>{sessionName}</span>

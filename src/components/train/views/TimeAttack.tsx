@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { KPuzzle } from 'cubing/kpuzzle'
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import type { AlgorithmRecord } from '../../../domain/models'
 import { createId } from '../../../domain/ids'
 import { useCubeConnection } from '../../../device/CubeConnection'
@@ -292,7 +293,7 @@ function Summary({ results, misses, onRunMisses, onAgain, onEdit, onNew }: {
               return (
                 <tr key={result.id} className={css({ borderBottomWidth: '1px', borderColor: 'floating', _last: { borderBottomWidth: '0' } })}>
                   <td className={css({ px: '3', py: '2', fontFamily: 'sans', whiteSpace: 'nowrap' })}>{result.record.name}</td>
-                  <td className={css({ px: '3', py: '2', textAlign: 'right' })}>{result.success ? seconds(result.totalMs) : '-'}</td>
+                  <td className={css({ px: '3', py: '2', textAlign: 'right' })}>{result.success ? seconds(result.totalMs) : DASH}</td>
                   <td className={css({ px: '3', py: '2', textAlign: 'right' })}>{seconds(result.targetMs)}</td>
                   <td className={css({ px: '3', py: '2', textAlign: 'right', fontFamily: 'sans', color: outcome === 'Met' ? 'green' : 'error' })}>{outcome}</td>
                 </tr>

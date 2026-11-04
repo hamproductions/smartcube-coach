@@ -2,6 +2,7 @@ import { css } from 'styled-system/css'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { CubeEvent, CubeInputHandle, CubeInputSource } from './inputSource'
 import { bluetoothSource } from './sources'
+import { warmAnalysis } from '../domain/analyseOffThread'
 import { supportsWebBluetooth } from './webBluetooth'
 import { generateScramble, isSolvedPattern } from '../domain/scramble'
 import { getScrambleToSolution } from '../domain/cubedex/scramble'
@@ -76,10 +77,15 @@ export function CubeConnectionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     ensureSharedTrackers()
     void ensureSharedScramble()
+    const warm = window.setTimeout(warmAnalysis, 1200)
     // registerTrackerBus, not a second subscribe(): the hook registers the same listener,
     // and while both were live every move was delivered to the tracker twice — 58 tracked
     // moves for a 21-move scramble, which could never verify.
-    return registerTrackerBus(subscribe)
+    const stopBus = registerTrackerBus(subscribe)
+    return () => {
+      stopBus()
+      window.clearTimeout(warm)
+    }
   }, [subscribe])
 
   const connect = useCallback(async (source: CubeInputSource) => {

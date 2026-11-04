@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Alg } from 'cubing/alg'
 import type { KPuzzle } from 'cubing/kpuzzle'
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import type { AlgorithmRecord, TrainerAttempt } from '../../../domain/models'
 import { classifyCaseAttributes, matchesCaseAttributes, type CaseAttributeSlot, type CaseAttributes } from '../../../domain/caseAttributes'
 import { caseAverages, caseStats, learningState } from '../../../domain/training'
@@ -136,8 +137,8 @@ function CaseTile({ record, attempts, selected, onToggle }: { record: AlgorithmR
       </span>
       {stat.practiceCount > 0 && (
         <span className={cx(mono, css({ display: 'flex', flexWrap: 'wrap', gap: '2', fontSize: '2xs', color: 'inkVariant' }))}>
-          <span>ao5 <span>{averages.ao5 === undefined ? '-' : seconds(averages.ao5)}</span></span>
-          <span>best <span>{stat.bestTime === undefined ? '-' : seconds(stat.bestTime)}</span></span>
+          <span>ao5 <span>{averages.ao5 === undefined ? DASH : seconds(averages.ao5)}</span></span>
+          <span>best <span>{stat.bestTime === undefined ? DASH : seconds(stat.bestTime)}</span></span>
           <span><span>{stat.practiceCount}</span> {stat.practiceCount === 1 ? 'try' : 'tries'}</span>
         </span>
       )}

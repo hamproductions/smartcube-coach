@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import { seconds } from './hooks'
 import { mono } from './ui'
 
@@ -7,7 +8,7 @@ export type SessionResult = { id: string; success: boolean; totalMs: number }
 
 export function SessionStrip({ results, children }: { results: SessionResult[]; children?: ReactNode }) {
   const successes = results.filter((result) => result.success).length
-  const accuracy = results.length ? `${Math.round((successes / results.length) * 100)}%` : '-'
+  const accuracy = results.length ? `${Math.round((successes / results.length) * 100)}%` : DASH
   const recent = results.slice(-5).reverse()
   return (
     <div

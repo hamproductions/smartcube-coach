@@ -1,4 +1,5 @@
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import type { AlgorithmRecord, TrainerAttempt } from '../../../domain/models'
 import { seconds } from './hooks'
 import { card, mono } from './ui'
@@ -54,9 +55,9 @@ export function ReviewTable({ records, attempts }: { records: AlgorithmRecord[];
                   <td className={css({ px: '3', py: '2', fontFamily: 'sans', whiteSpace: 'nowrap' })}>{record.name}</td>
                   <td className={cell}>{stat.tries}</td>
                   <td className={cx(cell, css({ color: (stat.successRate ?? 0) < 0.8 ? 'error' : 'ink' }))}>{Math.round((stat.successRate ?? 0) * 100)}%</td>
-                  <td className={cell}>{seconds(stat.recentMs) || '-'}</td>
-                  <td className={cell}>{seconds(stat.bestMs) || '-'}</td>
-                  <td className={cell}>{seconds(stat.recognitionMs) || '-'}</td>
+                  <td className={cell}>{seconds(stat.recentMs) || DASH}</td>
+                  <td className={cell}>{seconds(stat.bestMs) || DASH}</td>
+                  <td className={cell}>{seconds(stat.recognitionMs) || DASH}</td>
                   <td className={cell}>{seconds(stat.executionMs) || '-'}</td>
                 </tr>
               ))}

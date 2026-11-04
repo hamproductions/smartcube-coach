@@ -246,7 +246,7 @@ describe('Algorithm cases trainer', () => {
     const solved = screen.getByRole('button', { name: /^OLL 1 Runway,/ })
     expect(within(solved).getByText('3.00')).toBeInTheDocument()
     const partial = screen.getByRole('button', { name: /^OLL 2 Zamboni,/ })
-    expect(within(partial).getByText('-')).toBeInTheDocument()
+    expect(within(partial).getByText('–')).toBeInTheDocument()
     expect(within(partial).getByText('2')).toBeInTheDocument()
     const fresh = screen.getByRole('button', { name: /^OLL 3 Anti-Mounted Fish,/ })
     expect(within(fresh).queryByText(/ao5/)).not.toBeInTheDocument()

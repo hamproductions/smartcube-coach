@@ -1,5 +1,6 @@
 import { forwardRef } from 'react'
 import { css } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import { Button } from '../../ui/Button'
 import { formatSeconds, type Part } from './memo'
 import { kbdClass } from './ui'
@@ -43,7 +44,7 @@ export const Verdict = forwardRef<HTMLButtonElement, { parts: Part[]; memoMs: nu
                   <>
                     <div className={css({ display: 'flex', gap: '2', alignItems: 'baseline' })}>
                       <span className={css({ fontSize: 'xs', color: 'inkVariant', w: '3.5rem', flexShrink: '0' })}>Yours</span>
-                      {memo ? <Letters label="Yours" value={part.yours} against={part.correct} /> : <span className={css({ fontFamily: 'mono', fontVariantNumeric: 'tabular-nums', color: 'error' })}>{part.yours || '-'}</span>}
+                      {memo ? <Letters label="Yours" value={part.yours} against={part.correct} /> : <span className={css({ fontFamily: 'mono', fontVariantNumeric: 'tabular-nums', color: 'error' })}>{part.yours || DASH}</span>}
                     </div>
                     <div className={css({ display: 'flex', gap: '2', alignItems: 'baseline' })}>
                       <span className={css({ fontSize: 'xs', color: 'inkVariant', w: '3.5rem', flexShrink: '0' })}>Correct</span>

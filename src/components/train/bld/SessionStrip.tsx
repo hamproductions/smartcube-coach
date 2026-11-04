@@ -1,4 +1,5 @@
 import { css, cx } from 'styled-system/css'
+import { DASH } from '../../ui/Page'
 import { formatSeconds } from './memo'
 import { labelClass } from './ui'
 
@@ -22,7 +23,7 @@ export function SessionStrip({ results }: { results: RoundResult[] }) {
       </div>
       <div className={css({ display: 'grid' })}>
         <span className={labelClass}>Average memo</span>
-        <span className={valueClass} data-testid="session-average">{average === undefined ? '-' : `${formatSeconds(average)} s`}</span>
+        <span className={valueClass} data-testid="session-average">{average === undefined ? DASH : `${formatSeconds(average)} s`}</span>
       </div>
       {recent.length ? (
         <ol aria-label="Last memo times" className={css({ display: 'flex', gap: '1', listStyle: 'none', p: '0', m: '0' })}>
