@@ -1,6 +1,7 @@
 import { loadSmartCubeApi, type SmartCubeConnection, type SmartCubeEvent } from './vendor'
 import { describeConnectionFailure } from './connectionErrors'
 import { normalizeCubeMac } from './mac'
+import { probeGanMacFromName } from './ganMacProbe'
 
 export type ConnectedCube = {
   name: string
@@ -30,6 +31,14 @@ function rememberMac(deviceName: string, mac: string) {
   }
 }
 
+function forgetMac(deviceName: string) {
+  try {
+    if (deviceName) localStorage.removeItem(REMEMBERED_MAC + deviceName)
+  } catch {
+    return
+  }
+}
+
 function askForMac(deviceName: string) {
   if (typeof window === 'undefined' || typeof window.prompt !== 'function') return null
   const typed = window.prompt(`${deviceName || 'This cube'} did not broadcast its Bluetooth address, which its encryption needs. Enter it once (acubemy and the vendor app show it); it is remembered for this cube.`, '')
@@ -49,6 +58,7 @@ export async function connectWebCube(
   const manualMac = options.manualMac?.trim() ? normalizeCubeMac(options.manualMac) : undefined
   const { connectSmartCube } = await loadSmartCubeApi()
   let selectedDeviceName = ''
+  let usedRemembered = false
   let connection: SmartCubeConnection
   try {
     connection = await connectSmartCube({
@@ -62,11 +72,16 @@ export async function connectWebCube(
           return manualMac
         }
         const remembered = rememberedMac(selectedDeviceName)
-        if (remembered) return remembered
-        return isFallbackCall ? askForMac(selectedDeviceName) : null
+        if (remembered) {
+          usedRemembered = true
+          return remembered
+        }
+        if (isFallbackCall) return askForMac(selectedDeviceName)
+        return probeGanMacFromName(device, onStatus)
       }
     })
   } catch (error) {
+    if (usedRemembered) forgetMac(selectedDeviceName)
     throw describeConnectionFailure(error, selectedDeviceName)
   }
   rememberMac(connection.deviceName || selectedDeviceName, connection.deviceMAC)
