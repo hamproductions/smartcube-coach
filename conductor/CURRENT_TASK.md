@@ -5,7 +5,7 @@
 2. Analyse every data point; delegate everything mechanical to subagents.
 3. Write conservative, evidence-backed coaching. Target: sub-10, and every available improvement on the way.
 
-## State: delivered, uncommitted
+## State: delivered and pushed
 - Report: `docs/coaching/acubemy-1000-2026-11-20.md`. Evidence tables: `docs/coaching/tables/` (overview, cross, f2l, f2l-cases, ll, turning, three worst-lists).
 - Scripts: `scripts/acubemy/pull.py` (needs `ACUBEMY_CREDS` = path to a two-line email/password file and `ACUBEMY_FIREBASE_KEY` = the web API key from acubemy's site bundle), `scripts/acubemy/analysis/{overview,cross,f2l,ll,turning}.py`, run as `python3 -I <script>`; they read and write `data/acubemy/` (override with `ACUBEMY_DATA`).
 - Data: `data/acubemy/` (raw pull, account export, site bundles, analysis JSON). Git-ignored: it holds a device MAC and account ids.
@@ -29,7 +29,7 @@ Mean 19.27 s, 73 moves, 6.1 turns per second while turning, 7.3 s per solve in p
 - Unknown: the exact failure the owner sees. The header shows the library's message on a failed connect; that text or an exported device session decides the next step.
 
 ## Open
-- Nothing committed or pushed; owner decides.
+- Pushed to `origin/main` on 2026-11-20 at the owner's request (`fda0277` device, `9b32e1d` plan, `e03cdbb` coaching docs); Pages deploys from that push.
 - The acubemy password was typed into chat: owner should change it.
 - Possible follow-up: import these metrics (pause time, fluency, cross excess, per-case tables) into the app's coaching view. Not requested.
 
