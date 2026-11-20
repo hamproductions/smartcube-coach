@@ -8,3 +8,6 @@ vite.config.d.ts
 
 # Panda CSS generated output
 styled-system/
+
+# Personal solve data pulled from acubemy (device MAC, account ids)
+data/

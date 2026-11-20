@@ -1,41 +1,37 @@
-# Current task: full UI and UX overhaul
+# Current task: coaching from the last 1000 acubemy solves
 
-## Scope (owner's goal)
-1. Redesign every screen: coherent look, working navigation, no broken UI.
-2. Training reorganised around the solving domain; every trainer gets its own user flow, rework and retest.
-3. Do what is asked, verified in a real browser.
-4. 3D cube properly rendered, smooth.
-5. No long wait for a solve result; the scramble must work from the cube's real tracked state.
+## Scope
+1. Pull the owner's latest 1000 solves from acubemy with every field.
+2. Analyse every data point; delegate everything mechanical to subagents.
+3. Write conservative, evidence-backed coaching. Target: sub-10, and every available improvement on the way.
 
-## State
-- All local commits on `main`, not pushed. Pushed head is `5343bf3` (gyro).
-- Every screen and all 13 trainers rebuilt and browser-checked; flows in `docs/redesign/trainer-flows.md`.
-- Legacy `src/styles.css` and `TrainerHub.tsx` deleted; dead components removed.
-- Full suite 820/820.
-- Performance: with 1500 stored solves a simulated solve shows its result ~55 ms after the last move; worst frame 20 ms.
-- Results page (`e9f931d`): summary bar, scramble box (copy, reuse), +2/DNF/delete/share, time-based replay with gyro toggle and 5-button transport, grouped reconstruction with Optimal/Speedy/Fumble badges, verdict vs own averages, time-per-step / TPS-per-step / totals charts, step table with HTM/QTM/STM/ETM. Browser-checked at 1440 and 400 with a solve driven through `injectCubeEvent`.
-- Gyro re-zeroes when the scramble verifies; the replay uses the same reference (`gyroReference`).
-- Off-scramble beyond a 3-turn undo, or a routed cube back to solved, auto-restarts the scramble from the cube's state.
-- Stats (`f04a3ed`): solve-times chart (total/recognition/execution), average CFOP split with goal = same stage in the fastest fifth of recent solves, turns-per-second chart. No benchmark against other solvers (no data exists).
-- Gyro re-zero verified live through the provider with a recorded-session source: tilted cube snaps to the home orientation the moment the scramble verifies.
-- Latency at 1507 stored solves: time on screen ~100 ms after the last turn; analysed solve stored 114-165 ms warm, 297 ms for the first solve after load (analysis worker warmed 1.2 s after start; was 615-738 ms cold). Stats renders 1501 solves in 152 ms. No long tasks during a solve.
-- 3D cube: 27 animated turns at ~9 tps, 224 frames, p99 16.8 ms, zero frames over 33 ms.
-- Sweep of all 18 routes (5 sections + 13 trainers) at 1440 and 400: no console errors, no horizontal overflow, no target under 44 px, nav marks the current section; every page has an h1.
-- Trainer rounds replayed in the browser: pair/piece tracking, edge orientation, hidden colours, free pair, plan the cross, memo all start, judge an answer, show the correct one, and update the session strip.
-- Cube trainers played end to end with a scripted cube on the real provider and tracker path (moves remapped for the yellow-top hold): F2L on the cube (setup, recognise, solve, split timing), Cross to pairs (scramble, inspection, timed cross, shortest cross, history), Algorithm cases (state-verified setup, recognition and execution, per-case stats), Time attack (two cases against targets, results, run the misses).
+## State: delivered, uncommitted
+- Report: `docs/coaching/acubemy-1000-2026-11-20.md`. Evidence tables: `docs/coaching/tables/` (overview, cross, f2l, f2l-cases, ll, turning, three worst-lists).
+- Scripts: `scripts/acubemy/pull.py` (needs `ACUBEMY_CREDS` = path to a two-line email/password file and `ACUBEMY_FIREBASE_KEY` = the web API key from acubemy's site bundle), `scripts/acubemy/analysis/{overview,cross,f2l,ll,turning}.py`, run as `python3 -I <script>`; they read and write `data/acubemy/` (override with `ACUBEMY_DATA`).
+- Data: `data/acubemy/` (raw pull, account export, site bundles, analysis JSON). Git-ignored: it holds a device MAC and account ids.
+- Verification: scramble + raw solution replays to solved on 998/998; stage times sum to totals on 998/998; headline numbers recomputed independently from raw; an independent fact-check of the report against the tables was run and its confirmed corrections applied (notably: with 14 mis-segmented solves removed, cross is 25% of variance and F2L 42%).
 
-- Training revision (`da70bee`..`3335a5f`), following Cubedex (cloned reference; F2LTrainer was read too and its visible recognition clock is the pattern removed): setups routed from the cube's current state and re-routed after wrong turns; clocks hold at 0.00 until the first turn everywhere (cases, time attack, F2L on the cube, cross to pairs, plan the cross, typed cross plan waits for Start inspection); with a cube connected every trainer uses it (plan the cross turned on the cube, look-ahead turned on the cube, free pair answered by turning, checklist and memo scrambles tracked). Trainer pages have a stage-grouped rail; Train hub leads with the top coaching item; results steps link to trainers. Coaching cards say step, cost, action, trainer and worst solve. All verified with a scripted cube on the real provider and tracker path; sweep of 18 routes at 1440 and 400 clean.
-- Hidden colours and the turn pacer are unchanged: hidden colours is sticker knowledge with no cube state to check; the pacer already reads the cube.
+## Findings in one paragraph
+Mean 19.27 s, 73 moves, 6.1 turns per second while turning, 7.3 s per solve in pauses over 0.5 s. Flat for about 1500 solves. Order of levers: F2L look-ahead, cross planning, F2L case efficiency, last-layer recognition and slow PLLs, rotations, turning accuracy.
 
-## Next
-- Full handoff: `docs/HANDOFF_2026-11-04-redesign-and-training.md`. Shipped `688d01f` to Pages; waiting on the owner's physical-cube verdict.
-- Owner decides when to push; the live site changes only after a push.
+## Plan inside the app
+- Requirement from the owner: the coaching is delivered inside the main app, not as a standalone page or a list of statistics. The standalone `public/coaching/drills.html` was rejected and deleted.
+- `#/train/plan` (`src/coaching/plan.ts`, `src/components/train/plan/PlanPage.tsx`), linked from the top of the Train hub. Twelve drills in four groups; each button opens its trainer preconfigured (`src/coaching/handoff.ts` for one-visit handoffs). Flow written in `docs/redesign/trainer-flows.md`.
+- Six stuck-edge F2L cases added to the F2L set (`src/domain/f2lStuckEdge.ts`, seeded through `defaultAlgorithms`).
+- Progress comes from the attempts store. Trainers stamp attempts with page-relative `performance.now()`, so `repositories.attempts.put` now adds wall-clock `recordedAt`; the plan counts from that.
+- Verified in a headed browser with the recorded GAN i4 (`?replayCube=gan4`) and scripted turns through the real tracker: plan, F2L trainer with 6 of 173 cases, setup tracked, pair solved, verdict, and "2 clean of 2 today" back on the plan. PLL drill, PLL time attack, OLL recognise and cross goal launches also checked. 1440 and 390: no console errors, no overflow. Suite 832/832, typecheck clean.
+- Text version of the drills: `docs/coaching/drills.md`.
 
-## Reviews
-- Council 1: 12 findings fixed (`2b1430c`). Council 2: 11 fixed (`2c03b9a`). Council 3: 3 fixed (`77611ed`); its unfinished keyboard and console checks were completed directly: every trainer's keys work, no console errors, every route has 44px targets at 1440 and 390.
+## Device: connect without a MAC prompt
+- Owner's report: solved.no connects with no MAC step. Finding: solved.no ships the same `smartcube-web-bluetooth` library and also ends in `window.prompt`; cstimer prompts too. It only looks prompt-free when the browser delivers advertisement data or a cached MAC exists.
+- Change: `src/device/ganMacProbe.ts` derives a `GANi…_XXXX` cube's MAC from its own encrypted packets before any prompt (wired in `webBluetooth.ts`); a remembered MAC that fails is now forgotten. Tests: `ganMacProbe.test.ts` on the library's `GANi4_A26E` capture; full suite 829/829, typecheck clean.
+- Unverified on hardware: whether the i4 sends packets before the first command. The capture shows a notification 2 ms after the first write, which suggests the stream was already running. If it is silent, the status line asks for one turn, and after 4 s the old path (prompt) takes over.
+- Unknown: the exact failure the owner sees. The header shows the library's message on a failed connect; that text or an exported device session decides the next step.
 
-## Unverified
-- Real GAN cube hardware: all flows pass on the scripted cube; physical cube confirmation needs the owner's cube.
+## Open
+- Nothing committed or pushed; owner decides.
+- The acubemy password was typed into chat: owner should change it.
+- Possible follow-up: import these metrics (pause time, fluency, cross excess, per-case tables) into the app's coaching view. Not requested.
 
-## Permissions
-- Push only when the owner says so in the current turn.
+## Previous task
+- UI and UX overhaul: complete locally, see `docs/HANDOFF_2026-11-04-redesign-and-training.md`. Open item: owner's physical-cube verdict.

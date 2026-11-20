@@ -1,0 +1,1178 @@
+[
+{
+"caseIndex": 0,
+"name": "F2L 23",
+"type": "Connected Pairs",
+"setup": "R U' R' U R U' R' U2' R U' R'",
+"offset": 0
+},
+{
+"caseIndex": 1,
+"name": "F2L 18",
+"type": "Connected Pairs",
+"setup": "R U R' U' R U R' F R' F' R",
+"offset": 0
+},
+{
+"caseIndex": 2,
+"name": "F2L 15",
+"type": "Connected Pairs",
+"setup": "R U R' U' R U R' U2' R U' R'",
+"offset": 0
+},
+{
+"caseIndex": 3,
+"name": "F2L 13",
+"type": "Connected Pairs",
+"setup": "r U2' R' U R U' R' U M",
+"offset": 0
+},
+{
+"caseIndex": 4,
+"name": "F2L 12",
+"type": "Connected Pairs",
+"setup": "R U R' U2' R U R' U' R U R'",
+"offset": 0
+},
+{
+"caseIndex": 5,
+"name": "F2L 2",
+"type": "Free Pairs",
+"setup": "R' F R F'",
+"offset": 0
+},
+{
+"caseIndex": 6,
+"name": "F2L 21",
+"type": "Disconnected Pairs",
+"setup": "R U' R' U2' R U R'",
+"offset": 0
+},
+{
+"caseIndex": 7,
+"name": "F2L 20",
+"type": "Disconnected Pairs",
+"setup": "R U R' F R' F' R2' U R' U",
+"offset": 0
+},
+{
+"caseIndex": 8,
+"name": "F2L 7",
+"type": "Disconnected Pairs",
+"setup": "R U R' U2' R U2' R' U",
+"offset": 0
+},
+{
+"caseIndex": 9,
+"name": "F2L 3",
+"type": "Free Pairs",
+"setup": "F' U F",
+"offset": 0
+},
+{
+"caseIndex": 10,
+"name": "F2L 10",
+"type": "Disconnected Pairs",
+"setup": "R U' R' U' R U' R' U",
+"offset": 0
+},
+{
+"caseIndex": 11,
+"name": "F2L 6",
+"type": "Disconnected Pairs",
+"setup": "F' U' F U2' F' U F U'",
+"offset": 0
+},
+{
+"caseIndex": 12,
+"name": "F2L 19",
+"type": "Disconnected Pairs",
+"setup": "R U R' U' R U2' R' U'",
+"offset": 0
+},
+{
+"caseIndex": 13,
+"name": "F2L 22",
+"type": "Disconnected Pairs",
+"setup": "F' L' U2' L F",
+"offset": 0
+},
+{
+"caseIndex": 14,
+"name": "F2L 5",
+"type": "Disconnected Pairs",
+"setup": "R U R' U2' R U' R' U",
+"offset": 0
+},
+{
+"caseIndex": 15,
+"name": "F2L 9",
+"type": "Disconnected Pairs",
+"setup": "F' U F U' R U R' U",
+"offset": 0
+},
+{
+"caseIndex": 16,
+"name": "F2L 4",
+"type": "Free Pairs",
+"setup": "R U' R'",
+"offset": 0
+},
+{
+"caseIndex": 17,
+"name": "F2L 8",
+"type": "Disconnected Pairs",
+"setup": "r' U' R2 U' R2' U2' r",
+"offset": 0
+},
+{
+"caseIndex": 18,
+"name": "F2L 17",
+"type": "Connected Pairs",
+"setup": "R U' R' U R U2' R'",
+"offset": 0
+},
+{
+"caseIndex": 19,
+"name": "F2L 24",
+"type": "Connected Pairs",
+"setup": "R U R' F R U R' U' F'",
+"offset": 0
+},
+{
+"caseIndex": 20,
+"name": "F2L 1",
+"type": "Free Pairs",
+"setup": "F R' F' R",
+"offset": 0
+},
+{
+"caseIndex": 21,
+"name": "F2L 11",
+"type": "Connected Pairs",
+"setup": "F' U F U' R U2' R' U",
+"offset": 0
+},
+{
+"caseIndex": 22,
+"name": "F2L 14",
+"type": "Connected Pairs",
+"setup": "R U' R' U' R U R' U",
+"offset": 0
+},
+{
+"caseIndex": 23,
+"name": "F2L 16",
+"type": "Connected Pairs",
+"setup": "F' U F U2' R U R'",
+"offset": 0
+},
+{
+"caseIndex": 24,
+"name": "AF2L 24",
+"type": "Trapped Edge",
+"setup": "F' B U2' B' F",
+"offset": 3
+},
+{
+"caseIndex": 25,
+"name": "AF2L 15",
+"type": "Trapped Edge",
+"setup": "F' U F U2' R B' R' B U'",
+"offset": 3
+},
+{
+"caseIndex": 26,
+"name": "AF2L 12",
+"type": "Trapped Edge",
+"setup": "F' U F U2' B U' B' U",
+"offset": 3
+},
+{
+"caseIndex": 27,
+"name": "AF2L 18",
+"type": "Trapped Edge",
+"setup": "F' U F U R' U R U",
+"offset": 3
+},
+{
+"caseIndex": 28,
+"name": "AF2L 43",
+"type": "Trapped Edge",
+"setup": "R U' R2' U R U'",
+"offset": 3
+},
+{
+"caseIndex": 29,
+"name": "AF2L 21",
+"type": "Trapped Edge",
+"setup": "B R U' R' B' U'",
+"offset": 3
+},
+{
+"caseIndex": 30,
+"name": "F2L 32",
+"type": "Edge In Slot",
+"setup": "R U' R' U R U' R' U R U' R'",
+"offset": 0
+},
+{
+"caseIndex": 31,
+"name": "F2L 31",
+"type": "Edge In Slot",
+"setup": "R U R' F R' F' R U",
+"offset": 0
+},
+{
+"caseIndex": 32,
+"name": "F2L 33",
+"type": "Edge In Slot",
+"setup": "R U R' U2' R U R' U",
+"offset": 0
+},
+{
+"caseIndex": 33,
+"name": "F2L 35",
+"type": "Edge In Slot",
+"setup": "F' U F U' R U' R' U",
+"offset": 0
+},
+{
+"caseIndex": 34,
+"name": "F2L 34",
+"type": "Edge In Slot",
+"setup": "R U' R' U2' R U' R' U'",
+"offset": 0
+},
+{
+"caseIndex": 35,
+"name": "F2L 36",
+"type": "Edge In Slot",
+"setup": "R U' R' U2' F R' F' R U2'",
+"offset": 0
+},
+{
+"caseIndex": 36,
+"name": "AF2L 22",
+"type": "Trapped Edge",
+"setup": "F' U' F2' U F'",
+"offset": 1
+},
+{
+"caseIndex": 37,
+"name": "AF2L 13",
+"type": "Trapped Edge",
+"setup": "F' U F L F' L' F U'",
+"offset": 1
+},
+{
+"caseIndex": 38,
+"name": "AF2L 10",
+"type": "Trapped Edge",
+"setup": "F' U F2' U' F' U",
+"offset": 1
+},
+{
+"caseIndex": 39,
+"name": "AF2L 16",
+"type": "Trapped Edge",
+"setup": "L' F' U F L U",
+"offset": 1
+},
+{
+"caseIndex": 40,
+"name": "AF2L 45",
+"type": "Trapped Edge",
+"setup": "R U' R' U2' L' U L U'",
+"offset": 1
+},
+{
+"caseIndex": 41,
+"name": "AF2L 19",
+"type": "Trapped Edge",
+"setup": "l F' l' U' F U' F' U'",
+"offset": 1
+},
+{
+"caseIndex": 42,
+"name": "AF2L 14",
+"type": "Trapped Edge",
+"setup": "b' R b U B L' B' L U'",
+"offset": 2
+},
+{
+"caseIndex": 43,
+"name": "AF2L 23",
+"type": "Trapped Edge",
+"setup": "R B' U' B R'",
+"offset": 2
+},
+{
+"caseIndex": 44,
+"name": "AF2L 11",
+"type": "Trapped Edge",
+"setup": "R U R' L U L' U",
+"offset": 2
+},
+{
+"caseIndex": 45,
+"name": "AF2L 17",
+"type": "Trapped Edge",
+"setup": "b' R b U L U' L' U",
+"offset": 2
+},
+{
+"caseIndex": 46,
+"name": "AF2L 20",
+"type": "Trapped Edge",
+"setup": "R U' R' L U' L' U'",
+"offset": 2
+},
+{
+"caseIndex": 47,
+"name": "AF2L 44",
+"type": "Trapped Edge",
+"setup": "R U' R' U' B' U B U'",
+"offset": 2
+},
+{
+"caseIndex": 48,
+"name": "AF2L 9",
+"type": "Trapped Corner",
+"setup": "R U' R' U' R B' R' B U",
+"offset": 3
+},
+{
+"caseIndex": 49,
+"name": "AF2L 9a",
+"type": "Trapped Corner",
+"setup": "F' U' F B U B' U2'",
+"offset": 3
+},
+{
+"caseIndex": 50,
+"name": "AF2L 6",
+"type": "Trapped Corner",
+"setup": "R U' R' B U' B'",
+"offset": 3
+},
+{
+"caseIndex": 51,
+"name": "AF2L 6a",
+"type": "Trapped Corner",
+"setup": "F' U' F U B U' B' U'",
+"offset": 3
+},
+{
+"caseIndex": 52,
+"name": "AF2L 3",
+"type": "Trapped Corner",
+"setup": "F R' F' R U' B U B'",
+"offset": 3
+},
+{
+"caseIndex": 53,
+"name": "AF2L 3a",
+"type": "Trapped Corner",
+"setup": "b U' b' R U' R B' R' B",
+"offset": 3
+},
+{
+"caseIndex": 54,
+"name": "F2L 25",
+"type": "Corner In Slot",
+"setup": "F' R U R' U' R' F R",
+"offset": 0
+},
+{
+"caseIndex": 55,
+"name": "F2L 26",
+"type": "Corner In Slot",
+"setup": "F' U' F U R U R' U'",
+"offset": 0
+},
+{
+"caseIndex": 56,
+"name": "F2L 30",
+"type": "Corner In Slot",
+"setup": "R U' R' U R U' R'",
+"offset": 0
+},
+{
+"caseIndex": 57,
+"name": "F2L 28",
+"type": "Corner In Slot",
+"setup": "R' F R F' U R U' R'",
+"offset": 0
+},
+{
+"caseIndex": 58,
+"name": "F2L 27",
+"type": "Corner In Slot",
+"setup": "R U R' U' R U R'",
+"offset": 0
+},
+{
+"caseIndex": 59,
+"name": "F2L 29",
+"type": "Corner In Slot",
+"setup": "F R' F' R F R' F' R",
+"offset": 0
+},
+{
+"caseIndex": 60,
+"name": "AF2L 7",
+"type": "Trapped Corner",
+"setup": "l F' l' U L F' L' F U",
+"offset": 1
+},
+{
+"caseIndex": 61,
+"name": "AF2L 7a",
+"type": "Trapped Corner",
+"setup": "F' U' F U2' F U F' U2'",
+"offset": 1
+},
+{
+"caseIndex": 62,
+"name": "AF2L 4",
+"type": "Trapped Corner",
+"setup": "l F' l' U2' F U' F'",
+"offset": 1
+},
+{
+"caseIndex": 63,
+"name": "AF2L 4a",
+"type": "Trapped Corner",
+"setup": "F' U2' F2' U' F' U'",
+"offset": 1
+},
+{
+"caseIndex": 64,
+"name": "AF2L 1",
+"type": "Trapped Corner",
+"setup": "M F M'",
+"offset": 1
+},
+{
+"caseIndex": 65,
+"name": "AF2L 1a",
+"type": "Trapped Corner",
+"setup": "l F M' F' L' F",
+"offset": 1
+},
+{
+"caseIndex": 66,
+"name": "AF2L 8",
+"type": "Trapped Corner",
+"setup": "R U' R' U2' B L' B' L U",
+"offset": 2
+},
+{
+"caseIndex": 67,
+"name": "AF2L 8a",
+"type": "Trapped Corner",
+"setup": "b' R' b U' L U L' U2'",
+"offset": 2
+},
+{
+"caseIndex": 68,
+"name": "AF2L 5",
+"type": "Trapped Corner",
+"setup": "R U' R' U' L U' L'",
+"offset": 2
+},
+{
+"caseIndex": 69,
+"name": "AF2L 5a",
+"type": "Trapped Corner",
+"setup": "b' R' b L U' L' U'",
+"offset": 2
+},
+{
+"caseIndex": 70,
+"name": "AF2L 2",
+"type": "Trapped Corner",
+"setup": "R U2' R' L U L'",
+"offset": 2
+},
+{
+"caseIndex": 71,
+"name": "AF2L 2a",
+"type": "Trapped Corner",
+"setup": "R U2' R' B L' B' L",
+"offset": 2
+},
+{
+"caseIndex": 72,
+"name": "AF2L 42",
+"type": "Both Pieces Trapped",
+"setup": "F U F2' U F2' U2' F' U B U2' B'",
+"offset": 3
+},
+{
+"caseIndex": 73,
+"name": "AF2L 27",
+"type": "Both Pieces Trapped",
+"setup": "b U' b' R B U' B'",
+"offset": 3
+},
+{
+"caseIndex": 74,
+"name": "AF2L 33",
+"type": "Both Pieces Trapped",
+"setup": "F' U F U B U B' U B U' B'",
+"offset": 3
+},
+{
+"caseIndex": 75,
+"name": "AF2L 39",
+"type": "Both Pieces Trapped",
+"setup": "R U' R' U' R U R' U B U' B'",
+"offset": 3
+},
+{
+"caseIndex": 76,
+"name": "AF2L 30",
+"type": "Both Pieces Trapped",
+"setup": "F' U F U2' B U B' U B U B'",
+"offset": 3
+},
+{
+"caseIndex": 77,
+"name": "AF2L 36",
+"type": "Both Pieces Trapped",
+"setup": "R U' R' U R U2' R' B U' B'",
+"offset": 3
+},
+{
+"caseIndex": 78,
+"name": "Rank 102",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 79,
+"name": "Rank 103",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 80,
+"name": "Rank 104",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 81,
+"name": "Rank 105",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 82,
+"name": "Rank 106",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 83,
+"name": "Rank 107",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 84,
+"name": "Rank 108",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 85,
+"name": "Rank 109",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 86,
+"name": "Rank 110",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 87,
+"name": "Rank 111",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 88,
+"name": "Rank 112",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 89,
+"name": "Rank 113",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 90,
+"name": "Rank 114",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 91,
+"name": "Rank 115",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 92,
+"name": "Rank 116",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 93,
+"name": "Rank 117",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 94,
+"name": "Rank 118",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 95,
+"name": "Rank 119",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 96,
+"name": "Rank 144",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 97,
+"name": "Rank 145",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 98,
+"name": "Rank 146",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 99,
+"name": "Rank 147",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 100,
+"name": "Rank 148",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 101,
+"name": "Rank 149",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 102,
+"name": "Solved",
+"type": "Solved",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 103,
+"name": "F2L 37",
+"type": "Pieces In Slot",
+"setup": "R U' R U2' F R2' F' U2' R2'",
+"offset": 0
+},
+{
+"caseIndex": 104,
+"name": "F2L 39",
+"type": "Pieces In Slot",
+"setup": "R U' R' U' R U R' U2' R U' R'",
+"offset": 0
+},
+{
+"caseIndex": 105,
+"name": "F2L 41",
+"type": "Pieces In Slot",
+"setup": "R F U R U' R' F' U' R'",
+"offset": 0
+},
+{
+"caseIndex": 106,
+"name": "F2L 38",
+"type": "Pieces In Slot",
+"setup": "R U' R' U R U2' R' U R U' R'",
+"offset": 0
+},
+{
+"caseIndex": 107,
+"name": "F2L 40",
+"type": "Pieces In Slot",
+"setup": "R U R' F U R U' R' F' R U R'",
+"offset": 0
+},
+{
+"caseIndex": 108,
+"name": "Rank 156",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 109,
+"name": "Rank 157",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 110,
+"name": "Rank 158",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 111,
+"name": "Rank 159",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 112,
+"name": "Rank 160",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 113,
+"name": "Rank 161",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 114,
+"name": "Rank 162",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 115,
+"name": "Rank 163",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 116,
+"name": "Rank 164",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 117,
+"name": "Rank 165",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 118,
+"name": "Rank 166",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 119,
+"name": "Rank 167",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 120,
+"name": "Rank 192",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 121,
+"name": "Rank 193",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 122,
+"name": "Rank 194",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 123,
+"name": "Rank 195",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 124,
+"name": "Rank 196",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 125,
+"name": "Rank 197",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 126,
+"name": "Rank 198",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 127,
+"name": "Rank 199",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 128,
+"name": "Rank 200",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 129,
+"name": "Rank 201",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 130,
+"name": "Rank 202",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 131,
+"name": "Rank 203",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 132,
+"name": "AF2L 40",
+"type": "Both Pieces Trapped",
+"setup": "F' U F2' U2' F' U' F U2' F'",
+"offset": 1
+},
+{
+"caseIndex": 133,
+"name": "AF2L 25",
+"type": "Both Pieces Trapped",
+"setup": "l F' l' U F U F'",
+"offset": 1
+},
+{
+"caseIndex": 134,
+"name": "AF2L 31",
+"type": "Both Pieces Trapped",
+"setup": "F' U' F U F' U F U' F U F'",
+"offset": 1
+},
+{
+"caseIndex": 135,
+"name": "AF2L 37",
+"type": "Both Pieces Trapped",
+"setup": "l F' l' F U F' U2' F U' F'",
+"offset": 1
+},
+{
+"caseIndex": 136,
+"name": "AF2L 28",
+"type": "Both Pieces Trapped",
+"setup": "F' U F2 U' F' D U' F' U F D'",
+"offset": 1
+},
+{
+"caseIndex": 137,
+"name": "AF2L 34",
+"type": "Both Pieces Trapped",
+"setup": "L' F' U F U F' U' F L",
+"offset": 1
+},
+{
+"caseIndex": 138,
+"name": "Rank 210",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 139,
+"name": "Rank 211",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 140,
+"name": "Rank 212",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 141,
+"name": "Rank 213",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 142,
+"name": "Rank 214",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 143,
+"name": "Rank 215",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 144,
+"name": "Rank 240",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 145,
+"name": "Rank 241",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 146,
+"name": "Rank 242",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 147,
+"name": "Rank 243",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 148,
+"name": "Rank 244",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 149,
+"name": "Rank 245",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 150,
+"name": "Rank 246",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 151,
+"name": "Rank 247",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 152,
+"name": "Rank 248",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 153,
+"name": "Rank 249",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 154,
+"name": "Rank 250",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 155,
+"name": "Rank 251",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 156,
+"name": "Rank 252",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 157,
+"name": "Rank 253",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 158,
+"name": "Rank 254",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 159,
+"name": "Rank 255",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 160,
+"name": "Rank 256",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 161,
+"name": "Rank 257",
+"type": "Neither In U",
+"setup": null,
+"offset": 0
+},
+{
+"caseIndex": 162,
+"name": "AF2L 26",
+"type": "Both Pieces Trapped",
+"setup": "L R U2' R' L'",
+"offset": 2
+},
+{
+"caseIndex": 163,
+"name": "AF2L 41",
+"type": "Both Pieces Trapped",
+"setup": "b' R b U L U2' L' U' L U2' L'",
+"offset": 2
+},
+{
+"caseIndex": 164,
+"name": "AF2L 38",
+"type": "Both Pieces Trapped",
+"setup": "R U' R' U' R U R' L U' L'",
+"offset": 2
+},
+{
+"caseIndex": 165,
+"name": "AF2L 32",
+"type": "Both Pieces Trapped",
+"setup": "b' R b U2' R U R' U' L U' L'",
+"offset": 2
+},
+{
+"caseIndex": 166,
+"name": "AF2L 35",
+"type": "Both Pieces Trapped",
+"setup": "R U' R' U R U2' R' L U2' L'",
+"offset": 2
+},
+{
+"caseIndex": 167,
+"name": "AF2L 29",
+"type": "Both Pieces Trapped",
+"setup": "b' R b U L U L' U L U L'",
+"offset": 2
+}
+]
