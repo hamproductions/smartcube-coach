@@ -114,7 +114,7 @@ describe('F2L on the cube', () => {
     const defaultF2l = defaultAlgorithms.filter((record) => record.set === 'F2L')
     const dummySeed = { ...defaultF2l[0], id: 'f2l-fr-dummy', name: 'Dummy FR seed' }
     await Promise.all([...defaultF2l, dummySeed].map((record) => repositories.algorithms.put(record)))
-    const times: Record<string, number> = { 'f2l-insert-right': 9_000, 'f2l-insert-left': 500, 'f2l-sledge': 2_000, 'f2l-fr-dummy': 1_000 }
+    const times: Record<string, number> = { ...Object.fromEntries(defaultF2l.map((record) => [record.id, 1_500])), 'f2l-insert-right': 9_000, 'f2l-insert-left': 500, 'f2l-sledge': 2_000, 'f2l-fr-dummy': 1_000 }
     await Promise.all(Object.entries(times).map(([caseId, totalMs], index) => repositories.attempts.put(buildAttempt(caseId, totalMs, Date.now() + index))))
 
     const user = userEvent.setup()

@@ -12,6 +12,7 @@ import { AppShell } from './components/shell/AppShell'
 import { TrainHub } from './components/train/TrainHub'
 import { TrainerPage } from './components/train/TrainerPage'
 import { trainerById } from './components/train/trainers'
+import { PlanPage } from './components/train/plan/PlanPage'
 import { navigate, useRoute } from './app/route'
 import { CubeConnectionIndicator, CubeConnectionProvider } from './device/CubeConnection'
 import './panda.css'
@@ -38,7 +39,7 @@ function Shell() {
       <ErrorBoundary surface={`${route.section}/${route.detail ?? ''}`} key={`${route.section}/${route.detail ?? ''}`}>
         {route.section === 'solve' && <SolveRoute onOpenStatistics={() => navigate({ section: 'stats' })} />}
         {route.section === 'stats' && <HistoryRoute />}
-        {route.section === 'train' && (trainer ? <TrainerPage trainer={trainer}><Trainer id={trainer.id} /></TrainerPage> : <TrainHub />)}
+        {route.section === 'train' && (trainer ? <TrainerPage trainer={trainer}><Trainer id={trainer.id} /></TrainerPage> : route.detail === 'plan' ? <PlanPage /> : <TrainHub />)}
         {route.section === 'study' && <StudyPage tab={route.detail} />}
         {route.section === 'settings' && <SettingsHub />}
       </ErrorBoundary>

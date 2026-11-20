@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { css } from 'styled-system/css'
+import { clearPlanHandoff, readPlanHandoff } from '../../coaching/handoff'
 import { Button } from '../ui/Button'
 import { Cube3D } from '../solve/Cube3D'
 import { defaultScheme, schemeFor, type ColorScheme } from '../ui/LastLayerDiagram'
@@ -42,7 +43,10 @@ const chip = css({
 
 export function CrossF2lPractice() {
   const cube = useCubeConnection()
-  const [goal, setGoal] = useState<PracticeGoal>({ pairs: 1, face: 'any' })
+  const [goal, setGoal] = useState<PracticeGoal>(() => ({ pairs: readPlanHandoff('cross-goal')?.pairs ?? 1, face: 'any' }))
+  useEffect(() => {
+    if (readPlanHandoff('cross-goal')) clearPlanHandoff()
+  }, [])
   const goalRef = useRef(goal)
   goalRef.current = goal
 

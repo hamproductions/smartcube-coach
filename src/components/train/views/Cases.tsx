@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { css, cx } from 'styled-system/css'
+import { clearPlanHandoff, readPlanHandoff } from '../../../coaching/handoff'
 import type { AlgorithmRecord, TrainerAttempt } from '../../../domain/models'
 import type { LearningStateFilter } from '../../../domain/training'
 import { cubedexCaseCount } from '../../../domain/cubedex/defaultAlgs'
@@ -41,6 +42,15 @@ export function CasesTrainer() {
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [custom, setCustom] = useState<string[]>()
   const [connectError, setConnectError] = useState('')
+
+  useEffect(() => {
+    if (!library.loaded || !savedReady) return
+    const handoff = readPlanHandoff('cases')
+    if (!handoff?.caseIds?.length) return
+    clearPlanHandoff()
+    setCustom(handoff.caseIds)
+    setScreen('session')
+  }, [library.loaded, savedReady])
 
   const { set, subset, learning } = saved
   const mode: Mode = saved.mode === 'Recognize' && recordSetFor(set) === 'F2L' ? 'Drill' : saved.mode

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
-import { css } from 'styled-system/css'
+import { css, cx } from 'styled-system/css'
 import { routeHref } from '../../app/route'
+import { PLAN } from '../../coaching/plan'
 import { TRAINERS, TRAINER_STAGES } from './trainers'
-import { PageHeader, pageFrame } from '../ui/Page'
+import { PageHeader, card, pageFrame, primaryButton } from '../ui/Page'
 import { repositories } from '../../storage/database'
 import { buildInsights, type Insight } from '../../domain/coachInsights'
 import { InsightCard } from '../history/InsightCard'
@@ -21,6 +22,13 @@ export function TrainHub() {
   return (
     <div className={pageFrame}>
       <PageHeader title="Train" description="Pick the part of the solve you want faster. Each trainer does one thing." />
+      <section aria-labelledby="plan-heading" className={cx(card, css({ p: { base: '4', md: '5' }, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4' }))}>
+        <div className={css({ flex: '1', minW: '240px', display: 'flex', flexDirection: 'column', gap: '1' })}>
+          <h2 id="plan-heading" className={css({ fontSize: 'md', fontWeight: 'semibold' })}>Your plan</h2>
+          <p className={css({ fontSize: 'sm', color: 'inkVariant', lineHeight: '1.5' })}>{PLAN.map((group) => group.title).join(', ')}. Every drill opens its trainer set to your weak cases.</p>
+        </div>
+        <a href={routeHref({ section: 'train', detail: 'plan' })} className={primaryButton}>Open your plan</a>
+      </section>
       {focus && (
         <section aria-labelledby="focus-heading" className={css({ display: 'flex', flexDirection: 'column', gap: '3' })}>
           <h2 id="focus-heading" className={css({ fontSize: 'sm', fontWeight: 'semibold', color: 'green' })}>From your solves: start here</h2>

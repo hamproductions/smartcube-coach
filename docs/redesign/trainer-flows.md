@@ -41,6 +41,17 @@ Train opens on a hub grouped by solve stage, because a cuber decides what to wor
 | Turning | Solve checklist | `checklist` |
 | Blindfold | Memo | `blindfold` |
 
+## Plan (`#/train/plan`)
+
+The plan is not a trainer. It is the owner's drill list (`src/coaching/plan.ts`, built from the solve analysis in `docs/coaching/`), grouped by weakness. Each drill says what is wrong, what to do and when a rep counts, and has one button that opens its trainer already configured:
+
+- Algorithm cases: set and mode are written to the trainer's remembered settings, the case list is handed over for one visit (`src/coaching/handoff.ts`) and the session starts at once.
+- Time attack: the queue is replaced with the drill's cases; saved targets are kept.
+- F2L on the cube: the case selection and "Slow first" are written to the trainer's remembered choices.
+- Cross to pairs: the goal is handed over for one visit.
+
+Progress is never typed in. The page counts today's attempts for the drill's trainer family and cases from the attempts store (`recordedAt`, stamped when an attempt is saved) and marks each case solved clean today.
+
 ## Per trainer
 
 ### Cross to pairs (`cross-goal`)

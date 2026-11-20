@@ -5,6 +5,7 @@ import type { AlgorithmRecord, SolveRecord, TrainerAttempt } from './models'
 import { createId } from './ids'
 import { averageOf } from './statistics'
 import { reorientToSolvedCenters } from './lastLayer'
+import { stuckEdgeRecords } from './f2lStuckEdge'
 
 export type LearningState = 'unlearned' | 'learning' | 'finished'
 
@@ -16,6 +17,7 @@ export const defaultAlgorithms: AlgorithmRecord[] = [
   { id: 'f2l-insert-right', set: 'F2L', name: 'Basic right insert', algorithm: "U R U' R'", setup: "R U R'", targetMs: 900, mastery: 0, dueAt: now, orientations: ['FR'] },
   { id: 'f2l-insert-left', set: 'F2L', name: 'Basic left insert', algorithm: "U' L' U L", setup: "L' U' L", targetMs: 900, mastery: 0, dueAt: now, orientations: ['FL'] },
   { id: 'f2l-sledge', set: 'F2L', name: 'Sledge insert', algorithm: "R' F R F'", setup: "F R' F' R", targetMs: 850, mastery: 0, dueAt: now, orientations: ['FR'] },
+  ...stuckEdgeRecords(now),
   ...catalogueCases.map((entry) => toAlgorithmRecord(entry, now))
 ]
 

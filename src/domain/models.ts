@@ -129,6 +129,7 @@ export type TrainerAttempt = {
   input: 'smart-cube' | 'keyboard' | 'pointer' | 'manual-timer'
   startedAt: number
   endedAt: number
+  recordedAt?: number
   phaseEvents: Array<{ phase: string; at: number; source: 'system' | 'user' | 'cube' | 'timeout' | 'disconnect'; rawEventId?: string }>
   recognitionMs?: number
   inspectionMs?: number

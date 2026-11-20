@@ -150,12 +150,16 @@ const stages = {
   }
 }
 
+function stampedAttempts<T extends { put(attempt: TrainerAttempt): Promise<unknown> }>(attempts: T): T {
+  return { ...attempts, put: (attempt: TrainerAttempt) => attempts.put({ ...attempt, recordedAt: attempt.recordedAt ?? Date.now() }) }
+}
+
 export const repositories = {
   rawEvents,
   solves: store<SolveRecord>('solves'),
   stages,
   findings: store<FindingRecord>('findings'),
-  attempts: store<TrainerAttempt>('attempts'),
+  attempts: stampedAttempts(store<TrainerAttempt>('attempts')),
   algorithms: store<AlgorithmRecord>('algorithms'),
   studies: store<StudyRecord>('studies'),
   revisions: store<ReconstructionRevision>('revisions'),

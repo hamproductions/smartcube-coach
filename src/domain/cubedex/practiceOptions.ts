@@ -165,7 +165,7 @@ export function cubedexShuffleCases<T>(cases: T[]): T[] {
   return next
 }
 
-/** Ported from useTrainingState.ts `insertSlowCase`: no-best-time cases go last, else slowest-first. */
+/** Ported from useTrainingState.ts `insertSlowCase`: no-best-time cases go ahead of every timed case, the rest slowest-first. */
 export function cubedexInsertSlowCase<T extends { id: string; bestMs?: number }>(queue: T[], nextCase: T): void {
   if (nextCase.bestMs == null) {
     const index = queue.reduceRight<number>((lastIndex, current, currentIndex) => {
